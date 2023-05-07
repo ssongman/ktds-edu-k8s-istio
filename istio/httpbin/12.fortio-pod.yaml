@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fortio
+  labels:
+    app: fortio
+spec:
+  containers:
+  - image: docker.io/fortio/fortio:latest_release
+    imagePullPolicy: IfNotPresent
+    name: fortio
+    ports:
+    - containerPort: 8080
+      name: http-fortio
+    - containerPort: 8079
+      name: grpc-ping

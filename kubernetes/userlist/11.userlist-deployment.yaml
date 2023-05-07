@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userlist
+  labels:
+    app: userlist
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userlist
+  template:
+    metadata:
+      labels:
+        app: userlist
+    spec:
+      containers:
+      - name: userlist
+        image: ssongman/userlist:v1
+        ports:
+        - containerPort: 8181
