@@ -15,7 +15,7 @@ KT cloud 서버에 ssh 접근을 위한 터미널이 필요하다.
 다양한 터미널(putty 등)이 있지만 본 실습에서는 mobax term 이라는 free 버젼 솔루션을 사용한다.
 
 - download 위치
-  - 링크: https://download.mobatek.net/2202022022680737/MobaXterm_Installer_v22.0.zip
+  - 링크: https://download.mobatek.net/2312023031823706/MobaXterm_Installer_v23.1.zip
 
 - mobaxterm 실행
 
@@ -31,7 +31,7 @@ k3s, istio, 설치는 Cluster 당 한번만 가능하다. 그러므로 이러한
 
 
 
-### (1) 확인 하는 방법
+### (1) 확인 및 설치하는 방법
 
 command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
@@ -43,13 +43,11 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 ![image-20220601193023175](beforebegin.assets/image-20220601193023175.png)
 
-
-
 - 만약 version 이 1 이라면 아래와 같이 update 한다.
   - 참고링크
     - https://docs.microsoft.com/en-us/windows/wsl/install
     - https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
-  - PowerShell 실행
+  - PowerShell 에서 실행
 
 ```sh
 > wsl --install
@@ -66,17 +64,24 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 
 
-- linux 가 설정안되어 있다면
 
-```sh
-1. Microsoft Store를 열고 즐겨 찾는 Linux 배포를 선택
-   - Ubuntu 20.04.1 LTS
 
-2. 배포 페이지에서 "다운로드"를 선택
+- 설치되어 있지 않다면 아래와 같이 설치한다.
 
-3. 사용자 계정 및 암호 생성
-
-```
+  - ```sh
+    > wsl --install -d Ubuntu
+         <-- 약 10분정도 소요됨.
+    
+    # 재기동 시도
+    # update
+    
+    
+    # 사용자 계정 및 암호 생성
+       user: song
+       pass: song
+    ```
+    
+    
 
 
 
@@ -168,35 +173,34 @@ docker 가 실행가능 곳에서 아래와 같이 version 을 확인하자.
 
 ```sh
 $ docker version
-Client:
- Version:           20.10.7
- API version:       1.41
- Go version:        go1.13.8
- Git commit:        20.10.7-0ubuntu5~20.04.2
- Built:             Mon Nov  1 00:34:17 2021
+Client: Docker Engine - Community
+ Cloud integration: v1.0.31
+ Version:           23.0.5
+ API version:       1.42
+ Go version:        go1.19.8
+ Git commit:        bc4487a
+ Built:             Wed Apr 26 16:17:45 2023
  OS/Arch:           linux/amd64
  Context:           default
- Experimental:      true
 
 Server: Docker Desktop
  Engine:
-  Version:          20.10.14
-  API version:      1.41 (minimum version 1.12)
-  Go version:       go1.16.15
-  Git commit:       87a90dc
-  Built:            Thu Mar 24 01:46:14 2022
+  Version:          23.0.5
+  API version:      1.42 (minimum version 1.12)
+  Go version:       go1.19.8
+  Git commit:       94d3ad6
+  Built:            Wed Apr 26 16:17:45 2023
   OS/Arch:          linux/amd64
   Experimental:     false
  containerd:
-  Version:          1.5.11
-  GitCommit:        3df54a852345ae127d1fa3092b95168e4a88e2f8
+  Version:          1.6.20
+  GitCommit:        2806fc1057397dbaeefbea0e4e17bddfbd388f38
  runc:
-  Version:          1.0.3
-  GitCommit:        v1.0.3-0-gf46b6ba
+  Version:          1.1.5
+  GitCommit:        v1.1.5-0-gf19387a
  docker-init:
   Version:          0.19.0
-  GitCommit:        de40ad0
-  
+  GitCommit:        de40ad0  
 ```
 
 Server version 을 확인할 수 있다면 정상 설치되었다고 볼 수 있다.
@@ -215,17 +219,9 @@ Server version 을 확인할 수 있다면 정상 설치되었다고 볼 수 있
 
 
 
-Resource -> WSL Integration 페이지로 이동해서 설정을 확인한다. 자신이 사용중인 WSL2 배포판이 맞는지 확인한다.
-
-![img](beforebegin.assets/2e6f6b874322977fd2a606fac1628628a42e0e6161aaecae4e0ca5891dda008d.m.png)
-
-
-
-
-
 도커 데스크탑을 설치하고 정상적으로 설정되어있다면, 바로 WSL2 우분투 터미널에서 도커 명령어를 사용할 수 있다.
 
-![img](beforebegin.assets/d0f6a634419019be2cf954e7258932a9ea28afc6a058059f54e659104003fddf.m.png)
+![image-20230507232851770](C:\Users\kt ds\AppData\Roaming\Typora\typora-user-images\image-20230507232851770.png)
 
 
 
@@ -272,6 +268,10 @@ $ dir c:\githubrepo
 2023-05-07  오후 09:52    <DIR>          ktds-edu-k8s-istio
 
 ```
+
+
+
+### (3) 교육자료 실행
 
 typora 를 실행하여 c:\githubrepo\ktds-edu-k8s-istio/README.md  를 load 한다.
 
