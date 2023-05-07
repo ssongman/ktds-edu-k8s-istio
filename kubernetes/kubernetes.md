@@ -625,8 +625,6 @@ $ cat > ~/env
 alias k='kubectl'
 alias kk='kubectl -n kube-system'
 alias ks='k -n song'
-alias ka='k -n argocd'
-alias kar='k -n argo-rollouts'
 alias ki='k -n istio-system'
 alias kb='k -n bookinfo'
 alias kii='k -n istio-ingress'
@@ -706,7 +704,7 @@ $ ku delete deploy userlist
 - userlist deployment 생성 -  yaml 이용
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./kubernetes/userlist/11.userlist-deployment.yaml
 apiVersion: apps/v1
@@ -865,7 +863,7 @@ cluster 내에 내부 network 개념을 이해하는 중요한 예제이니 꼭 
 - service 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 # service manifest file 확인
 $ cat ./kubernetes/userlist/12.userlist-svc.yaml
@@ -1092,7 +1090,7 @@ traefik(https://traefik.io/) 이라는 요즘 뜨고 있는 proxy tool 을 사�
 - ingress yaml
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
@@ -1171,7 +1169,7 @@ $ curl http://localhost:32423/users/1 -H "Host:userlist.songlab.co.kr"
 ### (8) clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete pod curltest
 $ ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1258,7 +1256,7 @@ No resources found in user01 namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 
 # ku 로 alias 선언
@@ -1408,7 +1406,7 @@ traefik          LoadBalancer   10.43.45.189   172.27.0.168,172.27.0.29,172.27.0
 아래 16.userlist-ingress-ktcloud.yaml 파일을 오픈하여 user01 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ls -ltr ./kubernetes/userlist/
 -rw-rw-r-- 1 user01 user01 191 Jun  1 12:28 12.userlist-svc.yaml
@@ -1462,7 +1460,7 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 - ingress 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku create -f ./kubernetes/userlist/16.userlist-ingress-ktcloud.yaml
 
@@ -1512,7 +1510,7 @@ $ curl userlist.user01.ktcloud.211.254.212.105.nip.io/users/1
 ### (4) clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete pod curltest
 $ ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml

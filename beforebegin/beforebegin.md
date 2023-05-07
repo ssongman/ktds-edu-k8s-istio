@@ -106,9 +106,9 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 
 
-### (3) 교육자료 download
+### (3) 실습자료 downoad
 
-wsl 접속 하는데 문제가 없다면 테스트를 위해서 github 에서 교육 자료를 받아 놓자. 
+wsl 접속 하는데 문제가 없다면 테스트를 위해서 github 에서 실습 자료를 받아 놓자. 
 
 ```sh
 # root 접속
@@ -117,13 +117,16 @@ $ mkdir ~/githubrepo
 
 $ cd ~/githubrepo
 
-$ git clone https://github.com/ssongman/ktds-edu.git
-Cloning into 'ktds-edu'...
-remote: Enumerating objects: 69, done.
-remote: Counting objects: 100% (69/69), done.
-remote: Compressing objects: 100% (55/55), done.
-remote: Total 69 (delta 15), reused 62 (delta 11), pack-reused 0
-Unpacking objects: 100% (69/69), 1.63 MiB | 4.09 MiB/s, done.
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
+Cloning into 'ktds-edu-k8s-istio'...
+remote: Enumerating objects: 92, done.
+remote: Counting objects: 100% (92/92), done.
+remote: Compressing objects: 100% (79/79), done.
+remote: Total 92 (delta 12), reused 88 (delta 12), pack-reused 0
+Receiving objects: 100% (92/92), 2.94 MiB | 3.61 MiB/s, done.
+Resolving deltas: 100% (12/12), done.
+
+
 
 $ ll ~/githubrepo
 total 12
@@ -228,6 +231,52 @@ Resource -> WSL Integration 페이지로 이동해서 설정을 확인한다. �
 
 
 
+## 4) Typora (생략가능)
+
+교육자료(MarkDown 문서)를 typora 로 확인하기를 희망하는 경우 Typora 를 설치한다. 
+
+github site 를 이용하기를 희망한다면 굳이 설치하지 않아도 된다.
+
+
+
+### (1) Typora 설치
+
+- download 위치
+  - 링크: https://typora.io/
+
+- Typora 실행
+
+
+
+### (2) 교육자료 download
+
+github 에서 교육 자료를 download 하자 
+
+```sh
+## githubrepo directory 생성
+$ mkdir c:\githubrepo
+
+$ cd c:\githubrepo
+
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
+Cloning into 'ktds-edu-k8s-istio'...
+remote: Enumerating objects: 92, done.
+remote: Counting objects: 100% (92/92), done.
+remote: Compressing objects: 100% (79/79), done.
+remote: Total 92 (delta 12), reused 88 (delta 12), pack-reused 0
+Receiving objects: 100% (92/92), 2.94 MiB | 3.61 MiB/s, done.
+Resolving deltas: 100% (12/12), done.
+
+$ dir c:\githubrepo
+2023-05-07  오후 09:52    <DIR>          .
+2023-05-07  오후 09:52    <DIR>          ktds-edu-k8s-istio
+
+```
+
+typora 를 실행하여 c:\githubrepo\ktds-edu-k8s-istio/README.md  를 load 한다.
+
+
+
 
 
 # 2. 실습 환경 준비(KT Cloud)
@@ -295,9 +344,9 @@ KT Cloud에 VM 서버 하나를 생성하게 되면 다음과 같은 구조가 �
 
 
 
-## 3) 교육자료 download
+## 3) 실습자료 download
 
-본인 계정으로 접속 하였다면 테스트를 위해서 git clone 으로 교육 자료를 받아 놓자.
+본인 계정으로 접속 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
 
 ```sh
 # 본인 계정
@@ -306,8 +355,8 @@ $ mkdir ~/githubrepo
 
 $ cd ~/githubrepo
 
-$ git clone https://github.com/ssongman/ktds-edu.git
-Cloning into 'ktds-edu'...
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
+Cloning into 'ktds-edu-k8s-istio'...
 remote: Enumerating objects: 69, done.
 remote: Counting objects: 100% (69/69), done.
 remote: Compressing objects: 100% (55/55), done.
