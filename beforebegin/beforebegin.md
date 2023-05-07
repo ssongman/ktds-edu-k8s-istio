@@ -221,7 +221,7 @@ Server version 을 확인할 수 있다면 정상 설치되었다고 볼 수 있
 
 도커 데스크탑을 설치하고 정상적으로 설정되어있다면, 바로 WSL2 우분투 터미널에서 도커 명령어를 사용할 수 있다.
 
-![image-20230507232851770](C:\Users\kt ds\AppData\Roaming\Typora\typora-user-images\image-20230507232851770.png)
+![image-20230507232851770](beforebegin.assets\image-20230507232851770.png)
 
 
 
