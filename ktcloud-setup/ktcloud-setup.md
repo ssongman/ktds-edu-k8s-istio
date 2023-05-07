@@ -10,14 +10,33 @@
 
 ktcloud 에 k3s cluster 용도의 서버 생성
 
+
+
+* 메뉴 : Server > Server
+
+* 위치 : KOR-Seoul M
+
+* OS : Ubuntu 18.04 64bit
+* 요금제 : 시간요금제
+* 고급 설정
+  * 만들서버수
+    * 서버이름 : master01 ~ 03
+      * 시간당 150원
+    * 서버이름: worker01 ~ 03
+      * 시간당 150원
+
+* 생성될 서버들
+
 ```
 master01  ubuntu 2core, 4GB
 master02  ubuntu 2core, 4GB
 master03  ubuntu 2core, 4GB
-worker01  ubuntu 2core, 4GB
-worker02  ubuntu 2core, 4GB
-worker03  ubuntu 2core, 4GB
+worker01  ubuntu 2core, 8GB
+worker02  ubuntu 2core, 8GB
+worker03  ubuntu 2core, 8GB
 ```
+
+
 
 
 
@@ -25,15 +44,20 @@ worker03  ubuntu 2core, 4GB
 
 ### (1) ssh 접근용
 
+서버들에 아래와 같이 port-forwarding한다.
+
+```
+211.254.212.226 : 10021  = master01 : 22
+211.254.212.226 : 10022  = master02 : 22
+211.254.212.226 : 10023  = master03 : 22
+
+211.254.212.226 : 10031  = worker01 : 22
+211.254.212.226 : 10032  = master02 : 22
+211.254.212.226 : 10033  = master03 : 22 
+
+```
+
 master02 서버에 user 들 접근 가능하도록 port-forwarding한다.
-
-```
-211.254.212.105 : 10021  = master01 : 22
-211.254.212.105 : 10022  = master02 : 22
-211.254.212.105 : 10023  = master03 : 22
-```
-
-
 
 
 
@@ -43,7 +67,19 @@ master02 서버에 user 들 접근 가능하도록 port-forwarding한다.
 
 ### (1) node root pass 셋팅
 
-passwd: \*****
+
+
+```
+
+
+  worker03 - 7ez7DORU4ZC3
+
+
+```
+
+
+
+passwd: r****s
 
 
 
@@ -174,8 +210,6 @@ $ cat > ~/env
 alias k='kubectl'
 alias kk='kubectl -n kube-system'
 alias ks='k -n song'
-alias ka='k -n argocd'
-alias kar='k -n argo-rollouts'
 alias ki='k -n istio-system'
 alias kb='k -n bookinfo'
 alias kii='k -n istio-ingress'
@@ -833,256 +867,6 @@ $ ki delete -f ./istio/monitoring/11.grafana-ingress-ktcloud.yaml
 $ ki delete -f ./istio/monitoring/12.kiali-ingress-ktcloud.yaml
 $ ki delete -f ./istio/monitoring/13.jaeger-ingress-ktcloud.yaml
 ```
-
-
-
-
-
-# 3. ArgoCD 셋팅
-
-
-
-## 1) ArgoCD 설치
-
-
-
-### (1) Create namespace
-
-argocd 설치를 위한 namespace를 생성한다.
-
-```sh
-$ kubectl create namespace argocd
-
-$ kubectl get namespace
-```
-
-
-
-
-
-### (2) ArgoCD install
-
-```sh
-$ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-$ alias ka='kubectl -n argocd'
-
-$ ka get pod -w
-
-$ ka get pod
-NAME                                                READY   STATUS    RESTARTS   AGE
-argocd-redis-79bdbdf78f-sg8vr                       1/1     Running   0          5m47s
-argocd-applicationset-controller-79f97597cb-n876k   1/1     Running   0          5m47s
-argocd-notifications-controller-855df7bb69-rgthm    1/1     Running   0          5m47s
-argocd-application-controller-0                     1/1     Running   0          5m47s
-argocd-repo-server-6864955749-jrvkv                 1/1     Running   0          5m47s
-argocd-server-795d56944c-ld9jd                      1/1     Running   0          5m47s
-argocd-dex-server-fd9588cbc-4wj2t                   1/1     Running   0          5m47s
-
-
-$ ka get svc
-NAME                                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-argocd-applicationset-controller          ClusterIP   10.43.214.14    <none>        7000/TCP                     8m5s
-argocd-dex-server                         ClusterIP   10.43.237.245   <none>        5556/TCP,5557/TCP,5558/TCP   8m5s
-argocd-metrics                            ClusterIP   10.43.8.174     <none>        8082/TCP                     8m5s
-argocd-notifications-controller-metrics   ClusterIP   10.43.218.128   <none>        9001/TCP                     8m5s
-argocd-redis                              ClusterIP   10.43.218.182   <none>        6379/TCP                     8m5s
-argocd-repo-server                        ClusterIP   10.43.117.73    <none>        8081/TCP,8084/TCP            8m5s
-argocd-server                             ClusterIP   10.43.205.134   <none>        80/TCP,443/TCP               8m5s
-argocd-server-metrics                     ClusterIP   10.43.125.160   <none>        8083/TCP                     8m5s
-
-```
-
-
-
-- tls disable 처리
-  - deployment 에서 command parameter 로 --insecure 처리
-  - insecure 처리하지 않으면 ingress 로 접근이 안된다.
-
-```sh
-$ ka get deploy argocd-server -o yaml
-
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: argocd-server
-  namespace: argocd
-...
-spec:
-  template:
-    metadata:
-    spec:
-      containers:
-      - command:
-        - argocd-server
-        - --insecure               <--- 삽입
-        env:
-...
-```
-
-
-
-### (3) Ingress
-
-- ingress 방식
-
-```sh
-$ cd ~/githubrepo/ktds-edu
-
-$ cat ./argocd/argocd-install/13.argocd-ingress-ktcloud.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: argocd-ingress
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-spec:
-  rules:
-  - host: "argocd.ktcloud.211.254.212.105.nip.io"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              name: http
-
-$ kubectl -n argocd -f ./argocd/argocd-install/13.argocd-ingress-ktcloud.yaml
-
-
-## 확인
-$ curl http://argocd.ktcloud.211.254.212.105.nip.io/
-```
-
-
-
-
-
-### (4) ArgoCD-ui 접근
-
-http://argocd.ktcloud.211.254.212.105.nip.io/
-
-![img](ktcloud-setup.assets/argocd_login.png)
-
-
-
-### (5) Password 확인
-
-확인Argo CD는 최초 admin account의 초기 password를 kubernetes 의 secret 으로 저장해 놓는다. 아래와 같이 password를 얻는다.
-
-```sh
-# 1) jsonpath 방식 
-$ ka get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
-
-C7TBBBRxh4LcG28m
-
-
-# 2) yaml 방식
-$ ka -n argocd get secret argocd-initial-admin-secret -o yaml
-apiVersion: v1
-data:
-  password: QzdUQkJCUnhoNExjRzI4bQ==
-kind: Secret
-metadata:
-  creationTimestamp: "2022-06-09T01:54:43Z"
-  name: argocd-initial-admin-secret
-  namespace: argocd
-  resourceVersion: "329780"
-  uid: 1166305f-eb12-4312-83ec-5812547af738
-type: Opaque
-
-
-$ echo QzdUQkJCUnhoNExjRzI4bQ== | base64 --decode
-C7TBBBRxh4LcG28m
-```
-
-
-
-### (6) login
-
-admin / C7TBBBRxh4LcG28m
-
-
-
-### (7) clean up
-
-```sh
-$ kubectl -n argocd delete -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-$ kubectl -n argocd delete ingress argocd-ingress
-
-```
-
-
-
-
-
-## 2) CLI 설치
-
-### (1) Download CLI
-
-Argo CD CLI 설치 한다.
-최종버젼 release : https://github.com/argoproj/argo-cd/releases/latest
-
-```sh
-# root 권한으로
-$ mkdir ~/argocd
-
-$ cd ~/argocd
-
-$ wget https://github.com/argoproj/argo-cd/releases/download/v2.3.4/argocd-linux-amd64
-
-$ chmod +x argocd-linux-amd64
-
-$ mv ./argocd-linux-amd64 /usr/local/bin/argocd
-
-```
-
-
-
-### (2) ArgoCD Login
-
-```sh
-$ argocd login argocd.ktcloud.211.254.212.105.nip.io
-Username: admin
-Password:
-'admin:login' logged in successfully
-Context 'argocd.ktcloud.211.254.212.105.nip.io' updated
-
-
-$ argocd cluster list
-SERVER                          NAME        VERSION  STATUS      MESSAGE  PROJECT
-https://kubernetes.default.svc  in-cluster  1.23     Successful
-
-```
-
-
-
-### (3) Password 변경
-
-```sh
-# password 변경
-# 양식
-argocd account update-password --account <new-username> --new-password <new-password>
-
-
-$ argocd account update-password --account admin  --new-password argo1234!
-*** Enter password of currently logged in user (admin):
-Password updated
-Context 'argocd.ktcloud.211.254.212.105.nip.io' updated
-
-
-```
-
-
-
-
-
-
-
-
 
 
 
