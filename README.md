@@ -146,9 +146,3 @@
 - Istio 설치
 - Monitoring 설치
   - Prometheus / Grafana / Kiali / Jeager 설치
-
-## 3) ArgoCD 셋팅
-
-- ArgoCD 설치
-- ArgoCD CLI 설치
-
