@@ -874,6 +874,141 @@ $ ki delete -f ./istio/monitoring/13.jaeger-ingress-ktcloud.yaml
 
 
 
+# 3. GCP GKE 셋팅
+
+
+
+## 1) 메뉴
+
+* 클러스터 생성
+
+
+
+ktds-cluster
+
+us-central1-c
+
+node pool : 3
+
+containerd 
+
+
+
+5분정도 소요
+
+
+
+## 2) 연결
+
+
+
+cloud shell
+
+
+
+gcloud container명령을 이용한 연결
+
+
+
+```sh
+gcloud container clusters get-credentials ktds-cluster --zone us-central1-c --project ktds-architecture
+
+
+
+
+```
+
+
+
+
+
+
+
+## 2) ssh keygen
+
+
+
+cloud shell
+
+
+
+gcloud container명령을 이용한 연결
+
+
+
+```sh
+$ ssh-keygen -t rsa -b 4096 -C ktdseduuser
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): /root/song/gcp/ktds-k3s/ktdseduuser
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /root/song/gcp/ktds-k3s/ktdseduuser
+Your public key has been saved in /root/song/gcp/ktds-k3s/ktdseduuser.pub
+The key fingerprint is:
+SHA256:RUWm8TG2Wb5sAnv8XzSa3Ig2GJ/2jXO7BygG2tPwYk0 ktdseduuser
+The key's randomart image is:
++---[RSA 4096]----+
+|          ooB .  |
+|         . * B   |
+|          + + .  |
+|        o.E+ . . |
+|       oSO. +.+..|
+|      . = X.=+*..|
+|       . = O =.o.|
+|          o o.ooo|
+|             oo+=|
++----[SHA256]-----+
+
+
+## 비밀번호 : [emtpy]
+
+
+$ ls -ltr
+-rw-r--r-- 1 root root  737 May 13 15:01 ktdseduuser.pub
+-rw------- 1 root root 3369 May 13 15:01 ktdseduuser
+
+
+
+
+```
+
+
+
+
+
+* 방화벽 정책만들기
+
+
+
+allow-ssh-from-my-home-ip
+
+
+
+
+
+
+
+* 연결 테스트
+
+```sh
+
+$ cd /root/song/gcp/ktds-k3s
+
+$ ssh -i ktdsk3swideuser ktdsk3swideuser@35.226.223.161
+
+
+
+```
+
+
+
+
+
+
+
+
+
 
 
 
