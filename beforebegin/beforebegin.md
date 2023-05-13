@@ -290,9 +290,9 @@ typora 를 실행하여 c:\githubrepo\ktds-edu-k8s-istio/README.md  를 load 한
 
 
 
-# 2. 실습 환경 준비(KT Cloud)
+# 2. 실습 환경 준비(Cloud)
 
-## 1) KT Cloud 서버
+## 1) GCP Cloud 서버
 
 WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하지만 Istio 와 Istio 모니터링 실습을 위해서는 좀더 높은 Cluster 사양이 필요하다.
 
@@ -302,9 +302,9 @@ WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하
 
 
 
-### (1) KT Cloud 이해
+### (1) GCP Cloud 이해
 
-KT Cloud에 VM 서버 하나를 생성하게 되면 다음과 같은 구조가 된다.
+GCP Cloud에 VM 서버 하나를 생성하게 되면 다음과 같은 구조가 된다.
 
 
 
