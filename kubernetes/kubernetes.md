@@ -1181,11 +1181,11 @@ $ ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
 
 
-# 4. K3s 실습(KT Cloud)
+# 4. K3s 실습(Cloud)
 
 
 
-## 1) KT Cloud 접속
+## 1) Cloud 접속
 
 익숙한 ssh terminal(mobaxterm 등) 을 이용해서 KT Cloud Master node에 접근한다.
 

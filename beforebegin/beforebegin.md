@@ -238,11 +238,13 @@ Server version 을 확인할 수 있다면 정상 설치 된 것이다.
 
 
 
-## 4) Typora (생략가능)
+## 4) Typora
 
 교육자료(MarkDown 문서)를 typora 로 확인하기를 희망하는 경우 Typora 를 설치한다. 
 
 github site 를 이용하기를 희망한다면 굳이 설치하지 않아도 된다.
+
+하지만  gcp vm 접속을 위한 key 가 필요하므로 아래 git clone 은 수행하도록 하자.
 
 
 
@@ -292,7 +294,7 @@ typora 를 실행하여 c:\githubrepo\ktds-edu-k8s-istio/README.md  를 load 한
 
 # 2. 실습 환경 준비(Cloud)
 
-## 1) GCP Cloud 서버
+## 1) Cloud 개요
 
 WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하지만 Istio 와 Istio 모니터링 실습을 위해서는 좀더 높은 Cluster 사양이 필요하다.
 
@@ -302,69 +304,80 @@ WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하
 
 
 
-### (1) GCP Cloud 이해
+## 2) 수강생별 Namespace 매핑
 
-GCP Cloud에 VM 서버 하나를 생성하게 되면 다음과 같은 구조가 된다.
+| Namespace |  이름  | GCP 서버 | GCP 서버 주소 | 비고 |
+| :-------: | :----: | :------: | :-----------: | :--: |
+|  user01   | 송양종 | master01 | 35.224.158.79 |      |
+|  user02   |        | master01 | 35.224.158.79 |      |
+|  user03   |        | master01 | 35.224.158.79 |      |
+|  user04   |        | master01 | 35.224.158.79 |      |
+|  user05   | 김상훈 | master01 | 35.224.158.79 |      |
+|  user06   | 송하영 | master01 | 35.224.158.79 |      |
+|  user07   |        | master01 | 35.224.158.79 |      |
+|  user08   |        | master01 | 35.224.158.79 |      |
+|  user09   |        | master01 | 35.224.158.79 |      |
+|  user10   |        | master01 | 35.224.158.79 |      |
+|  user11   |        | master02 | 35.202.110.75 |      |
+|  user12   |        | master02 | 35.202.110.75 |      |
+|  user13   |        | master02 | 35.202.110.75 |      |
+|  user14   |        | master02 | 35.202.110.75 |      |
+|  user15   |        | master02 | 35.202.110.75 |      |
+|  user16   |        | master02 | 35.202.110.75 |      |
+|  user17   |        | master02 | 35.202.110.75 |      |
+|  user18   |        | master02 | 35.202.110.75 |      |
+|  user19   |        | master02 | 35.202.110.75 |      |
+|  user20   |        | master02 | 35.202.110.75 |      |
+|  user21   |        | master03 | 34.136.12.122 |      |
+|  user22   |        | master03 | 34.136.12.122 |      |
+|  user23   |        | master03 | 34.136.12.122 |      |
+|  user24   |        | master03 | 34.136.12.122 |      |
+|  user25   |        | master03 | 34.136.12.122 |      |
+|  user26   |        | master03 | 34.136.12.122 |      |
+|  user27   |        | master03 | 34.136.12.122 |      |
+|  user28   |        | master03 | 34.136.12.122 |      |
+|  user29   |        | master03 | 34.136.12.122 |      |
+|  user30   |        | master03 | 34.136.12.122 |      |
 
 
 
-![img](beforebegin.assets/010103012.png)
-
-- 기본환경 설명
-  - Public IP는 외부에서 접근을 할 수 있는 IP
-
-  - Private IP는 외부에서 접근은 못하나, 같은 서브넷 내에서 사용할 수 있는 IP
-  - 외부에서 VM에 접근을 하기 위해서는 가상라우터에서 포트포워딩 작업이 필요하다.
-- 가상라우터 (Virtual Router)
-
-  - 사용자만 접근할 수 있는 서브넷과 외부의 관문(게이트웨이) 및 라우터 역할을 하는 가상 서버이다.
-
-  - 한 계정의 한 zone에서 최초 VM을 생성하게 되면 자동으로 생성된다.
-
-  - 기본으로 제공되어 과금이 되지 않으며, 사용자가 콘트롤 할 수 없다.
-
-  - 하나의 공인IP가 기본으로 부여되며, 추가 공인IP를 할당할 수 있다.
-- 포트포워딩
-
-  - 가상라우터에서 외부에서 접근가능한 공인IP를 내부의 사설IP로 연결(포워딩) 해주는 작업이다.
-
-  - Public IP:port  <-> Private IP:port 와 1:1 매핑이 기본이며, StaticNAT를 이용해 공인IP <-> 사설IP IP간의 매핑도 가능하다.
 
 
-
-### (2) ssh terminal (Mobaxterm) 실행
+## 3) ssh (Mobaxterm) 실행
 
 - 메뉴 : session > SSH 
 
-- Romote host : 211.254.212.105
-- User : user01(개인별 계정)
-- Port : 10022(master02),   10023(master03)
-- password : 별도 통지
+- Romote host
+  - 개인별로 접근 주소가 틀리다.  아래 수강생별 접속 주소를 확인하자.
+  - master01 : 35.224.158.79
+  - master02 : 35.202.110.75
+  - master03 : 34.136.12.122
+
+- User : ktdseduuser
+- Port : 22
+- Use private key(ssh key) : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\gcp-vm-key\ktdseduuser
 
 
 
-![image-20220601194227476](beforebegin.assets/image-20220601194227476.png)
+![image-20230514022214007](beforebegin.assets/image-20230514022214007.png)
+
+빨간색 영역을 주의해서 입력한후 접속하자.
 
 
-
-
-
-## 2) 수강생별 계정 매핑
-별도 공지
 
 
 
 
 ## 3) 실습자료 download
 
-본인 계정으로 접속 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
+접속 완료 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
 
 ```sh
 # 본인 계정
 ## githubrepo directory 생성
-$ mkdir ~/githubrepo
+$ mkdir -p ~/user01/githubrepo
 
-$ cd ~/githubrepo
+$ cd ~/user01/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
@@ -374,9 +387,9 @@ remote: Compressing objects: 100% (55/55), done.
 remote: Total 69 (delta 15), reused 62 (delta 11), pack-reused 0
 Unpacking objects: 100% (69/69), 1.63 MiB | 4.09 MiB/s, done.
 
-$ ll ~/githubrepo
-drwxrwxr-x  5 song song 4096 Jun  2 13:32 ktds-edu/
+$ ll ~/user01/githubrepo
+drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
-$ cd ~/githubrepo/ktds-edu
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio/
 ```
 
