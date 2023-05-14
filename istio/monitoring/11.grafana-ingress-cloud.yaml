@@ -1,18 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kiali-ingress
+  name: grafana-ingress
   annotations:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "kiali.istio-system.ktcloud.211.254.212.105.nip.io"
+  - host: "grafana.istio-system.cloud.34.111.106.168.nip.io"
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: kiali
+            name: grafana
             port:
-              number: 20001
+              number: 3000

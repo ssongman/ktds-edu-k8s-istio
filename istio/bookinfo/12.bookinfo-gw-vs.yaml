@@ -19,7 +19,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user01.ktcloud.211.254.212.105.nip.io"
+  - "bookinfo.user01.cloud.34.111.106.168.nip.io"
   gateways:
   - bookinfo-gateway
   http:

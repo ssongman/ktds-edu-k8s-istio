@@ -34,7 +34,7 @@
 
 ## 2) 실습 환경 준비(Cloud)
 
-- Cloud 개
+- Cloud 개요
 - 수강생별 Namespace 매핑
 - ssl 접속 확인
 - 실습자료 Download(Cloud에서 실습용 )
