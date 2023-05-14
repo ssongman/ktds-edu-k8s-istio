@@ -97,7 +97,7 @@
 
 
 
-# 2. Docker 실습
+# 2. [개인PC] Docker 실습
 
 docker Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가 무엇인지, kubernetes 의 차이가 무엇인지를 알아보자.
 
@@ -500,7 +500,7 @@ $ docker rm -f userlist1
 
 
 
-# 3. k3s 실습(개인PC)
+# 3. [개인PC] k3s 설치
 
 ## 1) k3s 란?
 
@@ -673,34 +673,7 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 
 
 
-### (3) alias 정의
-
-kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 위와 같이 alias 를 정의후 사용할 수 있으니 참고 하자.
-
-적용하려면 source 명령을 이용한다.
-
-```sh
-
-## 일반 user 권한으로 실행
-
-$ cat > ~/env
-alias k='kubectl'
-alias kk='kubectl -n kube-system'
-alias ks='kubectl -n song'
-alias ki='kubectl -n istio-system'
-alias kb='kubectl -n bookinfo'
-alias kii='kubectl -n istio-ingress'
-
-
-## alias 를 적용하려면 source 명령 수행
-$ source ~/env
-```
-
-
-
-
-
-### (4) Clean up
+### (3) Clean up
 
 아래와 같이 간단히 k3s 를 삭제할 수 있다.
 
@@ -714,9 +687,19 @@ $ sh /usr/local/bin/k3s-uninstall.sh
 
 
 
-## 3) sample app deploy
+# 4. [개인PC] Kubernetes 실습
 
-### (1) Namespace
+
+
+## 1) Namespace 생성
+
+
+
+### (1) 개인별 Namespace 생성
+
+아래 정보를 참조하여 개인별 Namespace 정보를 확인하자.
+
+* 수강생별 접속정보 :  시작전에 > 실습환경준비(Cloud) > 수강생별 Namespace 및 접속 서버 주소
 
 ```sh
 ## kubectl create ns [namespace_name]
@@ -740,7 +723,35 @@ $ alias ku='kubectl -n user01'     <-- 자신의 namespace 명을 입력한다.
 
 
 
-### (2) Deployment
+### (2) alias 정의
+
+kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 위와 같이 alias 를 정의후 사용할 수 있으니 참고 하자.
+
+적용하려면 source 명령을 이용한다.
+
+```sh
+## 일반 user 권한으로 실행
+
+$ cat > ~/env
+alias k='kubectl'
+alias ku='kubectl -n user01'
+
+Ctrl+D
+
+
+## alias 를 적용하려면 source 명령 수행
+$ source ~/env
+```
+
+
+
+
+
+
+
+## 2) Deployment
+
+sample app deploy
 
 #### userlist deploy - kubectl cli
 
@@ -919,7 +930,7 @@ cluster 내에 내부 network 개념을 이해하는 중요한 예제이니 꼭 
 
 
 
-### (4) Service
+## 3) Service
 
 
 
@@ -1003,7 +1014,9 @@ pod의 IP, Service명, Service 의 IP !   이렇게 3개의 curl 결과가 모�
 
 
 
-### (5) Scale Out
+## 4) Scale Out
+
+### (1) deployment replicas 증가
 
 userlist pod 갯수를 늘려보자.
 
@@ -1054,7 +1067,6 @@ userlist-bfd857685-28g8v   1/1     Running   0          5s
 ```sh
 
 $ ku exec -it curltest -- sh
-
 
 
 # svc name으로 call - 여러번 해보자.
@@ -1112,7 +1124,7 @@ $ exit
 
 
 
-### (6) Round Robbin
+### [참고] Round Robbin 방식
 
 Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서대로 순환을 하여 로드밸런싱을 처리하는 방법이다.
 
@@ -1126,7 +1138,7 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 
 
-### (7) Ingress 
+## 5) Ingress 
 
 인그레스는 클러스터 내의 서비스에 대한 외부 접근을 관리하는 API 오브젝트이며, 일반적으로 HTTP를 관리한다.
 
@@ -1251,7 +1263,7 @@ $ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
 
 
 
-### (8) [참고] Load Balancing
+### [참고] Load Balancing
 
 - 참고링크
   - GCP Load Balancing
@@ -1261,7 +1273,7 @@ $ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
 
 
 
-### (9) clean up
+## 6) clean up
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -1277,7 +1289,7 @@ $ ku delete pod curltest
 
 
 
-# 4. K3s 실습(Cloud)
+# 5. [Cloud] Kubernetes실습
 
 
 
@@ -1354,11 +1366,9 @@ No resources found in user01 namespace.
 
 
 
-## 3) Sample app deploy
+## 3) Deployment/Service
 
 
-
-### (1) Deployment/Service
 
 - yaml 생성
 
@@ -1369,6 +1379,7 @@ $ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 # ku 로 alias 선언
 $ alias ku='kubectl -n user01'
 
+# deployment yaml 확인
 $ cat > ./kubernetes/userlist/11.userlist-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -1392,9 +1403,21 @@ spec:
         ports:
         - containerPort: 8181
 
+# deployment 생성
 $ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
 
+# deployment 확인
+$ ku get deployment
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+userlist   0/1     1            0           12s
 
+# pod 확인
+$ ku get pod
+NAME                       READY   STATUS              RESTARTS   AGE
+userlist-bfd857685-g6kj6   0/1     ContainerCreating   0          19s
+
+
+# service yaml 확인
 $ cat ./kubernetes/userlist/12.userlist-svc.yaml
 apiVersion: v1
 kind: Service
@@ -1410,21 +1433,14 @@ spec:
     targetPort: 8181
   type: ClusterIP
 
+# service 생성
 $ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
 
-$ ku get deployment
-NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   0/1     1            0           12s
 
-$ ku get pod
-NAME                       READY   STATUS              RESTARTS   AGE
-userlist-bfd857685-g6kj6   0/1     ContainerCreating   0          19s
-
-
+# service 확인
 $ ku get svc
 NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 userlist-svc   ClusterIP   10.43.34.5   <none>        80/TCP    24s
-
 
 ```
 
@@ -1442,7 +1458,7 @@ curltest                   1/1     Running   0          12s
 userlist-bfd857685-g6kj6   1/1     Running   0          115s
 
 
-# 확인
+# curl test 수행
 $ ku exec -it curltest -- curl userlist-svc/users/1
 {"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
 
@@ -1453,7 +1469,7 @@ userlist-svc 라는 서비스명으로 접근이 잘 되는 것을 확인 할 �
 
 
 
-### (2) Scale Out
+## 4) Scale Out
 
 - deployment 에서 replicas 조정
 
@@ -1506,7 +1522,7 @@ userlist-bfd857685-x4v6h   1/1     Running   0          26s
 ```sh
 $ ku exec -it curltest -- sh
 
-
+# 1초에 한번씩 curl 수행
 $ while true; do curl userlist-svc/users/1; sleep 1; echo; done
 
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
@@ -1530,7 +1546,7 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 
 
 
-### (3) Ingress 
+## 5) Ingress 
 
 - ingress controller 확인
 
@@ -1554,7 +1570,7 @@ traefic 이라는 Proxy tool 이 node port (32446) 로 접근하여 routing 한�
 - master node와 port-forwarding 정보
 
 ```
-34.111.106.168:80   =  master01/master02/1master03 :32446
+34.111.106.168:80   =  [master01/master02/1master03] :32446
 ```
 
 그러므로 우리는 34.111.106.168:80 으로 call 을 보내면 된다.  
@@ -1568,16 +1584,16 @@ traefic 이라는 Proxy tool 이 node port (32446) 로 접근하여 routing 한�
 아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 user01 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user01
 
-$ ls -ltr ./kubernetes/userlist/
+$ ls -ltr ./githubrepo/ktds-edu-k8s-istio/kubernetes/userlist/
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 355 May 13 17:36 11.userlist-deployment.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 191 May 13 17:36 12.userlist-svc.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 364 May 13 17:36 15.userlist-ingress-local.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 388 May 13 17:36 16.userlist-ingress-cloud.yaml
 
 # ingress 수정
-$ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+$ vi ./githubrepo/ktds-edu-k8s-istio/kubernetes/userlist/16.userlist-ingress-cloud.yaml
 ```
 
 
@@ -1591,7 +1607,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user01.cloud.34.111.106.168.nip.io"     <-- user01 을 적당한 이름으로 수정
+  - host: "userlist.user01.cloud.34.111.106.168.nip.io"     <-- user01 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
@@ -1620,13 +1636,17 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 - ingress 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio/
+
+$ ls -ltr ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 385 May 14 03:41 ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+
 
 $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
-NAME               CLASS    HOSTS                                            ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   172.27.0.168,172.27.0.29,172.27.0.48,172.27.0.68,172.27.0.76,172.27.1.2   80      22s
+NAME               CLASS    HOSTS                                         ADDRESS                                                                                        PORTS   AGE
+userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   10.128.0.22,10.128.0.23,10.128.0.24,10.158.0.10,10.158.0.11,10.158.0.7,10.158.0.8,10.158.0.9   80      88s
 
 ```
 
@@ -1635,14 +1655,15 @@ userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   172.27
 - 서버 terminal 에서 확인
 
 ```sh
+
 # traefik node port 로 접근시도
-$ curl localhost:30070/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
-{"id":1,"name":"Albin Pollich V","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl localhost:32446/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
+{"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 # 부여한 host 로 접근시도
-$ curl userlist.user01.cloud.34.111.106.168.nip.io/users/1
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl http://userlist.user01.cloud.34.111.106.168.nip.io/users/1
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
 
 위 두개의 curl  을 잘 이해하자.
@@ -1651,30 +1672,53 @@ $ curl userlist.user01.cloud.34.111.106.168.nip.io/users/1
 
 두번째는 Cloud 에서 제공하는 공인 IP (Load Balancer)의 80 port 로 접속이 되었다.
 
-
-
 즉, 위 도메인은 어디서든지 접속 가능한 상태이다.  확인을 위해서 로컬 크롬브라우저에서 접속을 시도해 보자.
 
 
 
 - 크롬 브라우저에서 확인
 
-![image-20220601221303329](kubernetes.assets/image-20220601221303329.png)
+![image-20230514125641610](kubernetes.assets/image-20230514125641610.png)
 
 
 
-
-
-### (4) clean up
+* [참고] node port 이므로 kubernetes node 중 어떤 노드로도 접근이 가능하다.
 
 ```sh
-$ cd ~/user01
+$ kubectl get node -o wide
+NAME                   STATUS   ROLES                       AGE   VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+ktds-k3s-master01      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.22   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-master02      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.23   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-master03      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.24   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker-9zmq   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.9    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker-b47j   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.10   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker-ncz7   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.8    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker-w2z4   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.11   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker-xmpb   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.7    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
 
-$ ku delete pod curltest
-$ ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
-$ ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
-$ ku delete -f ./kubernetes/userlist/16.userlist-ingress-ktcloud.yaml
+
+# 위 노드IP 중 특정 IP 로 접근해도 동일한 결과를 얻을 수 있다.
+$ curl 10.128.0.22:32446/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
+
 ```
 
 
+
+## 6) Clean up
+
+```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio/
+
+$ ku delete pod curltest
+  ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
+  ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
+  ku delete -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+
+# 20초정도 소요됨
+
+$ ku get pod
+No resources found in user01 namespace.
+
+```
 
