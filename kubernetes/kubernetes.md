@@ -613,9 +613,9 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 
 ### (2) kubeconfig 설정
 
-일반 User 기 직접 kubctl 명령 실행을 위해서는 ~/.kube/config 에 연결정보가 설정되어야 한다.
+일반 User가 직접 kubctl 명령 실행을 위해서는 kube config 정보(~/.kube/config) 가 필요하다.
 
-현재는 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이를 복사한다. 
+k3s 를 설치하면 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이를 복사한다. 또한 모든 사용자가 읽을 수 있도록 권한을 부여 한다.
 
 
 
@@ -634,6 +634,7 @@ $ chmod +r /etc/rancher/k3s/k3s.yaml
 $ ll /etc/rancher/k3s/k3s.yaml
 -rw-r--r-- 1 root root 2961 May 14 03:23 /etc/rancher/k3s/k3s.yaml
 
+# 일반 user 로 전환
 $ exit
 
 ```
@@ -651,6 +652,13 @@ $ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 
 $ ll ~/.kube/config
 -rw-r--r-- 1 song song 2957 May 14 03:44 /home/song/.kube/config
+
+# 자신만 RW 권한 부여
+$ chmod 600 ~/.kube/config
+
+$ ls -ltr ~/.kube/config
+-rw------- 1 song song 2957 May 14 03:44 /home/song/.kube/config
+
 
 ## 확인
 $ kubectl version
@@ -734,8 +742,9 @@ $ alias ku='kubectl -n user01'     <-- 자신의 namespace 명을 입력한다.
 
 ### (2) Deployment
 
-- userlist deployment 생성
-  * kubectl cli 이용하여 생성하는 방법으로 테스트 해보자.
+#### userlist deploy - kubectl cli
+
+* kubectl cli 이용하여 생성하는 방법으로 테스트 해보자.
 
 ```sh
 # deploy 생성
@@ -760,9 +769,9 @@ $ ku delete deploy userlist
 
 
 
-- userlist deployment 생성
-  -  yaml 을 이용하여  deploy  해보자.
+#### userlist deploy - yaml 
 
+-  yaml 을 이용하여  deploy  해보자.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -795,7 +804,8 @@ $ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-dntfx   1/1     Running   0          10s
+userlist-bfd857685-ljpnk   1/1     Running   0          4s
+
 
 # Status 가 Running 이 되어야 정상 기동된 상태임
 
@@ -803,33 +813,32 @@ userlist-c78d76c78-dntfx   1/1     Running   0          10s
 
 
 
-- pod 내에서 확인
+#### pod 내에서 확인
 
 ```sh
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-bfd857685-j9s4m   1/1     Running   0          20s
+userlist-bfd857685-ljpnk   1/1     Running   0          18s
 
 
 
 # userlist pod 내에서 확인
-$ ku exec -it userlist-bfd857685-j9s4m -- curl -i localhost:8181/users/1
-
+$ ku exec -it userlist-bfd857685-ljpnk -- curl -i localhost:8181/users/1
 HTTP/1.1 200
 Content-Type: application/json;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 13 May 2023 18:55:48 GMT
+Date: Sun, 14 May 2023 02:38:20 GMT
 
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # 200 OK 로 정상
 
 
 # 몇번 반복해보자.
-$ ku exec -it userlist-bfd857685-j9s4m -- curl localhost:8181/users/1
-$ ku exec -it userlist-bfd857685-j9s4m -- curl localhost:8181/users/1
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
+$ ku exec -it userlist-bfd857685-ljpnk -- curl localhost:8181/users/1
+$ ku exec -it userlist-bfd857685-ljpnk -- curl localhost:8181/users/1
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 ```
@@ -874,8 +883,10 @@ curltest                    1/1     Running       0          13s
 # pod ip 확인
 $ ku get pod -o wide
 NAME                        READY   STATUS        RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
-userlist-bfd857685-j9s4m    1/1     Running       0          4m17s   10.42.0.10   desktop-qfrh1cb   <none>           <none>
-curltest                    1/1     Running       0          25s     10.42.0.12   desktop-qfrh1cb   <none>           <none>
+curltest                   1/1     Running   0          7h40m   10.42.0.12   desktop-qfrh1cb   <none>           <none>
+userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   desktop-qfrh1cb   <none>           <none>
+
+
 
 ```
 
@@ -886,11 +897,10 @@ curltest                    1/1     Running       0          25s     10.42.0.12 
 ```sh
 $ ku exec -it curltest -- sh
 
-$ curl 10.42.0.10:8181/users/1
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl 10.42.0.13:8181/users/1
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ exit
-
 ```
 
 
@@ -940,7 +950,8 @@ service/userlist-svc created
 
 $ ku get svc
 NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-userlist-svc   ClusterIP   10.43.240.205   <none>        80/TCP    9s
+userlist-svc   ClusterIP   10.43.106.168   <none>        80/TCP    6s
+
 
 ```
 
@@ -951,29 +962,32 @@ userlist-svc   ClusterIP   10.43.240.205   <none>        80/TCP    9s
 ```sh
 $ ku get pod -o wide
 NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
-userlist-c78d76c78-dntfx   1/1     Running   0          13m     10.42.0.10   desktop-msrerbm   <none>           <none>
-curltest                   1/1     Running   0          7m22s   10.42.0.12   desktop-msrerbm   <none>           <none>
+curltest                   1/1     Running   0          7h42m   10.42.0.12   desktop-qfrh1cb   <none>           <none>
+userlist-bfd857685-ljpnk   1/1     Running   0          3m32s   10.42.0.13   desktop-qfrh1cb   <none>           <none>
 
 # curltest pod 내로 진입
 $ ku exec -it curltest -- sh
 
 # pod ip 로 call
-$ curl 10.42.0.10:8181/users/1
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}/
+$ curl 10.42.0.13:8181/users/1
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # svc name으로 call
 $ curl userlist-svc/users/1
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}/
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # svc name 의 ip 식별
 $ ping userlist-svc
-PING userlist-svc (10.43.12.65): 56 data bytes
+PING userlist-svc (10.43.106.168): 56 data bytes
+
 
 
 # svc ip로 call
-$ curl 10.43.12.65/users/1
-{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl 10.43.106.168/users/1
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}/
 
+
+$ exit
 ```
 
 pod의 IP, Service명, Service 의 IP !   이렇게 3개의 curl 결과가 모두 동일한 것을 볼 수 있다.  위 부분을 반드시 이해하기 바란다.  
@@ -996,7 +1010,8 @@ userlist pod 갯수를 늘려보자.
 ```sh
 $ ku get deploy
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   1/1     1            1           82m
+userlist   1/1     1            1           5m15s
+
 
 $ ku edit deploy userlist
 ```
@@ -1023,10 +1038,11 @@ spec:
 ```sh
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-dntfx   1/1     Running   0          18m
-curltest                   1/1     Running   0          11m
-userlist-c78d76c78-pg67g   1/1     Running   0          4s
-userlist-c78d76c78-ccbdp   1/1     Running   0          4s
+curltest                   1/1     Running   0          7h45m
+userlist-bfd857685-ljpnk   1/1     Running   0          5m43s
+userlist-bfd857685-dzqwh   1/1     Running   0          5s
+userlist-bfd857685-28g8v   1/1     Running   0          5s
+
 ```
 
 너무나 쉽게 replicas 3 으로 scale out 이 되었다.
@@ -1040,24 +1056,25 @@ userlist-c78d76c78-ccbdp   1/1     Running   0          4s
 $ ku exec -it curltest -- sh
 
 
+
 # svc name으로 call - 여러번 해보자.
 $ curl userlist-svc/users/1
-{"id":1,"name":"Neva Langworth","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl userlist-svc/users/1
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl userlist-svc/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl userlist-svc/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl userlist-svc/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl userlist-svc/users/1
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
 
@@ -1067,18 +1084,26 @@ $ curl userlist-svc/users/1
 
 ```sh
 $ while true; do curl userlist-svc/users/1; sleep 1; echo; done
-
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Neva Langworth","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 ...
+
+Ctrl + C
+
+$ exit
 ```
 
 3개의 pod 를 Round Robbin 방식으로 call 하는 모습을 볼수 있다.
@@ -1126,16 +1151,19 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 ```sh
 $ kubectl -n kube-system get svc
 NAME             TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>          53/UDP,53/TCP,9153/TCP       4h14m
-metrics-server   ClusterIP      10.43.133.193   <none>          443/TCP                      4h14m
-traefik          LoadBalancer   10.43.184.177   172.22.253.23   80:32423/TCP,443:32762/TCP   4h13m
+kube-dns         ClusterIP      10.43.0.10      <none>          53/UDP,53/TCP,9153/TCP       8h
+metrics-server   ClusterIP      10.43.147.138   <none>          443/TCP                      8h
+traefik          LoadBalancer   10.43.6.87      172.25.51.207   80:32240/TCP,443:31036/TCP   8h
+
 ```
 
 kubernetes 관리영역 Namespace 인 kube-system 에서 service 를 살펴보았다.
 
 traefik(https://traefik.io/) 이라는 요즘 뜨고 있는 proxy tool 을 사용하는 것을 알 수 있다.
 
-또한 node port 가  32423  인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
+또한 node port 가  32240 인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
+
+아래 실습에서 계속사용될 예정이니 잘 기억해 놓자.
 
 
 
@@ -1174,10 +1202,13 @@ ingress.networking.k8s.io/userlist-ingress created
 
 $ ku get ingress
 NAME               CLASS    HOSTS                    ADDRESS         PORTS   AGE
-userlist-ingress   <none>   userlist.songlab.co.kr   172.22.253.23   80      21s
-
+userlist-ingress   <none>   userlist.songlab.co.kr   172.25.51.207   80      4s
 
 ```
+
+>  172.25.51.207 는 master node 의 IP 주소이다.
+
+
 
 
 
@@ -1186,14 +1217,19 @@ userlist-ingress   <none>   userlist.songlab.co.kr   172.22.253.23   80      21s
 traefik node port 를 아래에 삽입하여 curl 테스트 해보자.
 
 ```sh
-$ curl http://localhost:31277/users/1 -H "Host:userlist.songlab.co.kr"
-{"id":1,"name":"Sophia Zboncak","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:32423/users/1 -H "Host:userlist.songlab.co.kr"
-{"id":1,"name":"Neva Langworth","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:32423/users/1 -H "Host:userlist.songlab.co.kr"
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
+
+
+# node IP 로 접근해도 동일한 결과를 받을 수 있다.
+$ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
 
@@ -1207,28 +1243,34 @@ $ curl http://localhost:32423/users/1 -H "Host:userlist.songlab.co.kr"
 
 하지만 이 또한 완전환 모습은 아니다.  
 
-연결할때마다 node port 32423 를 붙여야 하는 불편함이 존재한다. 
+연결할때마다 node port (32240)를 붙여야 하는 불편함이 존재한다. 
 
-이런 불편을 해결하기 위해서 일반적으로 L4 라는 load balancer 를 둔다.
+이런 불편을 해결하기 위해서 일반적으로 load balancer( L4) 를 이용하여 80 port 를 node port(32240) 으로 매핑하여 사용한다.
 
 하지만 지금환경은 개인 PC 이므로 이해만 하자.
 
 
 
-- 참고
-  - KTCloud 의 로드발란싱 개념 설명 : https://cloud.kt.com/portal/user-guide/network-loadbalancer-intro
+### (8) [참고] Load Balancing
+
+- 참고링크
+  - GCP Load Balancing
+    - 링크 : https://cloud.google.com/load-balancing/docs/load-balancing-overview?hl=ko
+  - KTCloud Load Balancing
+    - 링크 : https://cloud.kt.com/portal/user-guide/network-loadbalancer-intro
 
 
 
-### (8) clean up
+### (9) clean up
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
+
 $ ku delete pod curltest
-$ ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
-$ ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
-$ ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
+  ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
+  ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
+  ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 ```
 
 
@@ -1241,9 +1283,12 @@ $ ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
 ## 1) Cloud 접속
 
-익숙한 ssh terminal(mobaxterm 등) 을 이용해서 KT Cloud Master node에 접근한다.
+아래 정보를 참조하여 ssh terminal(mobaxterm) 을 준비하고 Cloud Master node에 접근한다.
 
-접속정보: < 시작전에 >  < 사용자별 계정 매핑 정보> 참고
+* 수강생별 접속정보 :  시작전에 > 실습환경준비(Cloud) > 수강생별 Namespace 및 접속 서버 주소
+* mobaXterm 접속 :  시작전에 > 실습환경준비(Cloud)  > ssh (Mobaxterm)
+
+
 
 
 
@@ -1252,45 +1297,53 @@ $ ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
 
 ```sh
+
 $ kubectl get ns
 NAME              STATUS   AGE
-argo-rollouts     Active   40h
-argocd            Active   2d5h
-default           Active   9d
-istio-ingress     Active   9d
-istio-system      Active   9d
-kube-node-lease   Active   9d
-kube-public       Active   9d
-kube-system       Active   9d
-song              Active   2d3h
-user01            Active   9d
-user02            Active   9d
-user03            Active   9d
-user04            Active   9d
-user05            Active   9d
-user06            Active   9d
-user07            Active   9d
-user08            Active   9d
-user09            Active   9d
-user10            Active   9d
-user11            Active   9d
-user12            Active   9d
-user13            Active   9d
-user14            Active   9d
-user15            Active   9d
-user16            Active   9d
-user17            Active   9d
-user18            Active   9d
-user19            Active   9d
-user20            Active   9d
+default           Active   12h
+kube-node-lease   Active   12h
+kube-public       Active   12h
+kube-system       Active   12h
+song              Active   12h
+user01            Active   10h
+user02            Active   10h
+user03            Active   10h
+user04            Active   10h
+user05            Active   10h
+user06            Active   10h
+user07            Active   10h
+user08            Active   10h
+user09            Active   10h
+user10            Active   10h
+user11            Active   10h
+user12            Active   10h
+user13            Active   10h
+user14            Active   10h
+user15            Active   10h
+user16            Active   10h
+user17            Active   10h
+user18            Active   10h
+user19            Active   10h
+user20            Active   10h
+user21            Active   10h
+user22            Active   10h
+user23            Active   10h
+user24            Active   10h
+user25            Active   10h
+user26            Active   10h
+user27            Active   10h
+user28            Active   10h
+user29            Active   10h
+user30            Active   10h
 
 
+# 각자 수강생별 NS 를 확인해보자.
 $ kubectl get ns user01
 NAME     STATUS   AGE
 user01   Active   2m4s
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user01'
+$ alias ku='kubectl -n user01'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 $ ku get pod
 No resources found in user01 namespace.
@@ -1310,27 +1363,67 @@ No resources found in user01 namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 
 # ku 로 alias 선언
 $ alias ku='kubectl -n user01'
 
-$ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
-$ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
+$ cat > ./kubernetes/userlist/11.userlist-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userlist
+  labels:
+    app: userlist
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userlist
+  template:
+    metadata:
+      labels:
+        app: userlist
+    spec:
+      containers:
+      - name: userlist
+        image: ssongman/userlist:v1
+        ports:
+        - containerPort: 8181
 
+$ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
+
+
+$ cat ./kubernetes/userlist/12.userlist-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: userlist-svc
+spec:
+  selector:
+    app: userlist
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8181
+  type: ClusterIP
+
+$ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
 
 $ ku get deployment
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   1/1     1            1           113s
+userlist   0/1     1            0           12s
 
 $ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-r5bzs   1/1     Running   0          107s
+NAME                       READY   STATUS              RESTARTS   AGE
+userlist-bfd857685-g6kj6   0/1     ContainerCreating   0          19s
+
 
 $ ku get svc
-NAME           TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
-userlist-svc   ClusterIP   10.43.2.174   <none>        80/TCP    9s
+NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+userlist-svc   ClusterIP   10.43.34.5   <none>        80/TCP    24s
 
 
 ```
@@ -1343,10 +1436,17 @@ userlist-svc   ClusterIP   10.43.2.174   <none>        80/TCP    9s
 # curltest pod 생성
 $ ku run curltest --image=curlimages/curl -- sleep 365d
 
+$ ku get pod
+NAME                       READY   STATUS    RESTARTS   AGE
+curltest                   1/1     Running   0          12s
+userlist-bfd857685-g6kj6   1/1     Running   0          115s
+
+
 # 확인
 $ ku exec -it curltest -- curl userlist-svc/users/1
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
 
+$ exit
 ```
 
 userlist-svc 라는 서비스명으로 접근이 잘 되는 것을 확인 할 수 있다.
@@ -1360,9 +1460,10 @@ userlist-svc 라는 서비스명으로 접근이 잘 되는 것을 확인 할 �
 ```sh
 $  ku get deploy
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   1/1     1            1           7m44s
+userlist   1/1     1            1           3m27s
 
-# de수정
+
+# userlist deploy 수정
 $ ku edit deploy userlist
 ```
 
@@ -1388,9 +1489,12 @@ spec:
 ```sh
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-g6vmt   1/1     Running   0          92s
-userlist-c78d76c78-gjkts   1/1     Running   0          92s
-userlist-c78d76c78-r5bzs   1/1     Running   0          10m
+curltest                   1/1     Running   0          2m43s
+userlist-bfd857685-g6kj6   1/1     Running   0          4m26s
+userlist-bfd857685-wgqx7   1/1     Running   0          26s
+userlist-bfd857685-x4v6h   1/1     Running   0          26s
+
+# 20초 정도 소요됨
 ```
 
 너무나 쉽게 replicas 3 으로 scale out 이 되었다.
@@ -1405,19 +1509,21 @@ $ ku exec -it curltest -- sh
 
 $ while true; do curl userlist-svc/users/1; sleep 1; echo; done
 
-{"id":1,"name":"Albin Pollich V","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Albin Pollich V","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Lafayette Boyle","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Lafayette Boyle","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Albin Pollich V","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Lafayette Boyle","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Lafayette Boyle","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Lafayette Boyle","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
-{"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ...
+Ctrl + D
+
+$ exit
 ```
 
 round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
@@ -1430,47 +1536,48 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                                                               PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10     <none>                                                                    53/UDP,53/TCP,9153/TCP       171m
-metrics-server   ClusterIP      10.43.144.31   <none>                                                                    443/TCP                      171m
-traefik          LoadBalancer   10.43.45.189   172.27.0.168,172.27.0.29,172.27.0.48,172.27.0.68,172.27.0.76,172.27.1.2   80:30070/TCP,443:31299/TCP   170m
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                                                    PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                                                         53/UDP,53/TCP,9153/TCP       12h
+metrics-server   ClusterIP      10.43.157.157   <none>                                                                                         443/TCP                      12h
+traefik          LoadBalancer   10.43.184.63    10.128.0.22,10.128.0.23,10.128.0.24,10.158.0.10,10.158.0.11,10.158.0.7,10.158.0.8,10.158.0.9   80:32446/TCP,443:31256/TCP   12h
+
 ```
 
-30070 node port 로 접근 가능한 것을 알수 있다.
+traefic 이라는 Proxy tool 이 node port (32446) 로 접근하여 routing 한다는 사실을 알 수 있다.
 
-이미 KT Cloud 에 공인 ip 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
+이미 GCP Load balance  를 생성하여 공인IP 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
 
 해당 공인 IP 와 위 traefik controller 의 node port가 서로 매핑되도록 설정작업을 해 놓았다.
 
 
 
-- master01 번과 port-forwarding 정보
+- master node와 port-forwarding 정보
 
 ```
-211.254.212.105:80   =  master01:30070
-211.254.212.105:443  =  master01:31299
+34.111.106.168:80   =  master01/master02/1master03 :32446
 ```
 
-그러므로 우리는 211.254.212.105:80 으로 call 을 보내면 된다.  대신 Cluster 내 진입후 자신의 service 를 찾기 위한 host 를 같이 보내야 한다. 
+그러므로 우리는 34.111.106.168:80 으로 call 을 보내면 된다.  
+
+또한 Cluster 내 진입후 자신의 service 를 찾기 위한 host (ingress host)를 같이 보내야 한다. 
 
 
 
 - 개인별 테스트를 위한 도메인 변경
 
-아래 16.userlist-ingress-ktcloud.yaml 파일을 오픈하여 user01 부분을 본인의 계정명으로 변경하자.
+아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 user01 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ ls -ltr ./kubernetes/userlist/
--rw-rw-r-- 1 user01 user01 191 Jun  1 12:28 12.userlist-svc.yaml
--rw-rw-r-- 1 user01 user01 355 Jun  1 12:28 11.userlist-deployment.yaml
--rw-rw-r-- 1 user01 user01 336 Jun  1 12:28 10.curltest.yaml
--rw-rw-r-- 1 user01 user01 364 Jun  1 13:05 15.userlist-ingress-local.yaml
--rw-rw-r-- 1 user01 user01 388 Jun  1 13:05 16.userlist-ingress-ktcloud.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 355 May 13 17:36 11.userlist-deployment.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 191 May 13 17:36 12.userlist-svc.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 364 May 13 17:36 15.userlist-ingress-local.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 388 May 13 17:36 16.userlist-ingress-cloud.yaml
 
 # ingress 수정
-$ vi ./kubernetes/userlist/16.userlist-ingress-ktcloud.yaml
+$ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 ```
 
 
@@ -1484,7 +1591,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user01.ktcloud.211.254.212.105.nip.io"     <-- user01 을 적당한 이름으로 수정
+  - host: "userlist.user01.cloud.34.111.106.168.nip.io"     <-- user01 을 적당한 이름으로 수정
     http:
       paths:
       - path: /
@@ -1494,15 +1601,14 @@ spec:
             name: userlist-svc
             port:
               number: 80
-
 ```
 
 어떠한 이름으로 변경해도 상관없다.  예를 들어 아래 hostname 으로 상관없다. 다른 분들과 겹치지만 않게 하자.
 
 ```
-userlist.user01.ktcloud.211.254.212.105.nip.io
-userlist.user07.ktcloud.211.254.212.105.nip.io
-userlist.songyangjong.ktcloud.211.254.212.105.nip.io
+userlist.user01.cloud.34.111.106.168.nip.io
+userlist.user07.cloud.34.111.106.168.nip.io
+userlist.songyangjong.cloud.34.111.106.168.nip.io
 ```
 
 도메인 이름에 "*.nip.io" 가 포함된 것을 볼 수 있다.  이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
@@ -1516,11 +1622,11 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ ku create -f ./kubernetes/userlist/16.userlist-ingress-ktcloud.yaml
+$ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
 NAME               CLASS    HOSTS                                            ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.user01.ktcloud.211.254.212.105.nip.io   172.27.0.168,172.27.0.29,172.27.0.48,172.27.0.68,172.27.0.76,172.27.1.2   80      22s
+userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   172.27.0.168,172.27.0.29,172.27.0.48,172.27.0.68,172.27.0.76,172.27.1.2   80      22s
 
 ```
 
@@ -1530,12 +1636,12 @@ userlist-ingress   <none>   userlist.user01.ktcloud.211.254.212.105.nip.io   172
 
 ```sh
 # traefik node port 로 접근시도
-$ curl localhost:30070/users/1 -H "Host:userlist.user01.ktcloud.211.254.212.105.nip.io"
+$ curl localhost:30070/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
 {"id":1,"name":"Albin Pollich V","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 # 부여한 host 로 접근시도
-$ curl userlist.user01.ktcloud.211.254.212.105.nip.io/users/1
+$ curl userlist.user01.cloud.34.111.106.168.nip.io/users/1
 {"id":1,"name":"Florian Reilly","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
 
@@ -1543,9 +1649,7 @@ $ curl userlist.user01.ktcloud.211.254.212.105.nip.io/users/1
 
 첫번째는 nodeport 를 통해서 접속을 시도한 경우이다.
 
-두번째는 KT Cloud 에서 제공하는 공인 IP (Virtual Router)의 80 port 로 접속이 되었다.
-
-(위부분이 이해되지 않는다면 "KT Cloud 서버 / KT Cloud 설명"  부분을 참고하자.)
+두번째는 Cloud 에서 제공하는 공인 IP (Load Balancer)의 80 port 로 접속이 되었다.
 
 
 
@@ -1564,7 +1668,7 @@ $ curl userlist.user01.ktcloud.211.254.212.105.nip.io/users/1
 ### (4) clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user01
 
 $ ku delete pod curltest
 $ ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
