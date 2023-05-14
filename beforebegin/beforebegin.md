@@ -238,7 +238,15 @@ Server version 을 확인할 수 있다면 정상 설치 된 것이다.
 
 
 
-## 4) Typora
+## 4) gitbash 설치
+
+다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/Git-2.40.1-64-bit.exe
+
+링크 : https://git-scm.com/
+
+
+
+## 5) Typora
 
 교육자료(MarkDown 문서)를 typora 로 확인하기를 희망하는 경우 Typora 를 설치한다. 
 
