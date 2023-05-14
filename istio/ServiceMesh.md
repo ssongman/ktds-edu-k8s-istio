@@ -1273,10 +1273,6 @@ $ while true; do curl -s http://bookinfo.user01.cloud.34.111.106.168.nip.io/prod
 
 
 
-
-
-
-
 ## 1) Traffic Shifting
 
 서비스별로 트래픽의 가중치를 조정하므로서 특정 버전에서 다른 버전으로 트래픽을 이동하는 방법을 제어할 수 있다.
@@ -1914,10 +1910,29 @@ $ exit
 
 
 
+* 초당 0.5회 Call 건 중지
+  * Bookinfo Test 는 모두 완료됨
+
 - clean up
 
 ```sh
 $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+```
+
+
+
+### (5) Clean up
+
+```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
+ 
+$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
+  ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+  ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
+  ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+  kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
+
 ```
 
 
@@ -1995,7 +2010,8 @@ spec:
 
 $ ku apply -f ./istio/httpbin/11.httpbin-deploy-svc.yaml
 deployment.apps/httpbin created
-service/svc-httpbin created
+service/httpbin created
+
 
 $ ku get pod
 NAME                              READY   STATUS            RESTARTS   AGE
@@ -2050,16 +2066,16 @@ httpbin-d6d55998b-9sk6r           2/2     Running   0          92s
 fortio 에서 *httpbin* 으로 요청. **200(정상)** 응답 코드가 리턴됨.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
 HTTP/1.1 200 OK
 ...
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get | grep HTTP
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
 HTTP/1.1 200 OK
 
 
 
-$ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
+$ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
 
 HTTP/1.1 200 OK
 
@@ -2089,8 +2105,12 @@ Kiali 에서는 다음과 같이 조회된다.
 #### circuit breaker 설정
 
 - DestinationRule 를 생성하여 circuit break 가 발생할 수 있도록 Connection pool을 최소값으로 지정한다.
-- http1MaxPendingRequests=1 : Queue에서 onnection pool 에 연결을 기다리는 request 수를 1개로 제한한다.
-- maxRequestsPerConnection=1 : keep alive 기능 disable 한다.
+- http1MaxPendingRequests=1
+  - Queue에서 onnection pool 에 연결을 기다리는 request 수를 1개로 제한한다.
+
+- maxRequestsPerConnection=1
+  - keep alive 기능 disable 한다.
+
 
 ```sh
 $ cd ~/user01/githubrepo/ktds-edu-k8s-istio
@@ -2115,7 +2135,7 @@ $ ku apply -f ./istio/httpbin/13.dr-httpbin.yaml
 
 
 
-Kiali 에서는 아래와 같이 circuit break 뱃지가 나타난다.
+Kiali 에서는 아래와 같이 번개모양의 circuit break 뱃지가 나타난다.
 
 ![image-20220602211729632](ServiceMesh.assets/image-20220602211729632.png)
 
@@ -2131,11 +2151,15 @@ Kiali 에서는 아래와 같이 circuit break 뱃지가 나타난다.
 
 ```sh
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://svc-httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 10 (100.0 %)
 ...
+
+
+Code 200 : 8 (80.0 %)
+Code 503 : 2 (20.0 %)
 
 ```
 
@@ -2147,12 +2171,18 @@ Code 200 : 10 (100.0 %)
 - 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 5회 발생했다.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 20 -loglevel Warning http://svc-httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 15 (75.0 %)
 Code 503 : 5 (25.0 %)
 ...
+
+
+Code 200 : 7 (35.0 %)
+Code 503 : 13 (65.0 %)
+
+
 
 ```
 
@@ -2164,13 +2194,17 @@ Code 503 : 5 (25.0 %)
 - 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 14회 발생했다.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://svc-httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 14 (46.7 %)
 Code 503 : 16 (53.3 %)
-
 ...
+
+
+Code 200 : 7 (23.3 %)
+Code 503 : 23 (76.7 %)
+
 
 ```
 
@@ -2179,9 +2213,15 @@ Code 503 : 16 (53.3 %)
 - 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://svc-httpbin:8000/get
+# kiali 에서 Circuit Braker Icon 이 사라진 것을 확인하자.
+
+
+
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 30 (100.0 %)
@@ -2194,7 +2234,7 @@ Code 200 : 30 (100.0 %)
 #### 결론
 
 - istio 는 DestinationRule을 통해 *circuit break* 를 정의를 할 수 있다.
-- *k8s service* `svc-httpbin` 에 *DestionationRule* `dr-httpbin` 을 정의하여 connections 의 volume 1개, ending valume 1개로 제한하였다.
+- *k8s service* `httpbin` 에 *DestionationRule* `dr-httpbin` 을 정의하여 connections 의 volume 1개, ending valume 1개로 제한하였다.
 - 1번 요청의 경우는 정상 요청처리 중이다.
 - 2번 요청이 발생 했을때 1번 요청 처리 중이라면 2번 요청은 pending 상태가 된다.
 - 1,2번 요청이 처리,pending 상태에서 3번 요청이 발생하게 된다면 설정에 따라 *circuit break* 가 발생하게 된다.
@@ -2210,7 +2250,9 @@ Code 200 : 30 (100.0 %)
 ```sh
 $ ku delete pod/fortio 
   ku delete deployment.apps/httpbin 
-  ku delete svc/svc-httpbin
+  ku delete svc/httpbin
+  ku delete pod/curltest
+
 
 ```
 
@@ -2225,12 +2267,12 @@ $ ku delete pod/fortio
 n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나 응답이 없는 인스턴스를 탐지하여 circuit break를 작동시키는 방법이다.
 
 - 전제 조건
-  - hello-server:latest 이미지는 env:RANDOM_ERROR 값의 확률로 랜덤하게 503 에러를 발생하는 로직이 포함되어 있다.
+  - hello-server:latest 이미지는 env:RANDOM_ERROR 값의 비율로 랜덤하게 503 에러를 발생하는 로직이 포함되어 있다.
   - 데모를 위해서 hello-server-1, hello-server-2 가 동일 workload 라고 가정한다.
 
 
 
-#### 기본 환경을 구성
+#### 테스트 POD 기동
 
 ```sh
 $ cd ~/user01/githubrepo/ktds-edu-k8s-istio
@@ -2270,7 +2312,7 @@ spec:
     - name: LOG
       value: "1"
     - name: RANDOM_ERROR
-      value: "0.2"
+      value: "0.5"
 ---
 apiVersion: v1
 kind: Service
@@ -2288,45 +2330,111 @@ spec:
 
 
 $ ku apply -f ./istio/hello/11.hello-pod-svc.yaml
+pod/hello-server-1 created
+pod/hello-server-2 created
+service/svc-hello created
 
 ```
 
 
 
-- 클라이언트용 *pod* 를 설치한다.
+- 클라이언트용 *pod* 를 설치후 확인해 보자.
 
 ```sh
-$ ku run httpbin --image=docker.io/honester/httpbin:latest
+$ ku run curltest --image=curlimages/curl -- sleep 365d
+pod/curltest created
 
+
+# 여러번 call 해보자.
+$ ku exec -it curltest -- curl http://svc-hello:8080
+Hello server - v1
+Hello server - v2
+Hello server - v1
+Hello server - v2
+...
 ```
+
+
+
+#### 테스트 수행 - CB 설정전
+
+- mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
+
+  - Terminal 1 : Client tool 수행
+
+    - 명령
+
+      - ```sh
+        $ alias ku='kubectl -n user01'
+        $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+        ```
+
+  - Terminal 2 : hello-server-1 log 추척
+
+    - 명령
+
+      - ```sh
+        $ alias ku='kubectl -n user01'
+        $ ku logs -f hello-server-1 
+        ```
+
+  - Terminal 3 : hello-server-2 log 추척
+
+    - 명령
+
+      - ```sh
+        $ alias ku='kubectl -n user01'
+        $ ku logs -f hello-server-2
+        ```
 
 - curltest 컨테이너에서 svc-hello 서비스로 10개를 요청해 보자.
-  v1, v2 각각 5번씩 요청 결과가 조회된다.
+
+  - v1, v2 각각 5번씩 요청 결과가 조회된다.
+
 
 ```sh
 
-$ for i in {1..10}; do ku exec -it httpbin -- curl http://svc-hello:8080; sleep 0.1; done
+# 10개를 0.1초간격으로 요청해 보자.
+$ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
 Hello server - v2
+Hello server - v1
+Hello server - v1
+Hello server - v1
 Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v2
 Hello server - v1
+Hello server - v1
+Hello server - v1
 Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v2
+Hello server - v2
+Hello server - v1
+Hello server - v2
+Hello server - v2
+Hello server - v1
+
 ```
 
-- 위와 같이 클라이언트 요청에 따라 에러가 리턴되지는 않는다.
+- 위와 같이 20개가 에러 없이 리턴되었다.
+- 클라이언트 요청에 따라 에러가 리턴되지는 않는다.
 
 
 
-- hello-server-1 로그
+- [Terminal 2] hello-server-1 로그
 
 ```sh
-$ ku logs -f hello-server-1 -c hello-server-1
+$ ku logs -f hello-server-1
 
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
@@ -2336,31 +2444,40 @@ Hello server - v1 - 200
 
 ```
 
-200(정상) 6회이다.
+200(정상) 12회이다.
 
 
 
 - hello-server-2 로그
 
 ```sh
-$ ku logs -f hello-server-2 -c hello-server-2
+$ ku logs -f hello-server-2
 
+Hello server - v2 - 200
+Hello server - v2 - 503 (random)
+Hello server - v2 - 200
+Hello server - v2 - 200
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
+Hello server - v2 - 200
+
+
 ```
 
-내부 로직에 따라 20% 확률로 에러를 발생했고 200(정상) 4회, 503(실패) 1회 발생했다.
+전체 10회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다. [ 200(정상) 8회, 503(실패) 2회 ]
 
-1개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
+2개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
+
+500 에러가 발생하는 서비스에 접근을 일시적으로 차단 시키는 것이 좋다고 판단할 수 있다.
 
 
 
 - Kiali 에서는 다음과 같이 조회된다.
 
-![image-20220602214627686](ServiceMesh.assets/image-20220602214627686.png)
+![image-20230514195312657](ServiceMesh.assets/image-20230514195312657.png)
 
 
 
@@ -2396,6 +2513,37 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 
 
 
+#### 테스트 수행 - CB 설정후
+
+- 다시 동일한 요청을 하자. 이번에 20번 호출한다.
+
+```sh
+$ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+
+Hello server - v2
+Hello server - v2
+Hello server - v2
+Hello server - v2
+Hello server - v2
+Hello server - v2
+Hello server - v1
+Hello server - v1
+Hello server - v2
+Hello server - v1 <-- 여기서 503을 반환받은 후 circuit breaker에 의해서 v1만 호출되는 모습을 볼수 있다.
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+
+
+```
+
 - hello-server-1 pod 의 logs follow 하자.
 
 ```sh
@@ -2414,13 +2562,9 @@ Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-
-
 ```
+
+13회 정상 리턴이다.
 
 
 
@@ -2429,6 +2573,11 @@ Hello server - v1 - 200
 ```sh
 $ ku logs -f hello-server-2
 
+
+Hello server - v2 - 200
+Hello server - v2 - 200
+Hello server - v2 - 200
+Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
@@ -2436,43 +2585,14 @@ Hello server - v2 - 503 (random)
 
 ```
 
-
-
-- 다시 동일한 요청을 하자. 이번에 20번 호출한다.
-
-```sh
-$ for i in {1..20}; do ku exec -it httpbin -- curl http://svc-hello:8080; sleep 0.1; done
-Hello server - v2
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v2
-Hello server - v1 <-- 여기서 503을 반환받은 후 circuit breaker에 의해서 v1만 호출되는 모습을 볼수 있다.
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-
-
-```
-
-- 결과는 v2 call 4번째 503을 받은 후  v1 결과 만을 리턴되는 것을 확인할 수 있다.
+* 8회 리턴중 마지막 503 에러 이후 로그가 찍히지 않았다.
+* CB 정책에 의해 503 에러 발생후 3분동안 v2 로 Call 이 가지 않았다.
 
 
 
 kiali 의 모습은 아래와 같다.
 
-![image-20220602215609481](ServiceMesh.assets/image-20220602215609481.png)
+![image-20230514195643796](ServiceMesh.assets/image-20230514195643796.png)
 
 
 
@@ -2494,7 +2614,7 @@ $ ku delete pod/hello-server-1
   ku delete pod/hello-server-2
   ku delete svc/svc-hello
   ku delete dr/dr-hello
-  ku delete pod/httpbin
+  ku delete pod/curltest
 
 # 확인
 $ ku get all

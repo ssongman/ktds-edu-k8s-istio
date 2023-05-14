@@ -13,8 +13,6 @@
 
 
 
-
-
 # 1. 시작전에 ( [가이드 문서 보기](./beforebegin/beforebegin.md) )  
 
 
@@ -58,7 +56,7 @@
 
 
 
-## 2) Docker 실습
+## 2) [개인PC] Docker 실습
 
 - sample app 실행
 - Scale Out
@@ -67,19 +65,32 @@
 
 
 
-## 3) k3s 실습(개인PC)
+## 3) [개인PC] k3s 설치
 
 - k3s 란?
 - wsl 에 k3s 설치
-- sample app deploy
 
 
 
-## 4) K3s 실습(KT Cloud)
+## 4) [개인PC] Kubernetes 실습
 
 - 개인 Namespace 확인
-- Sample app deploy
+- sample app deploy
+  - Deployment
+  - Service 
+  - Scale Out
+  - Ingress
 
+
+
+## 5) [Cloud] Kubernetes 실습
+
+- Cloud 접속
+- 개인 Namespace 확인
+- Sample app deploy
+  - Deployment/Service
+  - Scale Out
+  - Ingress
 
 
 
@@ -98,7 +109,7 @@
 
 
 
-## 3) 실습(개인PC)
+## 3) [개인PC] 실습
 
 - helm 설치
 - helm 을 이용한 Istio 설치
@@ -107,17 +118,19 @@
 
 
 
-## 4) 실습(KT Cloud-기본)
+## 4) [Cloud] 실습
 
 - sample app (bookinfo) install
   - bookinfo application 을 활용한 실습을 통해서 istio 를 이해한다.
   - bookinfo 는 온라인 서점의 단일 카탈로그 항목과 유사한 도서에 대한 정보를 표시하는 app 이다.
 - Monitoring
-  - Grafana / Kiali / Jaeger
+  - Grafana
+  - Kiali
+  - Jaeger
 
 
 
-## 5) 실습(KT Cloud-Traffic control)
+## 5) [Cloud] 실습(Traffic control)
 
 - Traffic Shifting
   - 서비스별로 트래픽의 가중치를 조정하므로서 특정 버전에서 다른 버전으로 트래픽을 이동하는 방법을 제어할 수 있다.
@@ -129,22 +142,3 @@
   - istio는 Connection pool 과   Load balancing pool 기반의 circuit breaking 기능을 제공한다.
 
 
-
-
-
-
-
-# 별첨. KT Cloud Setup ( [가이드 문서 보기](./ktcloud-setup/ktcloud-setup.md) )  
-
-## 1) 서버 생성
-
-- k3s Cluster 용도 VM 생성
-- k3s 설치
-- user 생성
-
-## 2) Istio 셋팅
-
-- helm 설치
-- Istio 설치
-- Monitoring 설치
-  - Prometheus / Grafana / Kiali / Jeager 설치
