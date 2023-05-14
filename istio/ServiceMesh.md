@@ -11,7 +11,7 @@
 - 서비스 메시는 서비스간의 통신을 제어하고 관리하는 방식임
 - 서비스간 호출은 인프라계층의 proxy 를 통해 이루어짐
 - 서비스 메시를 구성하는 개벌 proxy는 서비스 내부가 아니라 각 서비스와 함께 실행되므로 sidecar 라고 부름
-- 각 서비스에 inject 된 이러한 sidecar proxy 들이 모여 서 Mesh Network 를 형성
+- 각 서비스에 inject 된 이러한 sidecar proxy 들이 모여 서 Mesh Network를 형성
 
 
 
@@ -56,7 +56,7 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 - TLS 암호화, 강력한 ID 기반 인증 및 권한 부여를 통해 클러스터에서 안전한 서비스 간 통신
 - HTTP, gRPC, WebSocket 및 TCP 트래픽에 대한 자동 로드 밸런싱
-- Routing rule, retry, retries, failovers 및 복원력 테스트를위한 Fault Injection 등을 통해 트래픽 동작을 세밀하게 제어
+- Routing rule, retry policy, failovers 및 복원력 테스트를위한 Fault Injection 등을 통해 트래픽 동작을 세밀하게 제어
 - 액세스 제어, 속도 제한 및 할당량을 지원하는 플러그형 정책 레이어 및 구성 API
 - 클러스터 수신 및 송신을 포함하여 클러스터 내의 모든 트래픽에 대한 자동 메트릭, 로그 및 추적
 
@@ -76,7 +76,7 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 
 
-## 3) Istio 서비스 메시의 이점
+## 3) Istio ServieMesh 이점
 
 - Istio 이점을 통한 서비스 보호
   - 보안 운영자는 인증, 승인, 암호화를 비롯한 서비스 간 보안을 쉽게 구현할 수 있다.
