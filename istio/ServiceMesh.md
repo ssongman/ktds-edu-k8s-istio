@@ -1211,13 +1211,19 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 ### (1) Grafana
 
-http://grafana.istio-system.cloud.34.111.106.168.nip.io
+http://grafana.istio-system.cloud.34.111.106.168.nip.io/
 
 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
 ![image-20220602191900236](ServiceMesh.assets/monitoring-grafana.png)
 
 
+
+* Mesh-Dashboard
+  * http://grafana.istio-system.cloud.34.111.106.168.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+
+* Service Dashboard
+  * http://grafana.istio-system.cloud.34.111.106.168.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user01.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
 
 
 
@@ -1227,7 +1233,8 @@ http://kiali.istio-system.cloud.34.111.106.168.nip.io
 
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
-
+* traffic-animation
+  * http://kiali.istio-system.cloud.34.111.106.168.nip.io/kiali/console/graph/namespaces/?traffic=grpc%2CgrpcRequest%2Chttp%2ChttpRequest%2Ctcp%2CtcpSent&graphType=versionedApp&namespaces=user01&duration=60&refresh=60000&layout=kiali-dagre&namespaceLayout=kiali-dagre&edges=trafficDistribution%2CtrafficRate&animation=true
 
 
 
@@ -1247,8 +1254,6 @@ http://jaeger.istio-system.cloud.34.111.106.168.nip.io
 
 
 
-
-
 # 5. [Cloud] 실습(Traffic control)
 
 
@@ -1260,7 +1265,7 @@ http://jaeger.istio-system.cloud.34.111.106.168.nip.io
 #### 초당 0.5회 call
 
 ```sh
-$ while true; do curl -s http://bookinfo.user02.cloud.34.111.106.168.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1281,7 +1286,8 @@ kiali 를 확인하면서 아래를 진행해보자.
 - WBR(Weight-bassed routing) 적용
 
 ```sh
-$ cd ~/githubrepo/ktds-edu
+
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1344,6 +1350,12 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 - 변화사항
   - reviews 의 v2,v3호출 되지 않도록 라우팅 변경함.
+- kiali 변화사항 모니터링
+  - graph 모니터링
+  - replay 기능 모니터링
+  - Service 확인
+    - VS yaml 확인
+
 
 
 
@@ -1414,7 +1426,7 @@ $ ku apply -f ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 - clean up
 
 ```sh
-# 한개의 파일만 clean up 한다.
+# 내부 라우팅 정책을 삭제 한다.
 $ ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 ```
 
@@ -1435,6 +1447,7 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 우선 모든 서비스가 v1 로만 흐르도록 변경한다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1555,7 +1568,7 @@ jason 으로 로그인이후에는 reviews-v2 가 호출되는 모습을 볼 수
 
 - 결론
 
-Contents based Route 의 한 종류인 canary 배포로 활용할 수 있다.
+ CBR(Contents based Route) 의 한 종류인 canary 배포로 활용할 수 있다.
 
 v2 를 운영환경에 배포한 다음 특정 사용자만 접속가능하게 한다음 충분히 테스트 한후 문제가 없다면 정식 버젼으로 변경하는 프로세스로 잡을 수 있다.
 
@@ -1588,6 +1601,8 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 적절한 테스트를 위해서 바로 윗단계에서 테스트 한것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 $ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
@@ -1619,6 +1634,8 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ cat ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 
 apiVersion: networking.istio.io/v1alpha3
@@ -1686,6 +1703,8 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 "Ratings service is currently unavailable" 라는 메세지가 나올것을 기대한다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ cat ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 
 apiVersion: networking.istio.io/v1alpha3
@@ -1747,11 +1766,13 @@ jason 을 제외한 나머지 사용자는 잘 처리되는 것을 확인할 수
 
 httpStatus: 500 error 의 비율을 조정해 보자.
 
-
-
 ratings 서비스를 call 했을때 500 error 비율을 50 으로 설정해 보자.
 
+json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될 것이다.
+
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ cat ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 
 apiVersion: networking.istio.io/v1alpha3
@@ -1777,11 +1798,12 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 
 ```
 
+* UI 에서 확인
+  * http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage
 
 
 
-
-
+#### curl test
 
 ```sh
 
@@ -1790,10 +1812,27 @@ $ ku run curltest --image=curlimages/curl -- sleep 365d
 
 $ ku exec -it curltest -- sh
 
+
+# 여러번 호출해 보자.
 $ curl -i http://ratings:9080/ratings/0
 
-$ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 200 OK
 
+
+
+# 여러번 호출해 보자.
+/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+HTTP/1.1 500 Internal Server Error
+/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+HTTP/1.1 200 OK
+/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+HTTP/1.1 500 Internal Server Error
+/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+HTTP/1.1 200 OK
+
+
+# 1초에 한번씩 호출해 보자.
 $ while true; do curl -i -s http://ratings:9080/ratings/0 | grep HTTP; sleep 1; done
 HTTP/1.1 500 Internal Server Error
 HTTP/1.1 500 Internal Server Error
@@ -1806,13 +1845,19 @@ HTTP/1.1 200 OK
 HTTP/1.1 200 OK
 ...
 
+
+# 50% 비율로 500 에러가 발생하는 것을 확인 할 수 있다.
+# 아래 비율을 조정해 보자
 ```
 
 
 
-비율을 조정해보자.
+#### 비율 조정
 
 kiali 에서도 쉽게 조정이 가능하다.
+
+* 메뉴 : graph > Rating > Detail > VS 선택
+  * 링크 : http://kiali.istio-system.cloud.34.111.106.168.nip.io/kiali/console/namespaces/user01/istio/virtualservices/ratings
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -1834,7 +1879,38 @@ spec:
         subset: v1
 ```
 
-참고링크: http://kiali.istio-system.cloud.34.111.106.168.nip.io/kiali/console/namespaces/user01/istio/virtualservices/ratings
+
+
+확인
+
+```sh
+
+# 위에서 계속
+...
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 200 OK
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 500 Internal Server Error
+
+...
+
+
+# 90% 비율로 500 에러가 발생하는 것을 확인 할 수 있다.
+
+
+Ctrl + C
+
+$ exit
+```
+
+
 
 
 
@@ -1878,6 +1954,7 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 앱이다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/11.httpbin-deploy-svc.yaml
 apiVersion: apps/v1
@@ -1904,7 +1981,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-httpbin
+  name: httpbin
   labels:
     app: httpbin
 spec:
@@ -1917,7 +1994,13 @@ spec:
 
 
 $ ku apply -f ./istio/httpbin/11.httpbin-deploy-svc.yaml
+deployment.apps/httpbin created
+service/svc-httpbin created
 
+$ ku get pod
+NAME                              READY   STATUS            RESTARTS   AGE
+httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
+...
 
 ```
 
@@ -1928,6 +2011,7 @@ $ ku apply -f ./istio/httpbin/11.httpbin-deploy-svc.yaml
 MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 설치한다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/12.fortio-pod.yaml
 
@@ -1949,6 +2033,13 @@ spec:
       name: grpc-ping
 
 $ ku apply -f ./istio/httpbin/12.fortio-pod.yaml
+pod/fortio created
+
+$ ku get pod
+NAME                              READY   STATUS    RESTARTS   AGE
+fortio                            2/2     Running   0          11s
+httpbin-d6d55998b-9sk6r           2/2     Running   0          92s
+...
 
 ```
 
@@ -1963,7 +2054,22 @@ $ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/
 HTTP/1.1 200 OK
 ...
 
-$ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get; sleep 0.5; echo; done
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get | grep HTTP
+HTTP/1.1 200 OK
+
+
+
+$ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://svc-httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
+
+HTTP/1.1 200 OK
+
+HTTP/1.1 200 OK
+
+HTTP/1.1 200 OK
+
+HTTP/1.1 200 OK
+...
+
 ```
 
 
@@ -1987,6 +2093,8 @@ Kiali 에서는 다음과 같이 조회된다.
 - maxRequestsPerConnection=1 : keep alive 기능 disable 한다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ cat ./istio/httpbin/13.dr-httpbin.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -2022,6 +2130,7 @@ Kiali 에서는 아래와 같이 circuit break 뱃지가 나타난다.
   - 결과를 확인해보면 모두 응답코드 **200(정상)** 을 리턴 한다.
 
 ```sh
+
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://svc-httpbin:8000/get
 
 ...
@@ -2099,10 +2208,9 @@ Code 200 : 30 (100.0 %)
 #### clean up
 
 ```sh
-$ 
-ku delete pod/fortio 
-ku delete deployment.apps/httpbin 
-ku delete svc/svc-httpbin
+$ ku delete pod/fortio 
+  ku delete deployment.apps/httpbin 
+  ku delete svc/svc-httpbin
 
 ```
 
@@ -2125,6 +2233,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 #### 기본 환경을 구성
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/11.hello-pod-svc.yaml
 apiVersion: v1
@@ -2265,6 +2374,8 @@ Hello server - v2 - 200
   - baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
 
 ```sh
+$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+
 $ cat ./istio/hello/12.hello-dr.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
@@ -2379,14 +2490,14 @@ kiali 의 모습은 아래와 같다.
 #### clean up
 
 ```sh
-ku delete pod/hello-server-1
-ku delete pod/hello-server-2
-ku delete svc/svc-hello
-ku delete dr/dr-hello
-ku delete pod/httpbin
+$ ku delete pod/hello-server-1
+  ku delete pod/hello-server-2
+  ku delete svc/svc-hello
+  ku delete dr/dr-hello
+  ku delete pod/httpbin
 
 # 확인
-ku get all
+$ ku get all
 ```
 
 
