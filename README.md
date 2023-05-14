@@ -141,4 +141,3 @@
 - Circuit Breaking
   - istio는 Connection pool 과   Load balancing pool 기반의 circuit breaking 기능을 제공한다.
 
-
