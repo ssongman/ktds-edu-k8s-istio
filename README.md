@@ -22,20 +22,22 @@
 ## 1) 실습 환경 준비(개인PC)
 
 - 실습에 필요한 tool 준비
-  - mobaxterm 확인
-  - wsl2
-  - docker desktop 확인
+  - mobaxterm 설치
+  - wsl2 설치
+    - 실습자료  Download (개인PC에서 실습용 )
+  - docker desktop 설치
+  - typora 설치
+    - 교육자료  Download(교육자료 및 ssh key )
+  
 
-- 교육자료 Download
 
 
+## 2) 실습 환경 준비(Cloud)
 
-## 2) 실습 환경 준비(KT Cloud)
-
-- KT Cloud 이해
+- Cloud 개
+- 수강생별 Namespace 매핑
 - ssl 접속 확인
-- 수강생별 계정 매핑
-- 교육자료 Download
+- 실습자료 Download(Cloud에서 실습용 )
 
 
 

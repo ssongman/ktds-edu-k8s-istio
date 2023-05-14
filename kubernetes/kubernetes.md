@@ -97,10 +97,6 @@
 
 
 
-
-
-
-
 # 2. Docker 실습
 
 docker Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가 무엇인지, kubernetes 의 차이가 무엇인지를 알아보자.
@@ -112,10 +108,12 @@ docker Container 를 활용한 실습을 통해서 얼마나 효율적인지, �
 wsl 환경에 접속후 sample app 인 userlist 를 실행해 보자.
 
 ```sh
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
 $ docker run -d --name userlist1 -p 8181:8181 ssongman/userlist:v1
 
 $ curl http://localhost:8181/
-
 
 $ curl http://localhost:8181/users/1
 {"id":1,"name":"Ivory Leffler","gender":"F","image":"/assets/image/cat1.jpg"}
@@ -145,9 +143,9 @@ http://localhost:8181/users/2
 
 ## 2) Scale Out
 
-Application 하나를 간단히 배포하였다. 하지만 부하가 너무 많아 한개의 container 만으로는 부족한 상황이다.
+Application 하나를 간단히 배포하였다. 하지만 부하가 너무 많아 한개의 container 만으로는 부족한 상황을 가정해 보자.
 
-Scale Out 이 필요한 상황이다.  어떻게 해결할 것인가??
+Scale Out 이 필요하다.  어떻게 해결할 것인가??
 
 동일한 이미지를 이용해서 한개 실행해보자.
 
@@ -193,7 +191,7 @@ load balancer 역할을 수행할 haproxy 를 Application 앞단에 두고 clien
 
 ### (1) 동일 network 에서 container 실행
 
-위 그림과 같이 3개의 컨테이너를 각각 실행해 보자.
+위 그림과 같이 3개의 컨테이너를 구조를 설정해 보자.
 
 
 
@@ -213,10 +211,16 @@ Docker 컨테이너(container)는 격리된 환경에서 돌아가기 때문에 
 
 
 ```sh
-# 네트워크에서 실행되도록 한다. 
+# 네트워크을 하나 추가하자.
 $ docker network create my_network
 
 $ docker network ls
+NETWORK ID     NAME         DRIVER    SCOPE
+f5ee193cfc4e   bridge       bridge    local
+29d9382d1a33   host         host      local
+6f120c28cd98   my_network   bridge    local    <-- 신규 network
+dc87e84fb7f9   none         null      local
+
 ```
 
 
@@ -237,6 +241,30 @@ $ docker run -d --net my_network --name userlist2 -p 8182:8181 ssongman/userlist
 $ curl http://localhost:8182/users/1
 {"id":1,"name":"Stefanie Mitchell","gender":"F","image":"/assets/image/cat1.jpg"}
 
+
+# network 확인
+$ docker network inspect my_network
+...
+        "Containers": {
+            "065c828fc7025c9aadab1ac9bc799225492e1596b98874750a0cc0783b2e4cad": {
+                "Name": "userlist2",
+                "EndpointID": "c59e42b579768e8f2a236eebd19c16b8dbd312bf451966503bf6bfc8bf581504",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "c65f45a0784b6dd6c88b4ffc315f40641eaf7a8ca12f3341107c43696c615ac2": {
+                "Name": "userlist1",
+                "EndpointID": "b12b2758a95a7d0d52eb75b98eff081f9814ee33a35e926290cefa998e4c0af3",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+...
+
+# userlist1 / userlist2 이 Docker network 상에서 domain 으로 사용된다.
+# docker network 범위 내에서 ping이나 curl 명령으로 확인해보면 해당 IP 로 변환되는 것을 확인할 수 있다.
 ```
 
 
@@ -252,9 +280,9 @@ load balancer 역할로 haproxy 를 이용한다.
 haproxy는 첫 수행을 위해서는 반드시 haproxy.cfg 파일이 필요하다.
 
 ```sh
-$ mkdir ~/haproxy
+$ mkdir -p ~/ktdsedu/haproxy
 
-$ cd ~/haproxy
+$ cd ~/ktdsedu/haproxy
 
 $ cat > haproxy.cfg
 global
@@ -302,11 +330,16 @@ listen web
 
 ```
 
+cat > 명령이후 Ctrl + D 명령어로 파일을 Close 한다.
+
 
 
 - dockerize
 
 ```sh
+
+$ cd ~/ktdsedu/haproxy
+
 $ cat > Dockerfile
 
 FROM haproxy:latest
@@ -322,8 +355,8 @@ $ docker build -t my-haproxy .
 
 $ docker images
 REPOSITORY          TAG       IMAGE ID       CREATED         SIZE
-my-haproxy          latest    ddd9c9e2e161   5 seconds ago   102MB
-haproxy             latest    16377ca07cf6   6 days ago      102MB
+my-haproxy          latest    9df686f9b2ad   2 seconds ago   103MB
+ssongman/userlist   v1        bf0cd99d0bad   4 years ago     680MB
 
 ```
 
@@ -337,6 +370,7 @@ $ docker run -it --rm \
     --name haproxy-syntax-check \
     --net my_network \
     my-haproxy haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
+
 Configuration file is valid
 
 
@@ -347,8 +381,15 @@ $ docker run -d \
     -p 8180:8180  \
     my-haproxy
 
+# 확인
+$ docker ps -a
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                    NAMES
+8a9fb73ccef1   my-haproxy             "docker-entrypoint.s…"   20 seconds ago   Up 19 seconds   0.0.0.0:8180->8180/tcp   my-haproxy
+065c828fc702   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   10 minutes ago   Up 10 minutes   0.0.0.0:8182->8181/tcp   userlist2
+c65f45a0784b   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   11 minutes ago   Up 11 minutes   0.0.0.0:8181->8181/tcp   userlist1
 
-# 실행 with haproxy monitoring
+
+# [참고] 모니터링 port를 활성화 시키고자 할때는 아래처럼 1936port 를 명시한다.
 $ docker run -d \
     --net my_network \
     --name my-haproxy \
@@ -377,15 +418,20 @@ $ curl localhost:8182/users/1
 
 
 
-# haproxy call
+# haproxy call - 반복해서 수행해 보자.
 $ curl localhost:8180/users/1
+{"id":1,"name":"Dr. Maudie Christiansen","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Stefanie Mitchell","gender":"F","image":"/assets/image/cat1.jpg"}
 
+# 1초에 한번씩 call 해보자.
 $ while true; do curl localhost:8180/users/1; sleep 1; echo; done
 {"id":1,"name":"Dr. Maudie Christiansen","gender":"F","image":"/assets/image/cat1.jpg"}
 {"id":1,"name":"Stefanie Mitchell","gender":"F","image":"/assets/image/cat1.jpg"}
 {"id":1,"name":"Dr. Maudie Christiansen","gender":"F","image":"/assets/image/cat1.jpg"}
 {"id":1,"name":"Stefanie Mitchell","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
+
+
 
 
 
@@ -441,9 +487,11 @@ backend testweb-backend
 
 ```sh
 $ docker rm -f userlist1
-$ docker rm -f userlist2
-$ docker rm -f my-haproxy
-$ docker network rm my_network
+  docker rm -f userlist2
+  docker rm -f my-haproxy
+  docker network rm my_network
+  docker rmi ssongman/userlist:v1
+  docker rmi my-haproxy:latest
 ```
 
 
@@ -485,13 +533,14 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 ## 2) wsl 에 k3s 설치
 
-### (1) master node - stand alone
+### (1) master node - stand alone mode
 
 - k3s install
 
 ```sh
-## root 권한으로 
+## root 권한으로 수행한다.
 $ su
+Password:
 
 $ curl -sfL https://get.k3s.io | sh -
 
@@ -500,6 +549,19 @@ $ curl -sfL https://get.k3s.io | sh -
 …
 [INFO]  systemd: Starting k3s   <-- 마지막 성공 로그
 
+# 20초 정도 소요됨
+```
+
+
+
+* [참고]root password 변경 방법
+
+```sh
+# root 로 wsl 실행
+$ wsl -u root 
+
+# root password 변경 가능
+$ passwd
 ```
 
 
@@ -538,8 +600,11 @@ root         626     591  5 13:05 pts/0    00:00:01 containerd -c /var/lib/ranch
 ...
 
 $ k3s kubectl version
-Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
-Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
+WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
+Client Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
+Kustomize Version: v4.5.7
+Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
+
 ```
 
 
@@ -548,7 +613,7 @@ Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", G
 
 ### (2) kubeconfig 설정
 
-local 에서 직접 kubctl 명령 실행을 위해서는 ~/.kube/config 에 연결정보가 설정되어야 한다.
+일반 User 기 직접 kubctl 명령 실행을 위해서는 ~/.kube/config 에 연결정보가 설정되어야 한다.
 
 현재는 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이를 복사한다. 
 
@@ -560,53 +625,39 @@ local 에서 직접 kubctl 명령 실행을 위해서는 ~/.kube/config 에 연�
 ## root 로 실행
 $ su
 
+$ ll /etc/rancher/k3s/k3s.yaml
+-rw------- 1 root root 2961 May 14 03:23 /etc/rancher/k3s/k3s.yaml
+
+# 모든 사용자에게 읽기권한 부여
+$ chmod +r /etc/rancher/k3s/k3s.yaml
+
+$ ll /etc/rancher/k3s/k3s.yaml
+-rw-r--r-- 1 root root 2961 May 14 03:23 /etc/rancher/k3s/k3s.yaml
+
+$ exit
+
+```
+
+* 일반 user 로 수행
+  * kubectl 명령을 수행하기를 원하는 특정 사용자로 아래 작업을 진행한다.
+
+```sh
+
+## 일반 user 권한으로 실행
+
 $ mkdir -p ~/.kube
 
 $ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 
-# 자신만 읽기/쓰기 권한 부여
-$ chmod 600 ~/.kube/config
+$ ll ~/.kube/config
+-rw-r--r-- 1 song song 2957 May 14 03:44 /home/song/.kube/config
 
 ## 확인
 $ kubectl version
-Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
-Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
-
-```
-
-* [참고]root password 변경 방법
-
-```sh
-# root 로 wsl 실행
-$ wsl -u root 
-
-# root password 변경 가능
-$ passwd
-```
-
-
-
-- 특정 user 로 수행
-
-kubectl 명령을 수행하기를 원하는 특정 사용자로 아래 작업을 진행한다.
-
-```sh
-
-## user 권한으로 실행
-
-$ mkdir -p ~/.kube
-
-$ sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-
-
-# 모든사용자에게 읽기 권한 부여
-$ sudo chmod +r /etc/rancher/k3s/k3s.yaml ~/.kube/config
-
-## 확인
-## user 권한으로도 사용 가능
-$ kubectl version
-Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
-Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
+WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
+Client Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
+Kustomize Version: v4.5.7
+Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
 
 ```
 
@@ -621,13 +672,16 @@ kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 �
 적용하려면 source 명령을 이용한다.
 
 ```sh
+
+## 일반 user 권한으로 실행
+
 $ cat > ~/env
 alias k='kubectl'
 alias kk='kubectl -n kube-system'
-alias ks='k -n song'
-alias ki='k -n istio-system'
-alias kb='k -n bookinfo'
-alias kii='k -n istio-ingress'
+alias ks='kubectl -n song'
+alias ki='kubectl -n istio-system'
+alias kb='kubectl -n bookinfo'
+alias kii='kubectl -n istio-ingress'
 
 
 ## alias 를 적용하려면 source 명령 수행
@@ -680,7 +734,8 @@ $ alias ku='kubectl -n user01'     <-- 자신의 namespace 명을 입력한다.
 
 ### (2) Deployment
 
-- userlist deployment 생성 -  CLI 이용
+- userlist deployment 생성
+  * kubectl cli 이용하여 생성하는 방법으로 테스트 해보자.
 
 ```sh
 # deploy 생성
@@ -688,20 +743,26 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 
 # 확인
-$ ku get pod -w
+$ ku get pod -w         # 1분 정도 소요됨
 NAME                        READY   STATUS              RESTARTS   AGE
 userlist-75c7d7dfd7-kvtjh   0/1     ContainerCreating   0          15s
 userlist-75c7d7dfd7-kvtjh   1/1     Running             0          40s
 
 
+# CLI 로 deploy 된 모습을 확인후 삭제하자.
+# Yaml 을 통한 생성 작업을 수행할 것이다.
+
 # 삭제
 $ ku delete deploy userlist
+
 
 ```
 
 
 
-- userlist deployment 생성 -  yaml 이용
+- userlist deployment 생성
+  -  yaml 을 이용하여  deploy  해보자.
+
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -748,30 +809,27 @@ userlist-c78d76c78-dntfx   1/1     Running   0          10s
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-dntfx   1/1     Running   0          4s
+userlist-bfd857685-j9s4m   1/1     Running   0          20s
+
 
 
 # userlist pod 내에서 확인
-$ ku exec -it userlist-c78d76c78-dntfx -- curl -i localhost:8181
+$ ku exec -it userlist-bfd857685-j9s4m -- curl -i localhost:8181/users/1
+
 HTTP/1.1 200
-Content-Type: text/html;charset=UTF-8
-Content-Language: en
+Content-Type: application/json;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 01 Jun 2022 07:34:49 GMT
+Date: Sat, 13 May 2023 18:55:48 GMT
 
-<!DOCTYPE html>
-
-<html>
-<head>
-        <title>UMS - User List</title>
-        <meta charset="utf-8" />
-...
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # 200 OK 로 정상
 
-$ ku exec -it userlist-c78d76c78-dntfx -- curl localhost:8181/users/1
-$ ku exec -it userlist-c78d76c78-vh9qh  -- curl localhost:8181/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+
+# 몇번 반복해보자.
+$ ku exec -it userlist-bfd857685-j9s4m -- curl localhost:8181/users/1
+$ ku exec -it userlist-bfd857685-j9s4m -- curl localhost:8181/users/1
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 ```
@@ -809,15 +867,15 @@ Usage: curl [options...] <url>
 
 # 확인
 $ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-userlist-c78d76c78-dntfx   1/1     Running   0          9m18s
-curltest                   1/1     Running   0          2m49s
+NAME                        READY   STATUS        RESTARTS   AGE
+userlist-bfd857685-j9s4m    1/1     Running       0          4m5s
+curltest                    1/1     Running       0          13s
 
 # pod ip 확인
 $ ku get pod -o wide
-NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
-userlist-c78d76c78-dntfx   1/1     Running   0          9m25s   10.42.0.10   desktop-msrerbm   <none>           <none>
-curltest                   1/1     Running   0          2m56s   10.42.0.12   desktop-msrerbm   <none>           <none>
+NAME                        READY   STATUS        RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
+userlist-bfd857685-j9s4m    1/1     Running       0          4m17s   10.42.0.10   desktop-qfrh1cb   <none>           <none>
+curltest                    1/1     Running       0          25s     10.42.0.12   desktop-qfrh1cb   <none>           <none>
 
 ```
 
@@ -828,23 +886,18 @@ curltest                   1/1     Running   0          2m56s   10.42.0.12   des
 ```sh
 $ ku exec -it curltest -- sh
 
-$ curl 10.42.0.66:8181/users/1
-{"id":1,"name":"Mr. Mackenzie Gulgowski","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl 10.42.0.10:8181/users/1
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ exit
 
 ```
 
 
 
-- master node에서 실행
+userlist pod 내에서 실행한 결과와 curltest pod 에서 실행한 결과가 모두 동일하다.
 
-```sh
-$ ku exec -it curltest -- curl 10.42.0.66:8181/users/1
-{"id":1,"name":"Mr. Mackenzie Gulgowski","gender":"F","image":"/assets/image/cat1.jpg"}
-```
-
-
-
-userlist pod 내에서 실행한 결과와 curltest pod 에서 실행한 결과, 그리고 node 에서 실행한  결과가 모두 동일하다.
+어떤 pod 이든 pod 내에서 수행되는 명령은 모두 동일한 Cluster 내부 network 임을 알 수 있다. 
 
 cluster 내에 내부 network 개념을 이해하는 중요한 예제이니 꼭 이해하자.
 
@@ -906,27 +959,28 @@ $ ku exec -it curltest -- sh
 
 # pod ip 로 call
 $ curl 10.42.0.10:8181/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}/
 
 # svc name으로 call
 $ curl userlist-svc/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}/
 
 # svc name 의 ip 식별
 $ ping userlist-svc
-PING userlist-svc (10.43.240.205): 56 data bytes
+PING userlist-svc (10.43.12.65): 56 data bytes
+
 
 # svc ip로 call
-$ curl 10.43.240.205/users/1
-{"id":1,"name":"Ms. Drake Murphy","gender":"F","image":"/assets/image/cat1.jpg"}
+$ curl 10.43.12.65/users/1
+{"id":1,"name":"Jude Maggio","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
 
-3개의 curl 결과가 모두 동일한 것을 볼 수 있다.  위 부분을 반드시 이해하기 바란다.  
+pod의 IP, Service명, Service 의 IP !   이렇게 3개의 curl 결과가 모두 동일한 것을 볼 수 있다.  위 부분을 반드시 이해하기 바란다.  
 
 이해 해야할 주요 포인트를 정리하자면...
 
-- 여러가지 주소 형태로 call 을 했지만 모두 같은 값이 리턴되었다.
+- 3가지 주소 형태로 call 을 했지만 모두 같은 값이 리턴되었다.
 - pod ip 로 직접 접근할때는 8181 port  로 접근한다.
 - svc name 이나 svc ip 로 접근할때는 80 port 로 접근한다.
 - svc name 으로 call 이 가능하다.
