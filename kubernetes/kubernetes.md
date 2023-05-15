@@ -566,6 +566,9 @@ Password:
 
 $ curl -sfL https://get.k3s.io | sh -
 
+$ curl -sfL https://get.k3s.io | sh - --write-kubeconfig-mode 644
+
+
 [INFO]  Finding release for channel stable
 [INFO]  Using v1.23.6+k3s1 as release
 …
