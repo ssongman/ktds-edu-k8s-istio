@@ -265,7 +265,7 @@ replicaset.apps/nginx-68c669f78d   1         1         0       10s
 $ helm -n user02 delete nginx
 
 $ ku get all
-No resources found in user01 namespace.
+No resources found in yjsong namespace.
 ```
 
 
@@ -823,20 +823,21 @@ istio 적용하는데 있어서 Application 자체를 변경할 필요가 없다
 
 ```sh
 
-$ alias ku='kubectl -n user01'
+# alias 설정
+$ alias ku='kubectl -n yjsong'
 
 # label 설정
-$ kubectl label namespace user01 istio-injection=enabled
+$ kubectl label namespace yjsong istio-injection=enabled
 
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns yjsong -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2023-05-13T16:30:47Z"
   labels:
     istio-injection: enabled              <-- 설정 완료
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: yjsong
+  name: yjsong
   resourceVersion: "272489"
   uid: b07d5ed0-42e8-40ee-a1a9-abba52e33139
 spec:
@@ -851,16 +852,16 @@ status:
 
 #### [참고] git clone
 
-- 기존에 이미 받아 놓았으면 생략가능
+- 기존에 이미 받아 놓았으면 생략
 
 ```sh
-$ mkdir ~/githubrepo
+$ mkdir ~/users/yjsong/githubrepo
 
-$ cd ~/githubrepo
+$ cd ~/users/yjsong/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 drwxr-xr-x 8 song song  4096 May 14 01:59 .git/
 -rw-r--r-- 1 song song 11357 May 14 01:59 LICENSE
 -rw-r--r-- 1 song song  2738 May 14 01:59 README.md
@@ -877,7 +878,7 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 
 ```sh
 
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/11.bookinfo.yaml
 -rw-r--r-- 1 song song 7974 May 14 01:59 ./istio/bookinfo/11.bookinfo.yaml
@@ -942,12 +943,12 @@ productpage   ClusterIP   10.43.203.157   <none>        9080/TCP   117s
 # 1. ratings app pod 확인
 $ ku get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
-ratings-v1-6fb94bb7cd-hfbq5   2/2     Running   0          3m53s
+ratings-v1-6fb94bb7cd-b2q7k   2/2     Running   0          47s
 
 
 
 # 2. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-hfbq5 -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec ratings-v1-6fb94bb7cd-b2q7k -c ratings -- curl -sS productpage:9080/productpage
 
 <!DOCTYPE html>
 <html>
@@ -960,7 +961,7 @@ $ ku exec ratings-v1-6fb94bb7cd-hfbq5 -c ratings -- curl -sS productpage:9080/pr
 
 
 # 3. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-hfbq5 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ ku exec ratings-v1-6fb94bb7cd-b2q7k -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
 ```
@@ -988,10 +989,11 @@ bookinfo host 를 각자 계정명으로 변경한후 적용하자.
 
 ```sh
 
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
-$ ll ./istio/bookinfo/11.bookinfo.yaml
--rw-r--r-- 1 song song 7974 May 14 01:59 ./istio/bookinfo/11.bookinfo.yaml
+$ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 711 May 15 14:12 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+
 
 
 
@@ -1019,7 +1021,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user01.cloud.34.111.106.168.nip.io"    # 각자 계정명으로 변경 필요
+  - "bookinfo.yjsong.cloud.35.209.207.26.nip.io"    # 각자 계정명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1052,7 +1054,7 @@ bookinfo-gateway   4s
 
 $ ku get vs
 NAME       GATEWAYS               HOSTS                                             AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user01.cloud.34.111.106.168.nip.io"]   16s
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.yjsong.cloud.35.209.207.26.nip.io"]   16s
 
 
 ```
@@ -1067,7 +1069,7 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 
 # 15.bookinfo-ingress.yaml 파일 확인
@@ -1076,13 +1078,13 @@ $ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress-user01                            <-- 각자 NS명으로 변경 필요
+  name: bookinfo-ingress-yjsong                            <-- 각자 NS명으로 변경 필요
   namespace: istio-ingress
   annotations:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "bookinfo.user01.cloud.34.111.106.168.nip.io"    <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.yjsong.cloud.35.209.207.26.nip.io"    <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1100,8 +1102,8 @@ $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
 ## ingress 확인
-## user01 를 각자 계정명으로 변경 필요
-$ curl -s "http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage" | grep -o "<title>.*</title>"
+## yjsong 를 각자 계정명으로 변경 필요
+$ curl -s "http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
 
@@ -1124,10 +1126,10 @@ istio-ingressgateway   LoadBalancer   10.43.123.95   <pending>     15021:30829/T
 
 # node port 로 접근 테스트
 
-$ curl http://10.128.0.22:30987/productpage -H "Host:bookinfo.user01.cloud.34.111.106.168.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://10.128.0.22:30987/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>
 
-$ curl http://localhost:30987/productpage -H "Host:bookinfo.user01.cloud.34.111.106.168.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://localhost:30987/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>
 
 ```
@@ -1139,7 +1141,7 @@ $ curl http://localhost:30987/productpage -H "Host:bookinfo.user01.cloud.34.111.
 #### 초당 0.5회 call 
 
 ```sh
-$ while true; do curl -s http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1151,7 +1153,7 @@ while문으로 call유지 한채로 아래 monitoring 에서 kiali / jaeger / gr
 
 ```sh
 
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 # 13.destination-rule-all.yaml 파일 확인
 $ cat ./istio/bookinfo/13.destination-rule-all.yaml
@@ -1231,9 +1233,9 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 ### (5) clean up
 
 ```sh
-$ alias ku='kubectl -n user01'
+$ alias ku='kubectl -n yjsong'
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 
 # 삭제
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
@@ -1254,7 +1256,7 @@ $ ku get all
 
 
 # label 삭제
-$ ku label --overwrite namespace user01 istio-injection-
+$ ku label --overwrite namespace yjsong istio-injection-
 
 ```
 
@@ -1272,7 +1274,7 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 ### (1) Grafana
 
-http://grafana.istio-system.cloud.34.111.106.168.nip.io/
+http://grafana.istio-system.cloud.35.209.207.26.nip.io/
 
 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
@@ -1281,21 +1283,21 @@ http://grafana.istio-system.cloud.34.111.106.168.nip.io/
 
 
 * Mesh-Dashboard
-  * http://grafana.istio-system.cloud.34.111.106.168.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
 
 * Service Dashboard
-  * http://grafana.istio-system.cloud.34.111.106.168.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user01.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
+  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.yjsong.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
 
 
 
 ### (2) Kiali
 
-http://kiali.istio-system.cloud.34.111.106.168.nip.io
+http://kiali.istio-system.cloud.35.209.207.26.nip.io
 
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
 * traffic-animation
-  * http://kiali.istio-system.cloud.34.111.106.168.nip.io/kiali/console/graph/namespaces/?traffic=grpc%2CgrpcRequest%2Chttp%2ChttpRequest%2Ctcp%2CtcpSent&graphType=versionedApp&namespaces=user01&duration=60&refresh=60000&layout=kiali-dagre&namespaceLayout=kiali-dagre&edges=trafficDistribution%2CtrafficRate&animation=true
+  * http://kiali.istio-system.cloud.35.209.207.26.nip.io/kiali/console/graph/namespaces/?traffic=grpc%2CgrpcRequest%2Chttp%2ChttpRequest%2Ctcp%2CtcpSent&graphType=versionedApp&namespaces=yjsong&duration=60&refresh=60000&layout=kiali-dagre&namespaceLayout=kiali-dagre&edges=trafficDistribution%2CtrafficRate&animation=true
 
 
 
@@ -1305,7 +1307,7 @@ http://kiali.istio-system.cloud.34.111.106.168.nip.io
 
 ### (3) Jaeger
 
-http://jaeger.istio-system.cloud.34.111.106.168.nip.io
+http://jaeger.istio-system.cloud.35.209.207.26.nip.io
 
 ![img](ServiceMesh.assets/monitoring-jaeger.png)
 
@@ -1326,7 +1328,7 @@ http://jaeger.istio-system.cloud.34.111.106.168.nip.io
 #### 초당 0.5회 call
 
 ```sh
-$ while true; do curl -s http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1344,7 +1346,7 @@ kiali 를 확인하면서 아래를 진행해보자.
 
 ```sh
 
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1504,7 +1506,7 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 우선 모든 서비스가 v1 로만 흐르도록 변경한다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1607,7 +1609,7 @@ $ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
 browser 에서 jason 으로 로그인 한다음 접근해보자. 
 
-http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage
+http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage
 
 
 
@@ -1658,7 +1660,7 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 적절한 테스트를 위해서 바로 윗단계에서 테스트 한것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1691,7 +1693,7 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 
@@ -1760,7 +1762,7 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 "Ratings service is currently unavailable" 라는 메세지가 나올것을 기대한다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 
@@ -1828,7 +1830,7 @@ ratings 서비스를 call 했을때 500 error 비율을 50 으로 설정해 보�
 json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될 것이다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 
@@ -1856,7 +1858,7 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 ```
 
 * UI 에서 확인
-  * http://bookinfo.user01.cloud.34.111.106.168.nip.io/productpage
+  * http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage
 
 
 
@@ -1914,7 +1916,7 @@ HTTP/1.1 200 OK
 kiali 에서도 쉽게 조정이 가능하다.
 
 * 메뉴 : graph > Rating > Detail > VS 선택
-  * 링크 : http://kiali.istio-system.cloud.34.111.106.168.nip.io/kiali/console/namespaces/user01/istio/virtualservices/ratings
+  * 링크 : http://kiali.istio-system.cloud.35.209.207.26.nip.io/kiali/console/namespaces/yjsong/istio/virtualservices/ratings
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -1985,7 +1987,7 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 ### (5) Clean up
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
  
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
@@ -2030,7 +2032,7 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 앱이다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/11.httpbin-deploy-svc.yaml
 apiVersion: apps/v1
@@ -2088,7 +2090,7 @@ httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
 MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 설치한다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/12.fortio-pod.yaml
 
@@ -2174,7 +2176,7 @@ Kiali 에서는 다음과 같이 조회된다.
 
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/13.dr-httpbin.yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -2274,7 +2276,7 @@ Code 503 : 23 (76.7 %)
 - 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
@@ -2336,7 +2338,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 #### 테스트 POD 기동
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/11.hello-pod-svc.yaml
 apiVersion: v1
@@ -2426,7 +2428,7 @@ Hello server - v2
     - 명령
 
       - ```sh
-        $ alias ku='kubectl -n user01'
+        $ alias ku='kubectl -n yjsong'
         $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
         ```
 
@@ -2435,7 +2437,7 @@ Hello server - v2
     - 명령
 
       - ```sh
-        $ alias ku='kubectl -n user01'
+        $ alias ku='kubectl -n yjsong'
         $ ku logs -f hello-server-1 
         ```
 
@@ -2444,7 +2446,7 @@ Hello server - v2
     - 명령
 
       - ```sh
-        $ alias ku='kubectl -n user01'
+        $ alias ku='kubectl -n yjsong'
         $ ku logs -f hello-server-2
         ```
 
@@ -2552,7 +2554,7 @@ Hello server - v2 - 200
   - baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/12.hello-dr.yaml
 apiVersion: networking.istio.io/v1alpha3
