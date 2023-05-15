@@ -1053,9 +1053,8 @@ NAME               AGE
 bookinfo-gateway   4s
 
 $ ku get vs
-NAME       GATEWAYS               HOSTS                                             AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.yjsong.cloud.35.209.207.26.nip.io"]   16s
-
+NAME       GATEWAYS               HOSTS                                            AGE
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.yjsong.cloud.35.209.207.26.nip.io"]   8s
 
 ```
 
@@ -1100,6 +1099,12 @@ spec:
 $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
+$ kubectl -n istio-ingress get ingress
+NAME                      CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
+bookinfo-ingress-user01   <none>   bookinfo.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      49s
+
+
+
 
 ## ingress 확인
 ## yjsong 를 각자 계정명으로 변경 필요
@@ -1118,15 +1123,15 @@ istio-ingressgateway node port 로 테스트
 
 # istio ingressgateway service 확인
 $ kii get svc
-NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.123.95   <pending>     15021:30829/TCP,80:30987/TCP,443:31526/TCP   12m
+NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   102m
 
-# 30987 node port 로 접근 가능
+# 31166 node port 로 접근 가능
 
 
-# node port 로 접근 테스트
+# master01 IP의 node port 로 접근 테스트
 
-$ curl http://10.128.0.22:30987/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://10.128.0.25:31166/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>
 
 $ curl http://localhost:30987/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
