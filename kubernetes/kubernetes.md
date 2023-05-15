@@ -566,7 +566,8 @@ Password:
 
 $ curl -sfL https://get.k3s.io | sh -
 
-$ curl -sfL https://get.k3s.io | sh - --write-kubeconfig-mode 644
+# 다른 옵션 : kubeconfig 파일의 권한 조정
+# $ curl -sfL https://get.k3s.io | sh - --write-kubeconfig-mode 644
 
 
 [INFO]  Finding release for channel stable
