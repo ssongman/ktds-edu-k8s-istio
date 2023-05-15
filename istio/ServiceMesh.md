@@ -1068,19 +1068,18 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 $ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 
+
 # 15.bookinfo-ingress.yaml 파일 확인
-$ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
----
+$ cat ./istio/bookinfo/15.bookinfo-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress-yjsong                            <-- 각자 NS명으로 변경 필요
-  namespace: istio-ingress
+  name: bookinfo-ingress-yjsong                          <-- 각자 NS명으로 변경 필요
   annotations:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "bookinfo.yjsong.cloud.35.209.207.26.nip.io"    <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.yjsong.cloud.35.209.207.26.nip.io"   <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1090,7 +1089,11 @@ spec:
             name: istio-ingressgateway
             port:
               number: 80
----
+
+
+# 15.bookinfo-ingress.yaml 파일 수정
+$ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
+...
 
 # ingress 는 istio-ingress namespace 에서 실행해야 한다.
 $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
