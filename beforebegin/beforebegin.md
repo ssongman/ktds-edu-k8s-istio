@@ -29,7 +29,7 @@ KT cloud 서버에 ssh 접근을 위한 터미널이 필요하다.
 
 다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/Git-2.40.1-64-bit.exe
 
-링크 : https://git-scm.com/
+참조 링크 : https://git-scm.com/
 
 
 
