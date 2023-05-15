@@ -1494,7 +1494,6 @@ userlist-bfd857685-g6kj6   1/1     Running   0          115s
 $ ku exec -it curltest -- curl userlist-svc/users/1
 {"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ exit
 ```
 
 userlist-svc 라는 서비스명으로 접근이 잘 되는 것을 확인 할 수 있다.
@@ -1549,7 +1548,7 @@ userlist-bfd857685-x4v6h   1/1     Running   0          26s
 
 
 
-- userlist pod 내에서 테스트
+- curltest pod 내에서 테스트
 
 ```sh
 $ ku exec -it curltest -- sh
@@ -1569,7 +1568,7 @@ $ while true; do curl userlist-svc/users/1; sleep 1; echo; done
 {"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ...
-Ctrl + D
+Ctrl + C
 
 $ exit
 ```
