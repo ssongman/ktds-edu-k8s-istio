@@ -215,7 +215,7 @@ $ helm version
 version.BuildInfo{Version:"v3.12.0", GitCommit:"c9f554d75773799f72ceef38c51210f1842a1dea", GitTreeState:"clean", GoVersion:"go1.20.3"}
 
 
-$ helm -n user01 ls
+$ helm -n user02 ls
 NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 ```
@@ -243,7 +243,7 @@ bitnami/cassandra                               10.2.2          4.1.1           
 ...
 
 # 설치테스트(샘플: nginx)
-$ helm -n user01 install nginx bitnami/nginx
+$ helm -n user02 install nginx bitnami/nginx
 
 $ ku get all
 NAME                         READY   STATUS              RESTARTS   AGE
@@ -262,7 +262,7 @@ replicaset.apps/nginx-68c669f78d   1         1         0       10s
 
 
 # 설치 삭제
-$ helm -n user01 delete nginx
+$ helm -n user02 delete nginx
 
 $ ku get all
 No resources found in user01 namespace.
@@ -503,7 +503,7 @@ $ kubectl delete namespace istio-system
 1교시 kubernetes 실습때 수행했던 userlist pod 를 다시 확인해 보자.
 
 ```sh
-$ alias ku='kubectl -n user01'
+$ alias ku='kubectl -n user02'
 
 # userlist pod 확인
 $ ku get pod
@@ -546,7 +546,7 @@ $ kubectl label namespace <namespace> istio-injection=enabled
 
 ```sh
 # 적용전 확인
-$ ku get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -565,12 +565,12 @@ status:
   
 # 적용(label 추가)
 # 자기 Namespce 로 변경하여 적용하자.
-$ kubectl label namespace user01 istio-injection=enabled
-namespace/user01 labeled
+$ kubectl label namespace user02 istio-injection=enabled
+namespace/user02 labeled
 
 
 # 적용후 확인
-$ ku get ns user01 -o yaml
+$ ku get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
