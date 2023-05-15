@@ -841,12 +841,12 @@ userlist-bfd857685-ljpnk   1/1     Running   0          4s
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-bfd857685-ljpnk   1/1     Running   0          18s
+userlist-bfd857685-k7mwt   1/1     Running   0          18s
 
 
 
 # userlist pod 내에서 확인
-$ ku exec -it userlist-bfd857685-ljpnk -- curl -i localhost:8181/users/1
+$ ku exec -it userlist-bfd857685-k7mwt -- curl -i localhost:8181/users/1
 HTTP/1.1 200
 Content-Type: application/json;charset=UTF-8
 Transfer-Encoding: chunked
@@ -919,7 +919,7 @@ userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   des
 ```sh
 $ ku exec -it curltest -- sh
 
-$ curl 10.42.0.13:8181/users/1
+$ curl 10.42.0.10:8181/users/1
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ exit
@@ -991,7 +991,7 @@ userlist-bfd857685-ljpnk   1/1     Running   0          3m32s   10.42.0.13   des
 $ ku exec -it curltest -- sh
 
 # pod ip 로 call
-$ curl 10.42.0.13:8181/users/1
+$ curl 10.42.0.10:8181/users/1
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # svc name으로 call
@@ -1240,7 +1240,7 @@ userlist-ingress   <none>   userlist.songlab.co.kr   172.25.51.207   80      4s
 traefik node port 를 아래에 삽입하여 curl 테스트 해보자.
 
 ```sh
-$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+$ curl http://localhost:30504/users/1 -H "Host:userlist.songlab.co.kr"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 $ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
@@ -1387,7 +1387,7 @@ NAME     STATUS   AGE
 user01   Active   2m4s
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user01'     <-- 각자 Namespace 를 alais 로 설정하자.
+$ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 $ ku get pod
 No resources found in user01 namespace.
@@ -1405,14 +1405,14 @@ No resources found in user01 namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user01'
+$ alias ku='kubectl -n user02'
 
 # deployment yaml 확인
-$ cat > ./kubernetes/userlist/11.userlist-deployment.yaml
+$ cat ./kubernetes/userlist/11.userlist-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
