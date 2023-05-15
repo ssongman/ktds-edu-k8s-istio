@@ -1613,13 +1613,9 @@ $ ls -ltr ./kubernetes/userlist/
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 364 May 13 17:36 15.userlist-ingress-local.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 388 May 13 17:36 16.userlist-ingress-cloud.yaml
 
-# ingress 수정
-$ vi ./githubrepo/ktds-edu-k8s-istio/kubernetes/userlist/16.userlist-ingress-cloud.yaml
-```
 
-
-
-```yaml
+# ingress 확인
+$ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -1628,7 +1624,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"     <-- yjsong 을 자신의 Namespace 명으로 수정
+  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"       <-- yjsong 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
@@ -1638,9 +1634,20 @@ spec:
             name: userlist-svc
             port:
               number: 80
+
+
+# ingress 수정
+$ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+...
 ```
 
-어떠한 이름으로 변경해도 상관없다.  예를 들어 아래 hostname 으로 상관없다. 다른 분들과 겹치지만 않게 하자.
+
+
+yjsong 을 자신의 Namespace 명으로 변경하자.
+
+IP 만 포함되어 있으면 어떠한 이름으로 변경해도 상관없다. 
+
+ 예를 들어 아래 hostname 으로 상관없다. 다른 사용자들과 겹치지만 않게 하자.
 
 ```
 userlist.yjsong.cloud.35.209.207.26.nip.io
@@ -1659,14 +1666,33 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 ```sh
 $ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 
-$ ls -ltr ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
--rw-rw-r-- 1 ktdseduuser ktdseduuser 385 May 14 03:41 ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
-
+$ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: userlist-ingress
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: userlist-svc
+            port:
+              number: 80
+              
+              
 $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
 NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      5s
+userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
+
 ```
 
 

@@ -933,9 +933,9 @@ productpage   ClusterIP   10.43.203.157   <none>        9080/TCP   117s
 
 
 
-#### 호출 테스트
+### (4) productpage 호출 테스트
 
-- ratings container 에서 productpage 를 호출하는 테스트
+#### ratings --> productpage 를 호출
 
 
 ```sh
@@ -981,11 +981,9 @@ $ ku exec "$(ku get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')"
 
 
 
-### (4) 외부 접근을 위한 설정
+### (5) virtualservice / gateway
 
-#### virtualservice / gateway
-
-bookinfo host 를 각자 계정명으로 변경한후 적용하자.
+bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
@@ -993,7 +991,6 @@ $ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 711 May 15 14:12 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
-
 
 
 
@@ -1060,11 +1057,11 @@ bookinfo   ["bookinfo-gateway"]   ["bookinfo.yjsong.cloud.35.209.207.26.nip.io"]
 
 
 
-
-
-#### Ingress
+### (6) Ingress
 
 bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
+
+#### Ingress 생성
 
 ```sh
 
@@ -1105,6 +1102,13 @@ bookinfo-ingress-user01   <none>   bookinfo.yjsong.cloud.35.209.207.26.nip.io   
 
 
 
+```
+
+
+
+#### ingress domain 으로 call
+
+```sh
 
 ## ingress 확인
 ## yjsong 를 각자 계정명으로 변경 필요
@@ -1113,11 +1117,12 @@ $ curl -s "http://bookinfo.yjsong.cloud.35.209.207.26.nip.io/productpage" | grep
 <title>Simple Bookstore App</title>    <-- 나오면 정상
 
 
+# 만약 위 결과가 나오지 않으면 아래 node port 로 접근해서 원인을 찾는다.
 ```
 
 
 
-istio-ingressgateway node port 로 테스트 
+#### istio-ingressgateway node port
 
 ```sh
 
@@ -1130,12 +1135,9 @@ istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TC
 
 
 # master01 IP의 node port 로 접근 테스트
-
 $ curl http://10.128.0.25:31166/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>
 
-$ curl http://localhost:30987/productpage -H "Host:bookinfo.yjsong.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
-<title>Simple Bookstore App</title>
 
 ```
 
