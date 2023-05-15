@@ -555,7 +555,9 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 ## 2) wsl 에 k3s 설치
 
-### (1) master node - stand alone mode
+### (1) master node - (SA)
+
+> Stand Alone mode 로 설치
 
 - k3s install
 
@@ -567,7 +569,8 @@ Password:
 $ curl -sfL https://get.k3s.io | sh -
 
 # 다른 옵션 : kubeconfig 파일의 권한 조정
-# $ curl -sfL https://get.k3s.io | sh - --write-kubeconfig-mode 644
+# 
+$ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 
 
 [INFO]  Finding release for channel stable
@@ -646,28 +649,9 @@ k3s 를 설치하면 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이
 
 
 
-- root 유저로 실행
+- 일반 user 로 수행
 
-```sh
-## root 로 실행
-$ su
-
-$ ll /etc/rancher/k3s/k3s.yaml
--rw------- 1 root root 2961 May 14 03:23 /etc/rancher/k3s/k3s.yaml
-
-# 모든 사용자에게 읽기권한 부여
-$ chmod +r /etc/rancher/k3s/k3s.yaml
-
-$ ll /etc/rancher/k3s/k3s.yaml
--rw-r--r-- 1 root root 2961 May 14 03:23 /etc/rancher/k3s/k3s.yaml
-
-# 일반 user 로 전환
-$ exit
-
-```
-
-* 일반 user 로 수행
-  * kubectl 명령을 수행하기를 원하는 특정 사용자로 아래 작업을 진행한다.
+* * kubectl 명령을 수행하기를 원하는 특정 사용자로 아래 작업을 진행한다.
 
 ```sh
 
