@@ -120,6 +120,19 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 ![image-20220601193219422](beforebegin.assets/image-20220601193219422.png)
 
+* root 계정 Password 변경
+
+  ```sh
+  $ passwd
+  new passwd : ****
+  again passwd : ****
+  
+  ```
+
+  
+
+
+
 
 
 #### windows 터미널로 실행하는 방법
