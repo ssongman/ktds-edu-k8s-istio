@@ -294,7 +294,7 @@ Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "bitnami" chart repository
 Update Complete. ⎈Happy Helming!⎈
 
-# 약 20초 정도 소요됨
+# 약 10초 정도 소요됨
 
 
 
@@ -388,7 +388,6 @@ istiooperators.install.istio.io            2023-05-14T04:48:19Z
 chart 를 fetch 받아서 local 에서 수행한다.
 
 ```sh
-
 # chart 를 fetch 받아서 local 에서 수행한다.
 $ mkdir ~/istio
 
@@ -419,6 +418,7 @@ istio-base      istio-system    1               2022-06-11 18:42:06.172184 +0900
 Controle Plane역할을 수행하는 istiod 를 설치하자.
 
 ```sh
+# istiod 설치
 $ helm -n istio-system install istio-istiod istio/istiod
 ...
 TEST SUITE: None
@@ -434,19 +434,19 @@ $ helm -n istio-system get all istio-istiod
 ## 확인
 $ kubectl -n istio-system get all
 NAME                         READY   STATUS    RESTARTS   AGE
-pod/istiod-649d466b9-c9hw9   1/1     Running   0          31s
+pod/istiod-649d466b9-66rkx   1/1     Running   0          3m11s
 
-NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                                 AGE
-service/istiod   ClusterIP   10.43.251.8   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   31s
+NAME             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                 AGE
+service/istiod   ClusterIP   10.43.92.167   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   3m11s
 
 NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istiod   1/1     1            1           31s
+deployment.apps/istiod   1/1     1            1           3m12s
 
 NAME                               DESIRED   CURRENT   READY   AGE
-replicaset.apps/istiod-649d466b9   1         1         1       31s
+replicaset.apps/istiod-649d466b9   1         1         1       3m12s
 
-NAME                                         REFERENCE           TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   <unknown>/80%   1         5         1          31s
+NAME                                         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1         5         1          3m12s
 
 ```
 
@@ -481,16 +481,69 @@ istio-istiod    istio-system    1               2022-06-11 18:50:18.0303375 +090
 
 
 
-### (5) clean up
+### (5) install istio-ingressgateway
+
+참조링크 : https://istio.io/latest/docs/setup/additional-setup/gateway/
+
+
+
+```sh
+$ kubectl create namespace istio-ingress
+
+$ helm -n istio-ingress install istio-ingressgateway istio/gateway
+
+
+$ kubectl -n istio-ingress get all
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/istio-ingressgateway-7f675b6684-qzq8t   1/1     Running   0          20s
+
+NAME                           TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
+service/istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   21s
+
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/istio-ingressgateway   1/1     1            1           21s
+
+NAME                                              DESIRED   CURRENT   READY   AGE
+replicaset.apps/istio-ingressgateway-7f675b6684   1         1         1       21s
+
+NAME                                                       REFERENCE                         TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         5         1          21s
+
+# istio version 1.14 에서 현재 1.17.2로 버전업되면서 DaemonSet 이 사라졌다.
+# traefik 과 충돌나는 현상도 사라졌다.
+
+
+$ alias kii='k -n istio-ingress'
+
+
+$ kii get svc
+NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   90s
+
+
+31166 / 32560 nodeport 로 접근 가능
+
+
+```
+
+
+
+
+
+### (6) clean up
 
 모든 테스트를 마치고 istio를 최종 삭제할때 아래 명령으로 삭제 하자.
 
 ```sh
 $ helm -n istio-system delete istio-istiod
 $ helm -n istio-system delete istio-base
+$ helm -n istio-ingress delete istio-ingress
 
 $ kubectl delete namespace istio-system
+$ kubectl delete namespace istio-ingress
 ```
+
+
 
 
 
@@ -503,7 +556,7 @@ $ kubectl delete namespace istio-system
 1교시 kubernetes 실습때 수행했던 userlist pod 를 다시 확인해 보자.
 
 ```sh
-$ alias ku='kubectl -n user02'
+$ alias ku='kubectl -n yjsong'
 
 # userlist pod 확인
 $ ku get pod
@@ -537,7 +590,7 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 # 적용하는 방법
-$ kubectl label namespace <namespace> istio-injection=enabled
+# [적용예시]  kubectl label namespace <namespace> istio-injection=enabled
 ```
 
 
@@ -546,14 +599,14 @@ $ kubectl label namespace <namespace> istio-injection=enabled
 
 ```sh
 # 적용전 확인
-$ kubectl get ns user02 -o yaml
+$ ku get ns yjsong -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2023-05-13T18:48:19Z"
   labels:                                     <-- labels 확인(istio label 이 없다.)
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: yjsong
+  name: yjsong
   resourceVersion: "771"
   uid: df181e8d-5c13-411f-8abd-29c73961cb1a
 spec:
@@ -565,20 +618,20 @@ status:
   
 # 적용(label 추가)
 # 자기 Namespce 로 변경하여 적용하자.
-$ kubectl label namespace user02 istio-injection=enabled
-namespace/user02 labeled
+$ kubectl label namespace yjsong istio-injection=enabled
+namespace/yjsong labeled
 
 
 # 적용후 확인
-$ ku get ns user02 -o yaml
+$ ku get ns yjsong -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2023-05-13T16:30:47Z"
   labels:
     istio-injection: enabled                    <-- istio label 이 잘 추가되었다.
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: yjsong
+  name: yjsong
   resourceVersion: "268973"
   uid: b07d5ed0-42e8-40ee-a1a9-abba52e33139
 spec:
@@ -591,6 +644,8 @@ status:
 
 
 
+
+
 ### (3) pod 적용을 위한 재기동
 
 적용을 희망하는 pod 를 재기동시킨다.  
@@ -600,39 +655,46 @@ status:
 ```sh
 # 확인
 $ ku get pod
-NAME                        READY   STATUS    RESTARTS   AGE
-userlist-6bfcd9456d-cpv8j   1/1     Running   0          3m21s
+NAME                       READY   STATUS    RESTARTS   AGE
+curltest                   1/1     Running   0          14m
+userlist-bfd857685-vcrkw   1/1     Running   0          14m
+
+
 
 # pod 재기동(삭제)
-$ ku delete pod userlist-6bfcd9456d-cpv8j
-pod "userlist-6bfcd9456d-cpv8j" deleted
+$ ku delete pod userlist-bfd857685-vcrkw 
+pod "userlist-6bfcd9456d-5rjmc" deleted
+
 
 # 확인
 $ ku get pod
-NAME                        READY   STATUS    RESTARTS   AGE
-userlist-6bfcd9456d-qf48d   2/2     Running   0          116s
+NAME                       READY   STATUS    RESTARTS   AGE
+curltest                   1/1     Running   0          15m
+userlist-bfd857685-4dptz   2/2     Running   0          41s
+
 
 # istio sidecar 가 포함되어 2개의 container 가 되었다.
 
 
 # describe 로 확인
-$ ku describe pod userlist-6bfcd9456d-qf48d 
+$ ku describe pod userlist-bfd857685-4dptz
+...
 Containers:
   userlist:
-    Container ID:   containerd://5195eb2e93515b21968099f50bd627da263d0e103d358c1a2fba46218aa3e7d5
+    Container ID:   containerd://55a6c3acfb2c5c60ec59b329afea1d6230ef7934d8885898675bede457504766
     Image:          ssongman/userlist:v1
     Image ID:       docker.io/ssongman/userlist@sha256:74f32a7b4bab2c77bf98f2717fed49e034756d541e536316bba151e5830df0dc
-    Port:           <none>
-    Host Port:      <none>
+    Port:           8181/TCP
+    Host Port:      0/TCP
     State:          Running
-      Started:      Sun, 14 May 2023 13:58:48 +0900
+      Started:      Mon, 15 May 2023 14:32:04 +0000
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tqfl2 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dd2tt (ro)
   istio-proxy:
-    Container ID:  containerd://47211a411e13d4ec21230e02e02ed7ca6e40374aede4187c064cd05bc2f25d77
+    Container ID:  containerd://5f33b9ceb4de3230fdd83c08095941e4d2cbd20bcc00866220f767cdaa1238bb
     Image:         docker.io/istio/proxyv2:1.17.2
     Image ID:      docker.io/istio/proxyv2@sha256:f41745ee1183d3e70b10e82c727c772bee9ac3907fea328043332aaa90d7aa18
     Port:          15090/TCP
@@ -648,7 +710,7 @@ Containers:
       --concurrency
       2
     State:          Running
-      Started:      Sun, 14 May 2023 13:58:48 +0900
+      Started:      Mon, 15 May 2023 14:32:04 +0000
     Ready:          True
     Restart Count:  0
     Limits:
@@ -657,7 +719,7 @@ Containers:
     Requests:
       cpu:      100m
       memory:   128Mi
-    Readiness:  http-get http://:15021/healthz/ready delay=1s timeout=3s period=2s #success=1 #failure=30
+
 
 ```
 
@@ -673,8 +735,7 @@ userlist 는 더 이상 불필요하므로 삭제 하자.
 $ ku delete deploy userlist
 
 # label 삭제
-$ kubectl label --overwrite namespace user01 istio-injection-
-
+$ kubectl label --overwrite namespace yjsong istio-injection-
 ```
 
 
