@@ -8,7 +8,7 @@
 
 
 
-## 1) mobaXterm
+## 1) mobaXterm 설치
 
 KT cloud 서버에 ssh 접근을 위한 터미널이 필요하다. 
 
@@ -23,7 +23,17 @@ KT cloud 서버에 ssh 접근을 위한 터미널이 필요하다.
 
 
 
-## 2) wsl2
+
+
+## 2) gitbash 설치
+
+다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/Git-2.40.1-64-bit.exe
+
+링크 : https://git-scm.com/
+
+
+
+## 3) wsl2 설치
 
 k3s, istio, 설치는 Cluster 당 한번만 가능하다. 그러므로 이러한 설치실습은 본인 PC 에 wsl 에서 진행할 예정이다.
 
@@ -153,7 +163,7 @@ drwxr-xr-x 7 song song 4096 May 14 01:59 ktds-edu-k8s-istio/
 
 
 
-## 3) docker desktop 확인
+## 4) docker desktop 설치
 
 Container 와 kubernetes 의 차이를 이해하기 위해서 간단한 container 배포 테스트를 진행한다.
 
@@ -238,15 +248,9 @@ Server version 을 확인할 수 있다면 정상 설치 된 것이다.
 
 
 
-## 4) gitbash 설치
-
-다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/Git-2.40.1-64-bit.exe
-
-링크 : https://git-scm.com/
 
 
-
-## 5) Typora
+## 5) Typora 설치
 
 교육자료(MarkDown 문서)를 typora 로 확인하기를 희망하는 경우 Typora 를 설치한다. 
 
