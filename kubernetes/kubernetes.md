@@ -704,11 +704,11 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 ## kubectl create ns [namespace_name]
 
 ## 자신만의 namespace 명으로 하나를 생성한다.
-$ kubectl create ns user01
+$ kubectl create ns yjsong
 
 or
 
-$ kubectl create ns user07
+$ kubectl create ns user01
 
 or
 
@@ -716,7 +716,7 @@ $ kubectl create ns user10
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user01'     <-- 자신의 namespace 명을 입력한다.
+$ alias ku='kubectl -n yjsong'     <-- 자신의 namespace 명을 입력한다.
 
 ```
 
@@ -733,7 +733,7 @@ kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 �
 
 $ cat > ~/env
 alias k='kubectl'
-alias ku='kubectl -n user01'
+alias ku='kubectl -n yjsong'
 
 Ctrl+D
 
@@ -1337,7 +1337,7 @@ kube-node-lease   Active   12h
 kube-public       Active   12h
 kube-system       Active   12h
 song              Active   12h
-user01            Active   10h
+yjsong            Active   10h
 user02            Active   10h
 user03            Active   10h
 user04            Active   10h
@@ -1370,15 +1370,15 @@ user30            Active   10h
 
 
 # 각자 수강생별 NS 를 확인해보자.
-$ kubectl get ns user01
+$ kubectl get ns yjsong
 NAME     STATUS   AGE
-user01   Active   2m4s
+yjsong   Active   2m4s
 
 # ku 로 alias 선언
 $ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 $ ku get pod
-No resources found in user01 namespace.
+No resources found in yjsong namespace.
 
 ```
 
@@ -1393,11 +1393,11 @@ No resources found in user01 namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user02'
+$ alias ku='kubectl -n yjsong'
 
 # deployment yaml 확인
 $ cat ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1511,7 +1511,7 @@ metadata:
   labels:
     app: userlist
   name: userlist
-  namespace: user01
+  namespace: yjsong
 spec:
   replicas: 1                     <--- 3으로 수정한다.
   ....
@@ -1571,14 +1571,14 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                                                    PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>                                                                                         53/UDP,53/TCP,9153/TCP       12h
-metrics-server   ClusterIP      10.43.157.157   <none>                                                                                         443/TCP                      12h
-traefik          LoadBalancer   10.43.184.63    10.128.0.22,10.128.0.23,10.128.0.24,10.158.0.10,10.158.0.11,10.158.0.7,10.158.0.8,10.158.0.9   80:32446/TCP,443:31256/TCP   12h
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                                    53/UDP,53/TCP,9153/TCP       130m
+metrics-server   ClusterIP      10.43.148.138   <none>                                                                    443/TCP                      130m
+traefik          LoadBalancer   10.43.189.44    10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80:31975/TCP,443:32562/TCP   129m
 
 ```
 
-traefic 이라는 Proxy tool 이 node port (32446) 로 접근하여 routing 한다는 사실을 알 수 있다.
+traefic 이라는 Proxy tool 이 node port (31975) 로 접근하여 routing 한다는 사실을 알 수 있다.
 
 이미 GCP Load balance  를 생성하여 공인IP 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
 
@@ -1589,23 +1589,25 @@ traefic 이라는 Proxy tool 이 node port (32446) 로 접근하여 routing 한�
 - master node와 port-forwarding 정보
 
 ```
-34.111.106.168:80   =  [master01/master02/1master03] :32446
+35.209.207.26 : 80   = master01/master02/master03 : 31975
+35.209.207.26 : 443  = master01/master02/master03 : 32562
 ```
 
-그러므로 우리는 34.111.106.168:80 으로 call 을 보내면 된다.  
+그러므로 우리는 35.209.207.26 : 80 으로 call 을 보내면 된다.  
 
-또한 Cluster 내 진입후 자신의 service 를 찾기 위한 host (ingress host)를 같이 보내야 한다. 
+대신 Cluster 내 진입후 자신의 service 를 찾기 위한 host address 를 같이 보내야 한다. (ingress 설정)
 
 
 
 - 개인별 테스트를 위한 도메인 변경
 
-아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 user01 부분을 본인의 계정명으로 변경하자.
+아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 yjsong 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/user01
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 
-$ ls -ltr ./githubrepo/ktds-edu-k8s-istio/kubernetes/userlist/
+
+$ ls -ltr ./kubernetes/userlist/
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 355 May 13 17:36 11.userlist-deployment.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 191 May 13 17:36 12.userlist-svc.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 364 May 13 17:36 15.userlist-ingress-local.yaml
@@ -1626,7 +1628,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user01.cloud.34.111.106.168.nip.io"     <-- user01 을 자신의 Namespace 명으로 수정
+  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"     <-- yjsong 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
@@ -1641,9 +1643,9 @@ spec:
 어떠한 이름으로 변경해도 상관없다.  예를 들어 아래 hostname 으로 상관없다. 다른 분들과 겹치지만 않게 하자.
 
 ```
-userlist.user01.cloud.34.111.106.168.nip.io
-userlist.user07.cloud.34.111.106.168.nip.io
-userlist.songyangjong.cloud.34.111.106.168.nip.io
+userlist.yjsong.cloud.35.209.207.26.nip.io
+userlist.user07.cloud.35.209.207.26.nip.io
+userlist.songyangjong.cloud.35.209.207.26.nip.io
 ```
 
 도메인 이름에 "*.nip.io" 가 포함된 것을 볼 수 있다.  이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
@@ -1655,18 +1657,16 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 - ingress 생성
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 
 $ ls -ltr ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 385 May 14 03:41 ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
-
 $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
-NAME               CLASS    HOSTS                                         ADDRESS                                                                                        PORTS   AGE
-userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   10.128.0.22,10.128.0.23,10.128.0.24,10.158.0.10,10.158.0.11,10.158.0.7,10.158.0.8,10.158.0.9   80      88s
-
+NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
+userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      5s
 ```
 
 
@@ -1676,12 +1676,13 @@ userlist-ingress   <none>   userlist.user01.cloud.34.111.106.168.nip.io   10.128
 ```sh
 
 # traefik node port 로 접근시도
-$ curl localhost:32446/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
+# node 중 하나를 골라서 시도하자.  (master01_IP : 10.128.0.25)
+$ curl http://10.128.0.25:31975/users/1 -H "Host:userlist.yjsong.cloud.35.209.207.26.nip.io"
 {"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 # 부여한 host 로 접근시도
-$ curl http://userlist.user01.cloud.34.111.106.168.nip.io/users/1
+$ curl http://userlist.yjsong.cloud.35.209.207.26.nip.io/users/1
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
 
@@ -1705,19 +1706,17 @@ $ curl http://userlist.user01.cloud.34.111.106.168.nip.io/users/1
 
 ```sh
 $ kubectl get node -o wide
-NAME                   STATUS   ROLES                       AGE   VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-ktds-k3s-master01      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.22   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-master02      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.23   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-master03      Ready    control-plane,etcd,master   13h   v1.26.4+k3s1   10.128.0.24   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker-9zmq   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.9    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker-b47j   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.10   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker-ncz7   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.8    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker-w2z4   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.11   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker-xmpb   Ready    <none>                      13h   v1.26.4+k3s1   10.158.0.7    <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+NAME                STATUS   ROLES                       AGE    VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+ktds-k3s-master01   Ready    control-plane,etcd,master   139m   v1.26.4+k3s1   10.128.0.25   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-master02   Ready    control-plane,etcd,master   137m   v1.26.4+k3s1   10.128.0.26   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-master03   Ready    control-plane,etcd,master   138m   v1.26.4+k3s1   10.128.0.27   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker01   Ready    <none>                      134m   v1.26.4+k3s1   10.128.0.28   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker02   Ready    <none>                      135m   v1.26.4+k3s1   10.128.0.29   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
+ktds-k3s-worker03   Ready    <none>                      135m   v1.26.4+k3s1   10.158.0.25   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
 
 
 # 위 노드IP 중 특정 IP 로 접근해도 동일한 결과를 얻을 수 있다.
-$ curl 10.128.0.22:32446/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.nip.io"
+$ curl http://10.128.0.25:31975/users/1 -H "Host:userlist.yjsong.cloud.35.209.207.26.nip.io"
 {"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
@@ -1727,7 +1726,7 @@ $ curl 10.128.0.22:32446/users/1 -H "Host:userlist.user01.cloud.34.111.106.168.n
 ## 6) Clean up
 
 ```sh
-$ cd ~/user01/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
 
 $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1737,7 +1736,7 @@ $ ku delete pod curltest
 # 20초정도 소요됨
 
 $ ku get pod
-No resources found in user01 namespace.
+No resources found in yjsong namespace.
 
 ```
 
