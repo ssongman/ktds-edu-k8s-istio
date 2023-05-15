@@ -41,34 +41,59 @@ k3s, istio, 설치는 Cluster 당 한번만 가능하다. 그러므로 이러한
 
 
 
-### (1) 확인 및 설치하는 방법
+### (1) 확인하는 방법
 
 command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 ```sh
-> wsl -l -v 
+$ wsl -l -v 
 ```
 
 
 
 ![image-20220601193023175](beforebegin.assets/image-20220601193023175.png)
 
-- 만약 version 이 1 이라면 아래와 같이 update 수행
+
+
+
+
+### (2) WSL 신규 설치
+
+- 설치되어 있지 않다면 아래와 같이 설치한다.
+
+```sh
+$ wsl --install -d Ubuntu
+   <-- 약 10분정도 소요됨.
+    
+# windows 재기동 시도
+# 재기동 되는 과정에서 windows update 수행
+
+# wsl 설치가 마무리되는 시점에 사용자 계정을 입력필요
+# 사용자 계정 및 암호 생성
+user: song
+pass: song
+```
+
+​    
+
+
+
+- 만약 wsl version 이 1 로 설치되어 있다면 아래를 참조하여 wsl2로 update 수행
   - 참고링크
     - https://docs.microsoft.com/en-us/windows/wsl/install
     - https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
   - PowerShell 에서 실행
 
 ```sh
-> wsl --install
+$ wsl --install
 
-> wsl --set-version Ubuntu 2
+$ wsl --set-version Ubuntu 2
 
 # 기본값으로 설정 변경해도 됨
-> wsl --set-default-version 2
+$ wsl --set-default-version 2
 
 # 강제 재기동
-> wsl -t Ubuntu
+$ wsl -t Ubuntu
 
 ```
 
@@ -76,28 +101,7 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 
 
-- 설치되어 있지 않다면 아래와 같이 설치한다.
-
-  - ```sh
-    > wsl --install -d Ubuntu
-         <-- 약 10분정도 소요됨.
-    
-    # 재기동 시도
-    # update
-    
-    
-    # 사용자 계정 및 암호 생성
-       user: song
-       pass: song
-    ```
-    
-    
-
-
-
-
-
-### (2) WSL 실행하는 방법
+### (3) WSL 실행하는 방법
 
 실행하는 방법은 아래와 같이 다양하다.  본인에게 편한 방법을 선택하면 되지만 mobaxterm 을 사용하는 것을 추천한다.
 
@@ -143,7 +147,7 @@ command 창에서 wsl 명령으로 설치여부를 확인 할 수 있다.
 
 
 
-### (3) 실습자료 downoad
+### (4) 실습자료 downoad
 
 wsl 접속 하는데 문제가 없다면 테스트를 위해서 github 에서 실습 자료를 받아 놓자. 
 
@@ -383,6 +387,8 @@ WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하
 - User : ktdseduuser
 - Port : 22
 - Use private key(ssh key) : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\gcp-vm-key\ktdseduuser
+  - 교육자료 download 되는 자료에 위 key 가 포함되어 있음
+
 
 
 

@@ -1100,9 +1100,9 @@ $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
 $ kubectl -n istio-ingress get ingress
-NAME                      CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-bookinfo-ingress-user01   <none>   bookinfo.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      49s
 
+NAME                      CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
+bookinfo-ingress-user01   <none>   bookinfo.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      5s
 
 
 ```
