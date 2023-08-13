@@ -406,13 +406,10 @@ WSL 에서의 k3s 는 한개의 노드를 사용한 초간편 Cluster이다. 하
 접속 완료 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
 
 ```sh
-# 본인 Namespace 명으로 변경
-$ cd ~/users/yjsong
-
 ## githubrepo directory 생성
-$ mkdir -p ~/users/yjsong/githubrepo
+$ mkdir -p ~/githubrepo
 
-$ cd ~/users/yjsong/githubrepo
+$ cd ~/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
@@ -422,9 +419,9 @@ remote: Compressing objects: 100% (55/55), done.
 remote: Total 69 (delta 15), reused 62 (delta 11), pack-reused 0
 Unpacking objects: 100% (69/69), 1.63 MiB | 4.09 MiB/s, done.
 
-$ ll ~/users/yjsong/githubrepo
+$ ll ~/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 ```
 
