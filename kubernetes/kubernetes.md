@@ -1191,9 +1191,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: userlist-ingress
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
 spec:
+  ingressClassName:  "traefik"
   rules:
   - host: "userlist.songlab.co.kr"
     http:
