@@ -1681,7 +1681,7 @@ userlist   1/1     1            1           3m27s
 $ ku edit deploy userlist
 ```
 
-- /userlist deployment yaml
+- replicas 수
 
 ```yaml
 apiVersion: apps/v1
@@ -1695,6 +1695,10 @@ spec:
   replicas: 1                     <--- 3으로 수정한다.
   ....
 ```
+
+저장후 종료한다.( :wq)
+
+
 
 
 
@@ -1750,14 +1754,15 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>                                                                    53/UDP,53/TCP,9153/TCP       130m
-metrics-server   ClusterIP      10.43.148.138   <none>                                                                    443/TCP                      130m
-traefik          LoadBalancer   10.43.189.44    10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80:31975/TCP,443:32562/TCP   129m
+NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                                                             PORT(S)                        AGE
+kube-dns         ClusterIP      10.43.0.10     <none>                                                                  53/UDP,53/TCP,9153/TCP         97d
+kubelet          ClusterIP      None           <none>                                                                  10250/TCP,10255/TCP,4194/TCP   82d
+metrics-server   ClusterIP      10.43.100.52   <none>                                                                  443/TCP                        97d
+traefik          LoadBalancer   10.43.73.178   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80:31353/TCP,443:32192/TCP     97d
 
 ```
 
-traefic 이라는 Proxy tool 이 node port (31975) 로 접근하여 routing 한다는 사실을 알 수 있다.
+traefic 이라는 Proxy tool 이 node port (31353) 로 접근하여 routing 한다는 사실을 알 수 있다.
 
 이미 GCP Load balance  를 생성하여 공인IP 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
 
@@ -1768,11 +1773,11 @@ traefic 이라는 Proxy tool 이 node port (31975) 로 접근하여 routing 한�
 - master node와 port-forwarding 정보
 
 ```
-35.209.207.26 : 80   = master01/master02/master03 : 31975
-35.209.207.26 : 443  = master01/master02/master03 : 32562
+35.209.207.26 : 80   = master01/master02/master03 : 31353
+35.209.207.26 : 443  = master01/master02/master03 : 32192
 ```
 
-그러므로 우리는 35.209.207.26 : 80 으로 call 을 보내면 된다.  
+그러므로 우리는 35.209.207.26 : 80 으로 call 을 보내면 된다. 
 
 대신 Cluster 내 진입후 자신의 service 를 찾기 위한 host address 를 같이 보내야 한다. (ingress 설정)
 
@@ -1780,7 +1785,7 @@ traefic 이라는 Proxy tool 이 node port (31975) 로 접근하여 routing 한�
 
 - 개인별 테스트를 위한 도메인 변경
 
-아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 yjsong 부분을 본인의 계정명으로 변경하자.
+아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여  user01 부분을 본인의 계정명으로 변경하자.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
@@ -1803,7 +1808,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"       <-- yjsong 을 자신의 Namespace 명으로 수정
+  - host: "userlist.user01.cloud.35.209.207.26.nip.io"       <-- user01 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
