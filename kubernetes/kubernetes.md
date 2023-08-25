@@ -1402,83 +1402,42 @@ $ eixt
 
 
 
-# 5. [Cloud] Kubernetes실습
+# 5. [EduCluster] Kubernetes실습
 
 
 
-## 1) Cloud 접속
+## 1) ktdsEduCluster 접속
 
-아래 정보를 참조하여 ssh terminal(mobaxterm) 을 준비하고 Cloud Master node에 접근한다.
-
-* 수강생별 접속정보 :  시작전에 > 실습환경준비(Cloud) > 수강생별 Namespace 및 접속 서버 주소
-* mobaXterm 접속 :  시작전에 > 실습환경준비(Cloud)  > ssh (Mobaxterm)
-
-
-
-
-
-
+ktdsEduCluster에 접속한다.
 
 
 
 ```sh
 
-$ kubectl config view
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: DATA+OMITTED
-    server: https://10.128.0.35:6443
-  name: default
-contexts:
-- context:
-    cluster: default
-    user: default
-  name: default
-current-context: default
-kind: Config
-preferences: {}
-users:
-- name: default
-  user:
-    client-certificate-data: DATA+OMITTED
-    client-key-data: DATA+OMITTED
+
+# ktdsEduCluster 접속
+$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+
+# Cluste 확인
+$ kubectl get nodes
+NAME                STATUS   ROLES                       AGE   VERSION
+ktds-k3s-master01   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
+ktds-k3s-master02   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
+ktds-k3s-master03   Ready    control-plane,etcd,master   83d   v1.26.5+k3s1
+ktds-k3s-worker01   Ready    <none>                      97d   v1.26.4+k3s1
+ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
+ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
 
 
 
-$ cd ~/song/ktdseducluster
 
-$ kubectl config set-cluster ktdseducluster \
-    --server=https://10.128.0.35:6443 \
-    --embed-certs \
-    --certificate-authority=./kubernetes.ca.crt
+# 다시 개인 VM Cluster 로 접속할때
+$ export KUBECONFIG="${HOME}/.kube/config"
 
-
-
-$ cat > config-ktdseducluster
----
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJlRENDQVIyZ0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQWpNU0V3SHdZRFZRUUREQmhyTTNNdGMyVnkKZG1WeUxXTmhRREUyT0RRMU5UTXlOelV3SGhjTk1qTX                                  dOVEl3TURNeU56VTFXaGNOTXpNd05URTNNRE15TnpVMQpXakFqTVNFd0h3WURWUVFEREJock0zTXRjMlZ5ZG1WeUxXTmhRREUyT0RRMU5UTXlOelV3V1RBVEJnY3Foa2pPClBRSUJCZ2dxaGtqT1BRTUJCd05DQUFRQXRvN3U2bTB2WnF6R1RnNjgyMEorek5WdlRB                                  Ly9WV1JHbkkwZDBMaVQKd1dmbEtCTzdXa3dLSkNEUGY2U3NyVTMvaXliYzNFTU1WRllJa0Mrc1REU0pvMEl3UURBT0JnTlZIUThCQWY4RQpCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVUJoZmI1SnNIY3BVQnhtQndTOFJTCkh1aW                                  hxMEF3Q2dZSUtvWkl6ajBFQXdJRFNRQXdSZ0loQU10TUwxU2hOaXEySzNudjlRWGl2NGpOUWVVUkV1eWUKVlhoblkwOXZyM29RQWlFQXlrSmZTYlYzeDF1UU1uVGZpSWhZYm41RWdYMTJwNVRvWHk0d0hHclNnU2M9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-    server: https://10.128.0.35:6443
-  name: default
-contexts:
-- context:
-    cluster: default
-    user: default
-  name: default
-current-context: default
-kind: Config
-preferences: {}
-users:
-- name: default
-  user:
-    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJrakNDQVRlZ0F3SUJBZ0lJTmlWL2RNOEZiZjB3Q2dZSUtvWkl6ajBFQXdJd0l6RWhNQjhHQTFVRUF3d1kKYXpOekxXTnNhV1Z1ZEMxallVQXhOamcwTlRVek1qYzFNQ                                  jRYRFRJek1EVXlNREF6TWpjMU5Wb1hEVEkwTURVeApPVEF6TWpjMU5Wb3dNREVYTUJVR0ExVUVDaE1PYzNsemRHVnRPbTFoYzNSbGNuTXhGVEFUQmdOVkJBTVRESE41CmMzUmxiVHBoWkcxcGJqQlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJQYWN                                  1a3VmL0tEcFkrVTQKYUR1TjlVTU15M3diRUpLTzFXemdKYlU4M3UrK3JBMmhZcFFBVXlQdmhnZzA2a2VuTDVOZkVhdy80VHlGVGtaSApubG5WeDh1alNEQkdNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUtCZ2dyQmdFRkJRY0RBakFmCkJnTlZIU                                  01FR0RBV2dCUVRCSC9hK1JBK0dDV0FSKzg3K2pVUE5LMkFPVEFLQmdncWhrak9QUVFEQWdOSkFEQkcKQWlFQTRGd2VOTy9GLytpUXJwemI3VTZZOVJqMTRsSFhrbTlpMmNjN2g3TVBWRHdDSVFDdk9nak5TaXpac3BXKwphRlNqUDAxRUY2RHVCdE5NUGYyOXZ0cUl                                  RZ1hKR1E9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlCZHpDQ0FSMmdBd0lCQWdJQkFEQUtCZ2dxaGtqT1BRUURBakFqTVNFd0h3WURWUVFEREJock0zTXRZMnhwClpXNTBMV05oUURFMk9EUTFOVE15T                                  npVd0hoY05Nak13TlRJd01ETXlOelUxV2hjTk16TXdOVEUzTURNeU56VTEKV2pBak1TRXdId1lEVlFRRERCaHJNM010WTJ4cFpXNTBMV05oUURFMk9EUTFOVE15TnpVd1dUQVRCZ2NxaGtqTwpQUUlCQmdncWhrak9QUU1CQndOQ0FBUXZFWENVVVNmWDlZSTZvd3h                                  wNU9yaTRCK0xQTi92RCt2YmhsbDB5ZjhICkc3SnJLN3FibDhUS3NGNHVxS1NlMXZobnRwc0FySXVrZXZCMTE0WURmTW4wbzBJd1FEQU9CZ05WSFE4QkFmOEUKQkFNQ0FxUXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVVFd1IvMnZrUVBoZ2xnR                                  WZ2Ty9vMQpEelN0Z0Rrd0NnWUlLb1pJemowRUF3SURTQUF3UlFJZ0djdFY5dk1sRGpGcUtFb0NRdktGTDdDblh2Z1BkTUN6CkdBU2tuenlTYldrQ0lRQy8rc0l4S2pGSkpzeUpxeVlUcEZyVGwrNytWZ2xEYlNzZmRadktxZ0xyOWc9PQotLS0tLUVORCBDRVJUSUZ                                  JQ0FURS0tLS0tCg==
-    client-key-data: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSURRaW8xZm83S0xBaEVXU1k5bjM3ckNWNFY5MFkvbm1Mbk5xeXFPUFFPNkRvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFOXB5NlM1LzhvT2xqNVRob080MzFRd3pMZ                                  kJzUWtvN1ZiT0FsdFR6ZTc3NnNEYUZpbEFCVApJKytHQ0RUcVI2Y3ZrMThSckQvaFBJVk9Sa2VlV2RYSHl3PT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
----
-
-
+# Cluste 확인
+$ kubectl get nodes
+NAME        STATUS   ROLES                  AGE   VERSION
+bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 
 ```
@@ -1487,17 +1446,9 @@ users:
 
 
 
-
-
-
-
-
-
-
-
 ## 2) 개인 Namespace 확인
 
-
+각 수강생별 Namespace 를 확인하고 자기 Namespace 를 alais 로 설정하자.
 
 ```sh
 
@@ -1528,19 +1479,9 @@ user17            Active   10h
 user18            Active   10h
 user19            Active   10h
 user20            Active   10h
-user21            Active   10h
-user22            Active   10h
-user23            Active   10h
-user24            Active   10h
-user25            Active   10h
-user26            Active   10h
-user27            Active   10h
-user28            Active   10h
-user29            Active   10h
-user30            Active   10h
 
 
-# 각자 수강생별 NS 를 확인해보자.
+# 각 수강생별 NS 를 확인해보자.
 $ kubectl get ns yjsong
 NAME     STATUS   AGE
 yjsong   Active   2m4s
@@ -1564,11 +1505,8 @@ No resources found in yjsong namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-
-# ku 로 alias 선언
-$ alias ku='kubectl -n yjsong'
 
 # deployment yaml 확인
 $ cat ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1775,7 +1713,7 @@ traefic 이라는 Proxy tool 이 node port (31975) 로 접근하여 routing 한�
 아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여 yjsong 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 
 
 $ ls -ltr ./kubernetes/userlist/
@@ -1835,7 +1773,7 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 - ingress 생성
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 
 $ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 apiVersion: networking.k8s.io/v1
@@ -1923,7 +1861,7 @@ $ curl http://10.128.0.25:31975/users/1 -H "Host:userlist.yjsong.cloud.35.209.20
 ## 6) Clean up
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 
 $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
