@@ -140,13 +140,35 @@ Istio의 보안 모델은 기본 보안을 기반으로 하며, 신뢰할 수 �
 
 
 
-# 3. [개인PC] 실습
+# 3. [개인VM] 실습
 
-WSL 환경에서 istio 를 설치해 보자.
+개인 VM 환경에서 istio 를 설치해 보자.
 
 
 
-## 1) helm install
+
+
+## 1) 개인 VM 접속 설정
+
+개인 VM Cluster에 접속할 수 있도록 설정 한다.
+
+```sh
+
+# ktdsEduCluster 접속하도록 설정 변경
+$ export KUBECONFIG="${HOME}/.kube/config"
+
+# Cluste 확인
+$ kubectl get nodes
+NAME        STATUS   ROLES                  AGE   VERSION
+bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
+
+```
+
+
+
+
+
+## 2) helm install
 
 쿠버네티스에 서비스를 배포하는 방법이 다양하게 존재하는데 그중 대표적인 방법중에 하나가 Helm chart 방식 이다.
 
@@ -172,14 +194,14 @@ Istio 도 마찬가지로 helm 배포를 위한 chart 를 제공해 준다.
 
 
 
-### (2) helm client download
+### (2) [참고] helm client download
 
 helm client 를 local 에 설치해 보자.
 
 개인PC 의 WSL Termimal 에서 아래 작업을 수행하자.
 
 ```sh
-# 개인 PC WSL
+
 # root 권한으로 수행
 $ su
 
@@ -222,7 +244,7 @@ NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 
 
-### [참고] bitnami repo 추가
+### (3) [참고] bitnami repo 추가
 
 - 유명한 charts 들이모여있는 bitnami repo 를 추가해 보자.
 
@@ -270,7 +292,7 @@ No resources found in yjsong namespace.
 
 
 
-## 2) helm 을 이용한 Istio 설치
+## 3) helm 을 이용한 Istio 설치
 
 
 
@@ -547,7 +569,7 @@ $ kubectl delete namespace istio-ingress
 
 
 
-## 3) sample app sidecar inject
+## 4) sample app sidecar inject
 
 
 
@@ -744,13 +766,56 @@ $ kubectl label --overwrite namespace yjsong istio-injection-
 
 
 
-# 4. [Cloud] 실습
+# 4. [EduCluster] 실습
 
-원할한 테스트를 위해 Load Balancer 와 Monitoring 이 존재하는 Cloud 환경에서 테스트를 수행한다.
+원할한 테스트를 위해 Load Balancer 와 Monitoring 이 존재하는 EduCluster 환경에서 테스트를 수행한다.
 
 
 
-## 1) sample app (bookinfo) install
+
+
+## 1) ktdsEduCluster 접속 설정 변경
+
+EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하므로 설정 변경 작업을 수행한다.
+
+
+
+```sh
+
+# ktdsEduCluster 접속하도록 설정 변경
+$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+
+# Cluste 확인
+$ kubectl get nodes
+NAME                STATUS   ROLES                       AGE   VERSION
+ktds-k3s-master01   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
+ktds-k3s-master02   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
+ktds-k3s-master03   Ready    control-plane,etcd,master   83d   v1.26.5+k3s1
+ktds-k3s-worker01   Ready    <none>                      97d   v1.26.4+k3s1
+ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
+ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
+
+
+
+
+# 다시 개인 VM Cluster 로 접속할때
+$ export KUBECONFIG="${HOME}/.kube/config"
+
+# Cluste 확인
+$ kubectl get nodes
+NAME        STATUS   ROLES                  AGE   VERSION
+bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
+
+
+```
+
+
+
+
+
+
+
+## 2) sample app (bookinfo) install
 
 다양한 Istio 기능을 테스트하기 위해 사용되는 4개의 개별 마이크로서비스로 구성된 샘플 애플리케이션을 배포해 보자.
 
@@ -824,12 +889,12 @@ istio 적용하는데 있어서 Application 자체를 변경할 필요가 없다
 ```sh
 
 # alias 설정
-$ alias ku='kubectl -n yjsong'
+$ alias ku='kubectl -n user02'
 
 # label 설정
-$ kubectl label namespace yjsong istio-injection=enabled
+$ kubectl label namespace user02 istio-injection=enabled
 
-$ kubectl get ns yjsong -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -852,16 +917,19 @@ status:
 
 #### [참고] git clone
 
-- 기존에 이미 받아 놓았으면 생략
+- 실습자료 download
+  - 실습자료는 이미 기존에 이미 받아 놓았으므로 생략한다.
+  - 만약 ~/githubrepo/ktds-edu-k8s-istio/  디렉토리가 없다면 아래를 참고하여 clone 하자.
+
 
 ```sh
-$ mkdir ~/users/yjsong/githubrepo
+$ mkdir ~/githubrepo
 
-$ cd ~/users/yjsong/githubrepo
+$ cd ~/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 drwxr-xr-x 8 song song  4096 May 14 01:59 .git/
 -rw-r--r-- 1 song song 11357 May 14 01:59 LICENSE
 -rw-r--r-- 1 song song  2738 May 14 01:59 README.md
@@ -878,7 +946,7 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 
 ```sh
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/11.bookinfo.yaml
 -rw-r--r-- 1 song song 7974 May 14 01:59 ./istio/bookinfo/11.bookinfo.yaml
@@ -987,7 +1055,7 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 -rw-rw-r-- 1 ktdseduuser ktdseduuser 711 May 15 14:12 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
@@ -1065,7 +1133,7 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 
 
@@ -1163,7 +1231,7 @@ while문으로 call유지 한채로 아래 monitoring 에서 kiali / jaeger / gr
 
 ```sh
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 # 13.destination-rule-all.yaml 파일 확인
 $ cat ./istio/bookinfo/13.destination-rule-all.yaml
@@ -1245,7 +1313,7 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 ```sh
 $ alias ku='kubectl -n yjsong'
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
 
 # 삭제
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
@@ -1274,7 +1342,7 @@ $ ku label --overwrite namespace yjsong istio-injection-
 
 
 
-## 2) Monitoring
+## 3) Monitoring
 
 
 
@@ -1356,7 +1424,7 @@ kiali 를 확인하면서 아래를 진행해보자.
 
 ```sh
 
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1516,7 +1584,7 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 우선 모든 서비스가 v1 로만 흐르도록 변경한다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1670,7 +1738,7 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 적절한 테스트를 위해서 바로 윗단계에서 테스트 한것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1703,7 +1771,7 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 
@@ -1772,7 +1840,7 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 "Ratings service is currently unavailable" 라는 메세지가 나올것을 기대한다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 
@@ -1840,7 +1908,7 @@ ratings 서비스를 call 했을때 500 error 비율을 50 으로 설정해 보�
 json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될 것이다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 
@@ -1997,7 +2065,7 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 ### (5) Clean up
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
  
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
@@ -2042,7 +2110,7 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 앱이다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/11.httpbin-deploy-svc.yaml
 apiVersion: apps/v1
@@ -2100,7 +2168,7 @@ httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
 MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 설치한다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/12.fortio-pod.yaml
 
@@ -2186,7 +2254,7 @@ Kiali 에서는 다음과 같이 조회된다.
 
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/13.dr-httpbin.yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -2286,7 +2354,7 @@ Code 503 : 23 (76.7 %)
 - 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
@@ -2348,7 +2416,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 #### 테스트 POD 기동
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/11.hello-pod-svc.yaml
 apiVersion: v1
@@ -2564,7 +2632,7 @@ Hello server - v2 - 200
   - baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
 
 ```sh
-$ cd ~/users/yjsong/githubrepo/ktds-edu-k8s-istio
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/12.hello-dr.yaml
 apiVersion: networking.istio.io/v1alpha3

@@ -615,7 +615,7 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 
 
-## 2) vm에 k3s 설치
+## 2) VM에 k3s 설치
 
 ### (1) master node - (SA)
 
@@ -627,6 +627,7 @@ Rancher 에서 만든 kubernetes 경량화 제품
 ## root 권한으로 수행한다.
 $ su
 Password:
+
 
 $ curl -sfL https://get.k3s.io | sh -
 
@@ -641,19 +642,6 @@ $ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 [INFO]  systemd: Starting k3s   <-- 마지막 성공 로그
 
 # 20초 정도 소요됨
-```
-
-
-
-* [참고]root password 를 모를때 변경하는 방법
-
-```sh
-
-# windows cmd 명령수행하여 root 로 wsl 실행
-$ wsl -u root 
-
-# root password 변경 가능
-$ passwd
 ```
 
 
@@ -770,7 +758,7 @@ $ kubectl create ns yjsong
 
 or
 
-$ kubectl create ns user01
+$ kubectl create ns user02
 
 or
 
@@ -1476,9 +1464,9 @@ $ eixt
 
 
 
-## 1) ktdsEduCluster 접속
+## 1) ktdsEduCluster 접속 설정 변경
 
-EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하므로 설정변경만 수행한다.
+EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하므로 설정 변경 작업을 수행한다.
 
 
 
@@ -1859,7 +1847,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.yjsong.cloud.35.209.207.26.nip.io"
+  - host: "userlist.user02.cloud.35.209.207.26.nip.io"
     http:
       paths:
       - path: /
@@ -1886,13 +1874,13 @@ userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.
 ```sh
 
 # traefik node port 로 접근시도
-# node 중 하나를 골라서 시도하자.  (master01_IP : 10.128.0.25)
-$ curl http://10.128.0.25:31975/users/1 -H "Host:userlist.yjsong.cloud.35.209.207.26.nip.io"
+# node 중 하나를 골라서 시도하자.  (master01_IP : 10.128.0.35)
+$ curl http://10.128.0.35:31353/users/1 -H "Host:userlist.user02.cloud.35.209.207.26.nip.io"
 {"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 # 부여한 host 로 접근시도
-$ curl http://userlist.yjsong.cloud.35.209.207.26.nip.io/users/1
+$ curl http://userlist.user02.cloud.35.209.207.26.nip.io/users/1
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
 
@@ -1908,28 +1896,7 @@ $ curl http://userlist.yjsong.cloud.35.209.207.26.nip.io/users/1
 
 - 크롬 브라우저에서 확인
 
-![image-20230514125641610](kubernetes.assets/image-20230514125641610.png)
-
-
-
-* [참고] node port 이므로 kubernetes node 중 어떤 노드로도 접근이 가능하다.
-
-```sh
-$ kubectl get node -o wide
-NAME                STATUS   ROLES                       AGE    VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
-ktds-k3s-master01   Ready    control-plane,etcd,master   139m   v1.26.4+k3s1   10.128.0.25   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-master02   Ready    control-plane,etcd,master   137m   v1.26.4+k3s1   10.128.0.26   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-master03   Ready    control-plane,etcd,master   138m   v1.26.4+k3s1   10.128.0.27   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker01   Ready    <none>                      134m   v1.26.4+k3s1   10.128.0.28   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker02   Ready    <none>                      135m   v1.26.4+k3s1   10.128.0.29   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-ktds-k3s-worker03   Ready    <none>                      135m   v1.26.4+k3s1   10.158.0.25   <none>        Ubuntu 22.04.2 LTS   5.19.0-1022-gcp   containerd://1.6.19-k3s1
-
-
-# 위 노드IP 중 특정 IP 로 접근해도 동일한 결과를 얻을 수 있다.
-$ curl http://10.128.0.25:31975/users/1 -H "Host:userlist.yjsong.cloud.35.209.207.26.nip.io"
-{"id":1,"name":"Eliezer Lind","gender":"F","image":"/assets/image/cat1.jpg"}
-
-```
+![image-20230825222739086](kubernetes.assets/image-20230825222739086.png)
 
 
 
