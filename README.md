@@ -19,23 +19,25 @@
 
 ## 1) 실습 환경 준비(개인PC)
 
-- 실습에 필요한 tool 준비
-  - mobaxterm 설치
-  - wsl2 설치
-    - 실습자료  Download (개인PC에서 실습용 )
-  - docker desktop 설치
-  - typora 설치
-    - 교육자료  Download(교육자료 및 ssh key )
-  
+- mobaXterm 설치
+- gitbash 설치
+- typora 설치
 
 
 
-## 2) 실습 환경 준비(Cloud)
+## 2) 교육문서 Download
 
-- Cloud 개요
-- 수강생별 Namespace 매핑
-- ssl 접속 확인
-- 실습자료 Download(Cloud에서 실습용 )
+- 교육자료 download
+- Typora 로 readme.md 파일오픈
+
+
+
+## 3) 실습 환경 준비(Cloud)
+
+- 개인 VM 서버 주소 확인
+- KtdsEduCluster Namespace 확인
+- SSH (Mobaxterm) 실행
+- 실습자료 download
 
 
 
