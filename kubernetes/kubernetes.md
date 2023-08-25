@@ -91,7 +91,7 @@
 
 - **자동화된 롤아웃과 롤백** 
   - 쿠버네티스를 사용하여 배포된 컨테이너의 원하는 상태를 서술할 수 있으며 현재 상태를 원하는 상태로 설정한 속도에 따라 변경할 수 있다. 
-  - 예를 들어 쿠버네티스를 자동화해서 배포용 새 컨테이너를 만들고, 기존 컨테이너를 제거하고, 모든 리소스를 새 컨테이너에 적용할 수 있다.
+  - 예를 들어 쿠버네티스를 자동화해서 배포용 새 컨테이너를 만들고, 기존 컨테이너를 제거하고, 모든 리소스를 새 컨역할을  컨테이너에 적용할 수 있다.
   
 - **자동화된 복구(self-healing)** 
   - 쿠버네티스는 실패한 컨테이너를 다시 시작하고,  '사용자 정의 상태 검사'에 응답하지 않는 컨테이너를 죽이고, 서비스 준비가 끝날 때까지 그러한 과정을 클라이언트에 보여주지 않는다.
@@ -114,15 +114,56 @@
 
 
 
-# 2. [개인PC] Docker 실습
+# 2. [개인VM] Container 실습
 
-docker Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가 무엇인지, kubernetes 의 차이가 무엇인지를 알아보자.
+Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가 무엇인지, kubernetes 의 차이가 무엇인지를 알아보자.
 
 
 
-## 1) sample app 실행
+## 1) Container 기술에 대한 표준화(OCI)
 
-wsl 환경에 접속후 sample app 인 userlist 를 실행해 보자.
+### (1) Container 는
+
+* AP 와 Binary, Library 를 Package 로 묶어서 배포
+* 서로 다른 컴퓨팅 환경에서 AP를 안정적으로 실행 할 수 있음
+* 개발환경에 구애 받지 않고 빠른 개발과 배포가 가능
+* 온프레미스 환경에서 클라우드 네이티브 환경으로 쉽게 옮겨 갈 수 있어서 클라우드 컴퓨팅 분야에서 가장 주목 받는 기술중 하나임
+
+### (2) OCI(Open Container Initiative) 출범 배경
+
+* 2013년 출시된 Docker가 사실상 표준 역할을 했지만 CoreOS(현Redhat) 등 도커와 다른 규격으로 표준화를 추진하려 함
+* 이런 문제를 해결하기 위해 2015년 CoreOS, 도커, 구글, AWS, MS, IBM 등 플랫폼 벤더들을 중심으로 컨테이너 표준화 수립 및 OCI 단체 출범
+* 현재는 Linux Foundation 산하에 존재함
+* OCI 설립 목표 중의 하나는 통일된 표준을 통해 어디서든 작동하는 이식성 제공
+* OCI 표준 컨테이너가 만족해야할 5가지 원칙
+
+| 원칙                                        | 내용                                                         |
+| :------------------------------------------ | :----------------------------------------------------------- |
+| 표준 동작 (Standard Operations)             | • 표준 컨테이너 도구들을 이용해서 컨테이너의 생성, 시작, 정지가 가능해야 함 <br />• 표준 파일 시스템 도구를 통해서 컨테이너의 스냅샷과 복사가 가능해야 함 <br />• 표준 네트워크 도구들을 통해서 컨테이너의 업로드와 다운로드가 가능해야 함 |
+| 내용 중립성 (Content-agnostic)              | •표준 컨테이너는 컨테이너가 담고 있는 애플리케이션의 종류에 상관없이 표준 동작들이 동일하게 동작해야 함 |
+| 인프라 중립성 (Infrastructure-agnostic)     | •표준 컨테이너는 OCI 지원 인프라라면 종류에 상관없이 컨테이너 실행이 가능해야 함 |
+| 자동화를 위한 설계(Designed for Automation) | •표준 컨테이너는 컨테이너 내용과 인프라 종류에 상관없이 동일한 표준 동작을 지원하기 때문에 자동화가 용이함 |
+| 산업 수준의 배포(Industrygrade delivery)    | •표준 컨테이너는 기업 규모에 상관없이 산업 수준의 배포가 가능해야 함 |
+
+
+
+### (3) OCI Container tool
+
+* OCI 표준에 맞는 대표적인 Container tool
+
+  * Docker
+  * Buildah
+
+  * Skopeo
+  * Podman
+
+
+
+
+
+## 2) sample app 실행
+
+개인 VM 서버로 접속후 sample app 인 userlist 를 실행해 보자.
 
 userlist app 은 실행될때 10명의 사용자가 난수로 생성되도록 개발된 테스트용 app이다. 
 
@@ -130,7 +171,16 @@ userlist app 은 실행될때 10명의 사용자가 난수로 생성되도록 �
 $ docker ps -a
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
+$ docker pull docker.io/ssongman/userlist:v1
+
+$ docker images
+REPOSITORY                          TAG                  IMAGE ID      CREATED        SIZE
+docker.io/ssongman/userlist         v1                   bf0cd99d0bad  4 years ago    696 MB
+
 $ docker run -d --name userlist1 -p 8181:8181 ssongman/userlist:v1
+
+## 약 10초 정도 이후에 tomcat 기동이 완료된다.
+
 
 $ curl http://localhost:8181/
 
@@ -145,7 +195,7 @@ $ curl http://localhost:8181/users/2
 
 
 
-크로브라우저에서 아래 주소로 접속 시도해 보자.
+[참고] 만약 개인 PC 환경에서 docker-desktop 환경에서 수행했다면 브라우저에서도 아래처럼 확인할 수 있다.
 
 ```sh
 http://localhost:8181/ 
@@ -161,16 +211,23 @@ http://localhost:8181/users/2
 
 
 
-## 2) Scale Out
+## 3) Scale Out
 
 Application 하나를 간단히 배포하였다. 하지만 부하가 너무 많아 한개의 container 만으로는 부족한 상황을 가정해 보자.
 
-Scale Out 이 필요하다.  어떻게 해결할 것인가??
+Scale Out 이 필요하다.  어떻게 해결할 것인가?
 
 동일한 이미지를 이용해서 한개 실행해보자.
 
 ```sh
 $ docker run -d --name userlist2 -p 8182:8181 ssongman/userlist:v1
+
+$ docker ps
+CONTAINER ID  IMAGE                           COMMAND               CREATED         STATUS             PORTS                   NAMES
+a60574943ae2  docker.io/ssongman/userlist:v1  /bin/sh -c java -...  40 minutes ago  Up 40 minutes ago  0.0.0.0:8181->8181/tcp  userlist1
+a4844969794a  docker.io/ssongman/userlist:v1  /bin/sh -c java -...  5 seconds ago   Up 5 seconds ago   0.0.0.0:8182->8181/tcp  userlist2
+
+
 
 $ curl http://localhost:8182/users/1
 {"id":1,"name":"Sherman Rath","gender":"F","image":"/assets/image/cat1.jpg"}
@@ -193,7 +250,7 @@ $ curl http://localhost:8181/users/1
 
 
 
-## 3) 부하분산 고민
+## 4) 부하분산 고민
 
 Client 가 두개의 App에 어떻게 접근해야 할까? 또한 부하분산을 어떻게 할까?
 
@@ -219,12 +276,12 @@ load balancer 역할을 수행할 haproxy 를 Application 앞단에 두고 clien
 
 ```sh
 $ docker rm -f userlist1
-$ docker rm -f userlist2
+  docker rm -f userlist2
 ```
 
 
 
-- docker network 추가
+- container network 추가
 
 Docker 컨테이너(container)는 격리된 환경에서 돌아가기 때문에 기본적으로 다른 컨테이너와의 통신이 불가능하다. 하지만 여러 개의 컨테이너를 하나의 Docker 네트워크(network)에 연결시키면 서로 통신이 가능해진다.
 
@@ -236,10 +293,10 @@ $ docker network create my_network
 
 $ docker network ls
 NETWORK ID     NAME         DRIVER    SCOPE
-f5ee193cfc4e   bridge       bridge    local
-29d9382d1a33   host         host      local
-6f120c28cd98   my_network   bridge    local    <-- 신규 network
-dc87e84fb7f9   none         null      local
+dea4d2a752a8   bridge       bridge    local
+00bd2e2290dd   host         host      local
+e7f26184a369   my_network   bridge    local    <-- 신규 network
+f1ea83dc1830   none         null      local
 
 ```
 
@@ -250,6 +307,7 @@ dc87e84fb7f9   none         null      local
 ```sh
 # userlist1
 $ docker run -d --net my_network --name userlist1 -p 8181:8181 ssongman/userlist:v1
+
 
 $ curl http://localhost:8181/users/1
 {"id":1,"name":"Dr. Maudie Christiansen","gender":"F","image":"/assets/image/cat1.jpg"}
@@ -366,6 +424,10 @@ FROM haproxy:latest
 COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
 
 ```
+
+cat > 명령이후 Ctrl + D 명령어로 파일을 Close 한다.
+
+
 
 
 
@@ -503,7 +565,7 @@ backend testweb-backend
 
 
 
-## 4) clean up
+## 5) clean up
 
 ```sh
 $ docker rm -f userlist1
@@ -545,7 +607,7 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 ![Deploying, Securing Clusters in 8 minutes with Kubernetes](kubernetes.assets/k3s_falco_sysdig-02-k3s_arch.png)
 
-- k3s 에서는 containerd 라는 제품을 사용함
+- k3s 에서는 containerd 라는 Container runtime을 사용함
 
 
 
@@ -553,7 +615,7 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 
 
-## 2) wsl 에 k3s 설치
+## 2) vm에 k3s 설치
 
 ### (1) master node - (SA)
 
@@ -722,7 +784,7 @@ $ alias ku='kubectl -n yjsong'     <-- 자신의 namespace 명을 입력한다.
 
 
 
-### (2) alias 정의
+### (2) [참고] alias 정의
 
 kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 위와 같이 alias 를 정의후 사용할 수 있으니 참고 하자.
 
@@ -1406,16 +1468,24 @@ $ eixt
 
 
 
+개인별 VM 환경은 1개 Node 로 구성된 단일 Cluster 이다.
+
+이보다 좀더 규모가 큰 EduCluster 에 접속해서 테스트를 수행해보자.
+
+참고로 EduCluster 는 6개 Node 로 구성되어 있다.
+
+
+
 ## 1) ktdsEduCluster 접속
 
-ktdsEduCluster에 접속한다.
+EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하므로 설정변경만 수행한다.
 
 
 
 ```sh
 
 
-# ktdsEduCluster 접속
+# ktdsEduCluster 접속하도록 설정 변경
 $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
 
 # Cluste 확인
@@ -1482,7 +1552,7 @@ user20            Active   10h
 
 
 # 각 수강생별 NS 를 확인해보자.
-$ kubectl get ns yjsong
+$ kubectl get ns user02
 NAME     STATUS   AGE
 yjsong   Active   2m4s
 
