@@ -520,7 +520,7 @@ $ docker rm -f userlist1
 
 
 
-# 3. [개인PC] k3s 설치
+# 3. [개인VM] k3s 설치
 
 ## 1) k3s 란?
 
@@ -686,7 +686,7 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 
 
 
-# 4. [개인PC] Kubernetes 실습
+# 4. [개인VM] Kubernetes 실습
 
 
 
@@ -750,38 +750,27 @@ $ source ~/env
 
 ## 2) Deployment
 
-sample app deploy
+> sample app deploy
 
-#### userlist deploy - kubectl cli
+Deployment 는 선언적으로 POD 를 관리하기 위한 상위수준의 리소스이다.
 
-* kubectl cli 이용하여 생성하는 방법으로 테스트 해보자.
+Deployment 를 만들면 Replicaset 이 자동으로 만들어진다.
 
-```sh
-# deploy 생성
-$ ku create deploy userlist --image=ssongman/userlist:v1
+실제POD는 Deployment 가 아닌 Replicaset 에 의해서 생성되고 관리된다.
 
-
-# 확인
-$ ku get pod -w         # 1분 정도 소요됨
-NAME                        READY   STATUS              RESTARTS   AGE
-userlist-75c7d7dfd7-kvtjh   0/1     ContainerCreating   0          15s
-userlist-75c7d7dfd7-kvtjh   1/1     Running             0          40s
-
-
-# CLI 로 deploy 된 모습을 확인후 삭제하자.
-# Yaml 을 통한 생성 작업을 수행할 것이다.
-
-# 삭제
-$ ku delete deploy userlist
-
-
-```
+Deployment 가 Rolling update 와 rollback 등 Replicaset 을 관리한다.
 
 
 
-#### userlist deploy - yaml 
+![Rolling deployments in Kubernetes – My Developer Journal](kubernetes.assets/image-4.jpeg)
 
--  yaml 을 이용하여  deploy  해보자.
+
+
+
+
+### (1) userlist deploy 생성
+
+-  Manifest file 을 이용하여  deploy  해보자.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -812,12 +801,37 @@ spec:
 
 $ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
 
+
+# 확인
+$ ku get pod -w
+userlist-75c7d7dfd7-kvtjh   0/1     ContainerCreating   0          15s
+userlist-75c7d7dfd7-kvtjh   1/1     Running             0          40s
+
+```
+
+
+
+#### [참고] kubectl cli
+
+* kubectl create deploy 명령으로 deployment 를 생성 할 수 있다.
+
+```sh
+# deploy 생성
+$ ku create deploy userlist --image=ssongman/userlist:v1
+
+```
+
+
+
+#### pod 생성 확인
+
+```sh
+
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-bfd857685-ljpnk   1/1     Running   0          4s
 
-
-# Status 가 Running 이 되어야 정상 기동된 상태임
+# Status가 Running 이 되어야 정상 기동된 상태임
 
 ```
 
@@ -830,7 +844,6 @@ userlist-bfd857685-ljpnk   1/1     Running   0          4s
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-bfd857685-k7mwt   1/1     Running   0          18s
-
 
 
 # userlist pod 내에서 확인
@@ -855,11 +868,9 @@ $ ku exec -it userlist-bfd857685-ljpnk -- curl localhost:8181/users/1
 
 
 
-### (3) curl test (test 목적 pod)
+### (3) curl test 생성 (test 목적의 pod)
 
-다른 pod 에서 userlist 를 call 해보자.
-
-테스트 목적의 curltest 라는 pod 를 생성해보자.
+curl test 를 위해서 별도pod(curltest) 를 생성하여 userlist 를 call 해보자.
 
 ```sh
 
@@ -897,7 +908,6 @@ curltest                   1/1     Running   0          7h40m   10.42.0.12   des
 userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   desktop-qfrh1cb   <none>           <none>
 
 
-
 ```
 
 
@@ -933,10 +943,11 @@ cluster 내에 내부 network 개념을 이해하는 중요한 예제이니 꼭 
 
 
 
-- service 생성
+### (1) userlist service 생성
+
+
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 # service manifest file 확인
 $ cat ./kubernetes/userlist/12.userlist-svc.yaml
@@ -958,16 +969,38 @@ spec:
 $ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
 service/userlist-svc created
 
-$ ku get svc
-NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-userlist-svc   ClusterIP   10.43.106.168   <none>        80/TCP    6s
+```
 
+
+
+#### [참고] kubectl cli 
+
+- kubectl expose 명령으로 service 를 생성 할 수 있다.
+
+```sh
+$ cd ~/githubrepo/ktds-edu-k8s-istio
+
+$ ku expose deployment userlist --name userlist-svc --port=80 --target-port=8181
 
 ```
 
 
 
-- curltest pod 내에서 테스트
+#### service 생성확인
+
+```sh
+
+$ ku get svc
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+userlist-svc   ClusterIP   10.43.106.168   <none>        80/TCP    6s
+
+```
+
+
+
+
+
+### (2) curltest pod 내에서 테스트
 
 ```sh
 $ ku get pod -o wide
@@ -989,7 +1022,6 @@ $ curl userlist-svc/users/1
 # svc name 의 ip 식별
 $ ping userlist-svc
 PING userlist-svc (10.43.106.168): 56 data bytes
-
 
 
 # svc ip로 call
@@ -1019,18 +1051,12 @@ pod의 IP, Service명, Service 의 IP !   이렇게 3개의 curl 결과가 모�
 
 userlist pod 갯수를 늘려보자.
 
-```sh
-$ ku get deploy
-NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   1/1     1            1           5m15s
+deploy manifest file을 직접 수정하여 replicas 값을 변경할 수 있다.
 
+```sh
 
 $ ku edit deploy userlist
-```
-
-
-
-```yaml
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1043,9 +1069,31 @@ spec:
     matchLabels:
       app: userlist
       ....
+---
+
+# 저장후 종료한다. ( :wq )
 ```
 
 
+
+#### [참고] kubectl cli
+
+* kubectl scale 명령으로 scale 를 조정 할 수 있다.
+
+```sh
+$ ku get deploy
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+userlist   1/1     1            1           5m15s
+
+
+# scale 명령으로 pod 3개로 증가
+$ ku scale --replicas=3 deployment/userlist
+
+```
+
+
+
+#### pod 수 확인
 
 ```sh
 $ ku get pod
@@ -1061,7 +1109,7 @@ userlist-bfd857685-28g8v   1/1     Running   0          5s
 
 
 
-- curltest pod 내에서 테스트
+### (3) curltest pod 내에서 테스트
 
 ```sh
 
@@ -1123,7 +1171,7 @@ $ exit
 
 
 
-### [참고] Round Robbin 방식
+### (4) Round Robbin 방식
 
 Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서대로 순환을 하여 로드밸런싱을 처리하는 방법이다.
 
@@ -1137,7 +1185,7 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 
 
-## 5) Ingress 
+## 5) Ingress
 
 인그레스는 클러스터 내의 서비스에 대한 외부 접근을 관리하는 API 오브젝트이며, 일반적으로 HTTP를 관리한다.
 
@@ -1161,18 +1209,19 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>          53/UDP,53/TCP,9153/TCP       8h
-metrics-server   ClusterIP      10.43.147.138   <none>          443/TCP                      8h
-traefik          LoadBalancer   10.43.6.87      172.25.51.207   80:32240/TCP,443:31036/TCP   8h
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       75d
+metrics-server   ClusterIP      10.43.134.123   <none>        443/TCP                      75d
+traefik          LoadBalancer   10.43.81.157    10.158.0.43   80:30497/TCP,443:30739/TCP   75d
+
 
 ```
 
 kubernetes 관리영역 Namespace 인 kube-system 에서 service 를 살펴보았다.
 
-traefik(https://traefik.io/) 이라는 요즘 뜨고 있는 proxy tool 을 사용하는 것을 알 수 있다.
+traefik(https://traefik.io/) 이라는 proxy tool 을 사용하는 것을 알 수 있다.
 
-또한 node port 가  32240 인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
+또한 node port 가  30497인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
 
 아래 실습에서 계속사용될 예정이니 잘 기억해 놓자.
 
@@ -1180,7 +1229,11 @@ traefik(https://traefik.io/) 이라는 요즘 뜨고 있는 proxy tool 을 사�
 
 그럼 실제로 ingress 를 선언하여 접근해보자.
 
-- ingress yaml
+
+
+### (1) userlist ingress 생성
+
+* [참고] manifest file 을 이용해서 Ingress 를 만들 수 있다.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -1210,35 +1263,67 @@ spec:
 $ ku create -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 ingress.networking.k8s.io/userlist-ingress created
 
+```
+
+
+
+#### [참고] kubectl cli
+
+* kubectl create ingress 명령으로 ingress를 생성할 수 있다.
+
+```sh
+$ ku create ingress userlist-ingress --class=traefik \
+  --rule="userlist.songlab.co.kr/*=userlist-svc:80"
+
+$ ku get ingress
+NAME               CLASS     HOSTS                    ADDRESS       PORTS   AGE
+userlist-ingress   traefik   userlist.songlab.co.kr   10.158.0.43   80      2m29s
+
+```
+
+
+
+#### ingress 생성 확인
+
+```sh
+
 $ ku get ingress
 NAME               CLASS    HOSTS                    ADDRESS         PORTS   AGE
 userlist-ingress   <none>   userlist.songlab.co.kr   172.25.51.207   80      4s
 
 ```
 
->  172.25.51.207 는 master node 의 IP 주소이다.
+> 172.25.51.207 는 master node 의 IP 주소이다.
 
 
 
+### (2) 접속 확인
 
-
-- master node 에서 확인
-
-traefik node port 를 아래에 삽입하여 curl 테스트 해보자.
+traefik node port 를 확인후 curl로 테스트 해보자.
 
 ```sh
-$ curl http://localhost:30504/users/1 -H "Host:userlist.songlab.co.kr"
+
+# traefik node node port 확인
+$ kubectl -n kube-system get svc
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       75d
+metrics-server   ClusterIP      10.43.134.123   <none>        443/TCP                      75d
+traefik          LoadBalancer   10.43.81.157    10.158.0.43   80:30497/TCP,443:30739/TCP   75d
+
+
+# 확인
+$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:32240/users/1 -H "Host:userlist.songlab.co.kr"
+$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
 {"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 # node IP 로 접근해도 동일한 결과를 받을 수 있다.
-$ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
+$ curl http://10.158.0.43:30497/users/1 -H "Host:userlist.songlab.co.kr"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
@@ -1247,21 +1332,21 @@ $ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
 
 이전에는 userlist 접근을 위해서는 cluster inner network 에 진입을 위해서 curltest pod 내에서 테스트를 진행했었다.  
 
-이제는 ingress 라는 오브젝가 외부와의 접근을 연결시켜주기 때문에 굳이 curltest pod 가 필요 없으며 node에서 직접 접근할 수 있다.
+이제는 ingress 라는 리소스가 외부와의 접근을 연결시켜주기 때문에 굳이 curltest pod 가 필요 없으며 node에서 직접 접근할 수 있다.
 
 다시 말해서 개인 pc의 hosts 파일에 위 host name 을 등록해 주면 크롬과 같은 브라우저에서 접근이 가능하다는 의미이다.
 
 하지만 이 또한 완전환 모습은 아니다.  
 
-연결할때마다 node port (32240)를 붙여야 하는 불편함이 존재한다. 
+연결할때마다 node port (30497)를 붙여야 하는 불편함이 존재한다. 
 
-이런 불편을 해결하기 위해서 일반적으로 load balancer( L4) 를 이용하여 80 port 를 node port(32240) 으로 매핑하여 사용한다.
+이런 불편을 해결하기 위해서 일반적으로 load balancer( L4) 를 이용하여 80 port 를 node port(30497) 으로 매핑하여 사용한다.
 
 하지만 지금환경은 개인 PC 이므로 이해만 하자.
 
 
 
-### [참고] Load Balancing
+### (3) [참고] Load Balancing
 
 - 참고링크
   - GCP Load Balancing
@@ -1276,8 +1361,17 @@ $ curl http://172.25.51.207:32240/users/1 -H "Host:userlist.songlab.co.kr"
 ### (1) 실습자료 삭제
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
+$ ku delete pod curltest
+  ku delete deploy/userlist
+  ku delete svc/userlist-svc
+  ku delete ingress/userlist-ingress
+  
+
+
+
+# manifest file 실행시 삭제 방법
+$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1318,6 +1412,84 @@ $ eixt
 
 * 수강생별 접속정보 :  시작전에 > 실습환경준비(Cloud) > 수강생별 Namespace 및 접속 서버 주소
 * mobaXterm 접속 :  시작전에 > 실습환경준비(Cloud)  > ssh (Mobaxterm)
+
+
+
+
+
+
+
+
+
+```sh
+
+$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://10.128.0.35:6443
+  name: default
+contexts:
+- context:
+    cluster: default
+    user: default
+  name: default
+current-context: default
+kind: Config
+preferences: {}
+users:
+- name: default
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+
+
+
+$ cd ~/song/ktdseducluster
+
+$ kubectl config set-cluster ktdseducluster \
+    --server=https://10.128.0.35:6443 \
+    --embed-certs \
+    --certificate-authority=./kubernetes.ca.crt
+
+
+
+$ cat > config-ktdseducluster
+---
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJlRENDQVIyZ0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQWpNU0V3SHdZRFZRUUREQmhyTTNNdGMyVnkKZG1WeUxXTmhRREUyT0RRMU5UTXlOelV3SGhjTk1qTX                                  dOVEl3TURNeU56VTFXaGNOTXpNd05URTNNRE15TnpVMQpXakFqTVNFd0h3WURWUVFEREJock0zTXRjMlZ5ZG1WeUxXTmhRREUyT0RRMU5UTXlOelV3V1RBVEJnY3Foa2pPClBRSUJCZ2dxaGtqT1BRTUJCd05DQUFRQXRvN3U2bTB2WnF6R1RnNjgyMEorek5WdlRB                                  Ly9WV1JHbkkwZDBMaVQKd1dmbEtCTzdXa3dLSkNEUGY2U3NyVTMvaXliYzNFTU1WRllJa0Mrc1REU0pvMEl3UURBT0JnTlZIUThCQWY4RQpCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVUJoZmI1SnNIY3BVQnhtQndTOFJTCkh1aW                                  hxMEF3Q2dZSUtvWkl6ajBFQXdJRFNRQXdSZ0loQU10TUwxU2hOaXEySzNudjlRWGl2NGpOUWVVUkV1eWUKVlhoblkwOXZyM29RQWlFQXlrSmZTYlYzeDF1UU1uVGZpSWhZYm41RWdYMTJwNVRvWHk0d0hHclNnU2M9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    server: https://10.128.0.35:6443
+  name: default
+contexts:
+- context:
+    cluster: default
+    user: default
+  name: default
+current-context: default
+kind: Config
+preferences: {}
+users:
+- name: default
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJrakNDQVRlZ0F3SUJBZ0lJTmlWL2RNOEZiZjB3Q2dZSUtvWkl6ajBFQXdJd0l6RWhNQjhHQTFVRUF3d1kKYXpOekxXTnNhV1Z1ZEMxallVQXhOamcwTlRVek1qYzFNQ                                  jRYRFRJek1EVXlNREF6TWpjMU5Wb1hEVEkwTURVeApPVEF6TWpjMU5Wb3dNREVYTUJVR0ExVUVDaE1PYzNsemRHVnRPbTFoYzNSbGNuTXhGVEFUQmdOVkJBTVRESE41CmMzUmxiVHBoWkcxcGJqQlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJQYWN                                  1a3VmL0tEcFkrVTQKYUR1TjlVTU15M3diRUpLTzFXemdKYlU4M3UrK3JBMmhZcFFBVXlQdmhnZzA2a2VuTDVOZkVhdy80VHlGVGtaSApubG5WeDh1alNEQkdNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUtCZ2dyQmdFRkJRY0RBakFmCkJnTlZIU                                  01FR0RBV2dCUVRCSC9hK1JBK0dDV0FSKzg3K2pVUE5LMkFPVEFLQmdncWhrak9QUVFEQWdOSkFEQkcKQWlFQTRGd2VOTy9GLytpUXJwemI3VTZZOVJqMTRsSFhrbTlpMmNjN2g3TVBWRHdDSVFDdk9nak5TaXpac3BXKwphRlNqUDAxRUY2RHVCdE5NUGYyOXZ0cUl                                  RZ1hKR1E9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tQkVHSU4gQ0VSVElGSUNBVEUtLS0tLQpNSUlCZHpDQ0FSMmdBd0lCQWdJQkFEQUtCZ2dxaGtqT1BRUURBakFqTVNFd0h3WURWUVFEREJock0zTXRZMnhwClpXNTBMV05oUURFMk9EUTFOVE15T                                  npVd0hoY05Nak13TlRJd01ETXlOelUxV2hjTk16TXdOVEUzTURNeU56VTEKV2pBak1TRXdId1lEVlFRRERCaHJNM010WTJ4cFpXNTBMV05oUURFMk9EUTFOVE15TnpVd1dUQVRCZ2NxaGtqTwpQUUlCQmdncWhrak9QUU1CQndOQ0FBUXZFWENVVVNmWDlZSTZvd3h                                  wNU9yaTRCK0xQTi92RCt2YmhsbDB5ZjhICkc3SnJLN3FibDhUS3NGNHVxS1NlMXZobnRwc0FySXVrZXZCMTE0WURmTW4wbzBJd1FEQU9CZ05WSFE4QkFmOEUKQkFNQ0FxUXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVVFd1IvMnZrUVBoZ2xnR                                  WZ2Ty9vMQpEelN0Z0Rrd0NnWUlLb1pJemowRUF3SURTQUF3UlFJZ0djdFY5dk1sRGpGcUtFb0NRdktGTDdDblh2Z1BkTUN6CkdBU2tuenlTYldrQ0lRQy8rc0l4S2pGSkpzeUpxeVlUcEZyVGwrNytWZ2xEYlNzZmRadktxZ0xyOWc9PQotLS0tLUVORCBDRVJUSUZ                                  JQ0FURS0tLS0tCg==
+    client-key-data: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1IY0NBUUVFSURRaW8xZm83S0xBaEVXU1k5bjM3ckNWNFY5MFkvbm1Mbk5xeXFPUFFPNkRvQW9HQ0NxR1NNNDkKQXdFSG9VUURRZ0FFOXB5NlM1LzhvT2xqNVRob080MzFRd3pMZ                                  kJzUWtvN1ZiT0FsdFR6ZTc3NnNEYUZpbEFCVApJKytHQ0RUcVI2Y3ZrMThSckQvaFBJVk9Sa2VlV2RYSHl3PT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=
+---
+
+
+
+
+```
+
+
+
+
+
+
+
+
 
 
 
