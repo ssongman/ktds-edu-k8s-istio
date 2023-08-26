@@ -37,7 +37,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-hello
+  name: hello-svc
   labels:
     app: hello
 spec:
