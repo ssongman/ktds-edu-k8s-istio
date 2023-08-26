@@ -299,7 +299,7 @@ No resources found in yjsong namespace.
 ### (1)  helm repo add
 
 ```sh
-# root 권한으로
+# 일반 User 권한으로
 $ helm repo add istio https://istio-release.storage.googleapis.com/charts
 
 # 추가된 repo 목록 확인
@@ -349,7 +349,7 @@ $ kubectl create namespace istio-system
 # istio-base 설치
 $ helm -n istio-system install istio-base istio/base
 NAME: istio-base
-LAST DEPLOYED: Sun May 14 13:48:21 2023
+LAST DEPLOYED: Fri Aug 25 14:10:34 2023
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
@@ -358,9 +358,10 @@ NOTES:
 Istio base successfully installed!
 
 
+
 $ helm -n istio-system ls
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-istio-base      istio-system    1               2023-05-14 13:48:21.21648216 +0900 KST  deployed        base-1.17.2     1.17.2
+istio-base      istio-system    1               2023-08-25 14:10:34.566977068 +0000 UTC deployed        base-1.18.2     1.18.2
 
 # helm 확인
 $ helm -n istio-system status istio-base
@@ -472,7 +473,7 @@ horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1    
 
 ```
 
-### [참고] repo 설치실패시
+### [참고] repo 설치 실패시
 
 ```sh
 # chart 를 fetch 받아서 local 에서 수행한다.
@@ -554,7 +555,7 @@ istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TC
 
 ### (6) clean up
 
-모든 테스트를 마치고 istio를 최종 삭제할때 아래 명령으로 삭제 하자.
+모든 테스트를 마치고 istio를 최종 삭제할때는 아래 명령으로 삭제 하자.
 
 ```sh
 $ helm -n istio-system delete istio-istiod
@@ -578,7 +579,7 @@ $ kubectl delete namespace istio-ingress
 1교시 kubernetes 실습때 수행했던 userlist pod 를 다시 확인해 보자.
 
 ```sh
-$ alias ku='kubectl -n yjsong'
+$ alias ku='kubectl -n user02'
 
 # userlist pod 확인
 $ ku get pod
@@ -621,46 +622,50 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 # 적용전 확인
-$ ku get ns yjsong -o yaml
+$ ku get ns user02 -o yaml
+ktdseduuser@bastion02:~$  ku get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-05-13T18:48:19Z"
+  creationTimestamp: "2023-08-25T14:14:46Z"
   labels:                                     <-- labels 확인(istio label 이 없다.)
-    kubernetes.io/metadata.name: yjsong
-  name: yjsong
-  resourceVersion: "771"
-  uid: df181e8d-5c13-411f-8abd-29c73961cb1a
+    kubernetes.io/metadata.name: user02
+  name: user02
+  resourceVersion: "33275"
+  uid: 09a9330e-e4b9-4a6d-8edc-b123aa9296a1
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
-  
-  
+---
+
+
 # 적용(label 추가)
 # 자기 Namespce 로 변경하여 적용하자.
-$ kubectl label namespace yjsong istio-injection=enabled
+$ kubectl label namespace user02 istio-injection=enabled
 namespace/yjsong labeled
 
 
 # 적용후 확인
-$ ku get ns yjsong -o yaml
+$ kubectl get ns user02 -o yaml
+---
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-05-13T16:30:47Z"
+  creationTimestamp: "2023-08-25T14:14:46Z"
   labels:
     istio-injection: enabled                    <-- istio label 이 잘 추가되었다.
-    kubernetes.io/metadata.name: yjsong
-  name: yjsong
-  resourceVersion: "268973"
-  uid: b07d5ed0-42e8-40ee-a1a9-abba52e33139
+    kubernetes.io/metadata.name: user02
+  name: user02
+  resourceVersion: "33389"
+  uid: 09a9330e-e4b9-4a6d-8edc-b123aa9296a1
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
+---
 
 ```
 
@@ -678,47 +683,48 @@ status:
 # 확인
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-curltest                   1/1     Running   0          14m
-userlist-bfd857685-vcrkw   1/1     Running   0          14m
+userlist-6bfcd9456d-7dm8l   1/1     Running   0          2m18s
+
 
 
 
 # pod 재기동(삭제)
-$ ku delete pod userlist-bfd857685-vcrkw 
-pod "userlist-6bfcd9456d-5rjmc" deleted
+$ ku delete pod userlist-6bfcd9456d-7dm8l
+pod "userlist-6bfcd9456d-7dm8l" deleted
 
+## pod 삭제는 graceful 방식으로 삭제되므로 약간의 시간이 필요하다.
 
 # 확인
 $ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-curltest                   1/1     Running   0          15m
-userlist-bfd857685-4dptz   2/2     Running   0          41s
+NAME                        READY   STATUS    RESTARTS   AGE
+userlist-6bfcd9456d-mrtmz   2/2     Running   0          47s
 
 
 # istio sidecar 가 포함되어 2개의 container 가 되었다.
 
 
 # describe 로 확인
-$ ku describe pod userlist-bfd857685-4dptz
+$ ku describe pod userlist-6bfcd9456d-mrtmz 
 ...
+
 Containers:
   userlist:
-    Container ID:   containerd://55a6c3acfb2c5c60ec59b329afea1d6230ef7934d8885898675bede457504766
+    Container ID:   containerd://74fedd66c86b89df8d2f9dc05d1e48aa2e5bc2925ebe66b62e4956f77b84582d
     Image:          ssongman/userlist:v1
     Image ID:       docker.io/ssongman/userlist@sha256:74f32a7b4bab2c77bf98f2717fed49e034756d541e536316bba151e5830df0dc
-    Port:           8181/TCP
-    Host Port:      0/TCP
+    Port:           <none>
+    Host Port:      <none>
     State:          Running
-      Started:      Mon, 15 May 2023 14:32:04 +0000
+      Started:      Fri, 25 Aug 2023 14:17:24 +0000
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dd2tt (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-db7qg (ro)
   istio-proxy:
-    Container ID:  containerd://5f33b9ceb4de3230fdd83c08095941e4d2cbd20bcc00866220f767cdaa1238bb
-    Image:         docker.io/istio/proxyv2:1.17.2
-    Image ID:      docker.io/istio/proxyv2@sha256:f41745ee1183d3e70b10e82c727c772bee9ac3907fea328043332aaa90d7aa18
+    Container ID:  containerd://cdda45b0378489cb61e1c99173c5fc4a5b4805868c9e298ff7e652fbf2cc1503
+    Image:         docker.io/istio/proxyv2:1.18.2
+    Image ID:      docker.io/istio/proxyv2@sha256:b71f2657e038a0d6092dfd954050a2783c7887ff8e72f77ce64840c0c39b076e
     Port:          15090/TCP
     Host Port:     0/TCP
     Args:
@@ -729,10 +735,8 @@ Containers:
       --proxyLogLevel=warning
       --proxyComponentLogLevel=misc:error
       --log_output_level=default:info
-      --concurrency
-      2
     State:          Running
-      Started:      Mon, 15 May 2023 14:32:04 +0000
+      Started:      Fri, 25 Aug 2023 14:17:24 +0000
     Ready:          True
     Restart Count:  0
     Limits:
@@ -741,6 +745,7 @@ Containers:
     Requests:
       cpu:      100m
       memory:   128Mi
+
 
 
 ```
@@ -757,7 +762,11 @@ userlist 는 더 이상 불필요하므로 삭제 하자.
 $ ku delete deploy userlist
 
 # label 삭제
-$ kubectl label --overwrite namespace yjsong istio-injection-
+$ kubectl label --overwrite namespace user02 istio-injection-
+
+
+# namespace 확인
+$ kubectl get ns user02 -o yaml
 ```
 
 
