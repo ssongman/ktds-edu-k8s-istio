@@ -2758,7 +2758,7 @@ spec:
     outlierDetection:
       interval: 1s
       consecutive5xxErrors: 1
-      baseEjectionTime: 2m
+      baseEjectionTime: 3m
       maxEjectionPercent: 100
 
 
@@ -2768,7 +2768,7 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 * 설정값 설명
   * 매 interval(1s)마다 스캔하여
   * 연속적으로 consecutiveErrors(1) 번 5XX 에러 가 발생하면
-  * baseEjectionTime(2m)동안 배제(circuit breaking) 처리된다.
+  * baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
 
 
 
@@ -2782,35 +2782,6 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 
 $ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-
-
-
-
-
-Hello server - v2
-Hello server - v2
-Hello server - v2
-Hello server - v2
 Hello server - v2
 Hello server - v2
 Hello server - v1
@@ -2819,6 +2790,7 @@ Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v1
+Hello server - v1    <-- 이 지점에서 circuit 이 발동 됨
 Hello server - v1
 Hello server - v1
 Hello server - v1
@@ -2827,7 +2799,9 @@ Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
-
+Hello server - v1
+Hello server - v1
+Hello server - v1
 
 ```
 
@@ -2853,13 +2827,11 @@ Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
+
 
 ```
 
-19회 정상 리턴이다.
+17회 정상 리턴이다.
 
 
 
@@ -2868,13 +2840,15 @@ Hello server - v1 - 200
 ```sh
 $ ku logs -f hello-server-2
 
+Hello server - v2 - 200
+Hello server - v2 - 200
+Hello server - v2 - 200
 Hello server - v2 - 503 (random)
-
 
 ```
 
-* 8회 리턴중 마지막 503 에러 이후 로그가 찍히지 않았다.
-* CB 정책에 의해 503 에러 발생후 3분동안 v2 로 Call 이 가지 않았다.
+* 4회 리턴중 마지막 503 에러 이후 로그가 찍히지 않았다.
+* CB 정책에 의해 503 에러 발생후 3분 동안 v2 로 Call 이 가지 않았다.
 
 
 
@@ -2918,8 +2892,6 @@ spec:
 
 
 
-
-
 #### clean up
 
 ```sh
@@ -2937,13 +2909,9 @@ $ ku get all
 
 
 
-
-
-
-
 ## 5) bookinfo clean up
 
-필요시 삭제한다. 하지만 아래 실습이 남아 있으므로 아직
+필요시 삭제한다.
 
 ```sh
 $ alias ku='kubectl -n user02'
@@ -2974,16 +2942,6 @@ $ ku label --overwrite namespace user02 istio-injection-
 ```
 
 
-
-
-
-
-
-# 6. 참고링크
-
-https://istio.io/latest/docs/tasks/
-
-http://itnp.kr/post/istio-circuit-break
 
 
 
