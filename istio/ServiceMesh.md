@@ -2537,7 +2537,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-hello
+  name: hello-svc
   labels:
     app: hello
 spec:
@@ -2552,7 +2552,7 @@ spec:
 $ ku apply -f ./istio/hello/11.hello-pod-svc.yaml
 pod/hello-server-1 created
 pod/hello-server-2 created
-service/svc-hello created
+service/hello-svc created
 
 ```
 
@@ -2566,7 +2566,7 @@ pod/curltest created
 
 
 # 여러번 call 해보자.
-$ ku exec -it curltest -- curl http://svc-hello:8080
+$ ku exec -it curltest -- curl http://hello-svc:8080
 Hello server - v1
 Hello server - v2
 Hello server - v1
@@ -2575,7 +2575,7 @@ Hello server - v2
 
 
 #
-#$ wihle true;do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+#$ wihle true;do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 
 ```
@@ -2608,7 +2608,7 @@ Hello server - v2
 
     - ```sh
       
-      $ ku exec -it curltest -- curl http://svc-hello:8080
+      $ ku exec -it curltest -- curl http://hello-svc:8080
       
       ```
 
@@ -2616,7 +2616,7 @@ Hello server - v2
 
     
 
-- curltest 컨테이너에서 svc-hello 서비스로 10개를 요청해 보자.
+- curltest 컨테이너에서 hello-svc 서비스로 10개를 요청해 보자.
 
   - v1, v2 각각 5번씩 요청 결과가 조회된다.
 
@@ -2624,7 +2624,7 @@ Hello server - v2
 ```sh
 
 # 20개를 0.1초간격으로 요청해 보자.
-$ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+$ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 
 Hello server - v2
@@ -2753,7 +2753,7 @@ kind: DestinationRule
 metadata:
   name: hello-dr
 spec:
-  host: svc-hello
+  host: hello-svc
   trafficPolicy:
     outlierDetection:
       interval: 10s
@@ -2779,7 +2779,7 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 - 다시 동일한 요청을 하자. 이번에 20번 호출한다.
 
 ```sh
-$ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+$ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 Hello server - v1
 Hello server - v1
@@ -2887,7 +2887,7 @@ kiali 의 모습은 아래와 같다.
 
 #### 결론
 
-- *k8s service* `svc-hello` 에 *DestionationRule* `dr-hello` 을 정의하여 오류가 발생하는 인스턴스를 배제(*circuit break*) 한다.
+- *k8s service* `hello-svc` 에 *DestionationRule* `hello-dr` 을 정의하여 오류가 발생하는 인스턴스를 배제(*circuit break*) 한다.
 - 1초간격(interval: 1s)으로 응답여부를 탐지하고 연속으로 1회 에러(consecutiveErrors) 가 발생하면 3분간(baseEjectionTime: 3m) *circuit break* 한다.
 
 ![istio circuit breaking use-case 2](ServiceMesh.assets/istio-circuit-break-p2.png)
@@ -2924,8 +2924,8 @@ spec:
 ```sh
 $ ku delete pod/hello-server-1
   ku delete pod/hello-server-2
-  ku delete svc/svc-hello
-  ku delete dr/dr-hello
+  ku delete svc/hello-svc
+  ku delete dr/hello-dr
   ku delete pod/curltest
 
 # 확인
