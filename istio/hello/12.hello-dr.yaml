@@ -6,7 +6,7 @@ spec:
   host: hello-svc
   trafficPolicy:
     outlierDetection:
-      interval: 10s
-      consecutive5xxErrors: 2
+      interval: 1s
+      consecutive5xxErrors: 1
       baseEjectionTime: 2m
       maxEjectionPercent: 100

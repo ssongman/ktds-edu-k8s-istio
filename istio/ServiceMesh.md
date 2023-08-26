@@ -2756,8 +2756,8 @@ spec:
   host: hello-svc
   trafficPolicy:
     outlierDetection:
-      interval: 10s
-      consecutive5xxErrors: 2
+      interval: 1s
+      consecutive5xxErrors: 1
       baseEjectionTime: 2m
       maxEjectionPercent: 100
 
@@ -2768,7 +2768,7 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 * 설정값 설명
   * 매 interval(1s)마다 스캔하여
   * 연속적으로 consecutiveErrors(1) 번 5XX 에러 가 발생하면
-  * baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
+  * baseEjectionTime(2m)동안 배제(circuit breaking) 처리된다.
 
 
 
@@ -2776,9 +2776,10 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 
 #### 테스트 수행 - CB 설정후
 
-- 다시 동일한 요청을 하자. 이번에 20번 호출한다.
+- 다시 동일한 요청을 하자. 이번에도 20번 호출한다.
 
 ```sh
+
 $ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 Hello server - v1
