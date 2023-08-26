@@ -1466,7 +1466,7 @@ $ eixt
 
 ## 1) ktdsEduCluster 접속 설정 변경
 
-EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하므로 설정 변경 작업을 수행한다.
+EduCluster 에 접속할 수 있는 접속 정보 파일로 설정 변경 작업을 수행한다.
 
 
 
@@ -1474,7 +1474,9 @@ EduCluster 에 접속할 수 있는 접속정보 파일이 VM내부에 존재하
 
 
 # ktdsEduCluster 접속하도록 설정 변경
-$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+$ export KUBECONFIG="${HOME}/githubrepo/ktds-edu-k8s-istio/kubernetes/config/config-ktdseducluster"
+
+
 
 # Cluste 확인
 $ kubectl get nodes
