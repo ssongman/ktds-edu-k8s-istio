@@ -3,7 +3,7 @@ kind: DestinationRule
 metadata:
   name: hello-dr
 spec:
-  host: svc-hello
+  host: hello-svc
   trafficPolicy:
     outlierDetection:
       interval: 10s
