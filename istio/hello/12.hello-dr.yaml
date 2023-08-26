@@ -1,12 +1,12 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: dr-hello
+  name: hello-dr
 spec:
   host: svc-hello
   trafficPolicy:
     outlierDetection:
-      interval: 1s
-      consecutive5xxErrors: 1
-      baseEjectionTime: 3m
+      interval: 10s
+      consecutive5xxErrors: 2
+      baseEjectionTime: 2m
       maxEjectionPercent: 100

@@ -443,6 +443,7 @@ Controle Plane역할을 수행하는 istiod 를 설치하자.
 ```sh
 # istiod 설치
 $ helm -n istio-system install istio-istiod istio/istiod
+
 ...
 TEST SUITE: None
 NOTES:
@@ -536,7 +537,7 @@ horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingr
 # traefik 과 충돌나는 현상도 사라졌다.
 
 
-$ alias kii='k -n istio-ingress'
+$ alias kii='kubectl -n istio-ingress'
 
 
 $ kii get svc
@@ -559,11 +560,17 @@ istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TC
 
 ```sh
 $ helm -n istio-system delete istio-istiod
-$ helm -n istio-system delete istio-base
-$ helm -n istio-ingress delete istio-ingress
+  helm -n istio-system delete istio-base
+  helm -n istio-ingress delete istio-ingressgateway
 
+# 확인
+$ helm -n istio-system ls
+$ helm -n istio-ingress ls
+
+
+# namespace 삭제
 $ kubectl delete namespace istio-system
-$ kubectl delete namespace istio-ingress
+  kubectl delete namespace istio-ingress
 ```
 
 
@@ -623,7 +630,7 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 ```sh
 # 적용전 확인
 $ kubectl get ns user02 -o yaml
-ktdseduuser@bastion02:~$  ku get ns user02 -o yaml
+
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -2599,6 +2606,14 @@ Hello server - v2
 
     - 아래 명령 수행
 
+    - ```sh
+      
+      $ ku exec -it curltest -- curl http://svc-hello:8080
+      
+      ```
+
+    - 
+
     
 
 - curltest 컨테이너에서 svc-hello 서비스로 10개를 요청해 보자.
@@ -2611,35 +2626,38 @@ Hello server - v2
 # 20개를 0.1초간격으로 요청해 보자.
 $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
 
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v1
+
 Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v2
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
 Hello server - v2
 Hello server - v1
 Hello server - v2
-Hello server - v2
 Hello server - v1
+Hello server - v1
+Hello server - v1
+
 
 ```
 
-- 위와 같이 20개가 에러 없이 리턴되었다.
-- 클라이언트 요청에 따라 에러가 리턴되지는 않는다.
+- 전체 20개의 로그가 리턴되었다.
+- istio proxy 기반 위에는 트래픽 오류시 다른 POD 로 Retry 기능이 있으므로 에러가 리턴 되지는 않는다.
+- 하지만 server-2로그를 확인하면 로그가 존재한다.
 
 
 
-- [Terminal 2] hello-server-1 로그
+- hello-server-1 로그
 
 ```sh
 $ ku logs -f hello-server-1
@@ -2656,10 +2674,16 @@ Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+
+
 
 ```
 
-200(정상) 12회이다.
+200(정상) 16회이다.
 
 
 
@@ -2669,22 +2693,26 @@ Hello server - v1 - 200
 $ ku logs -f hello-server-2
 
 Hello server - v2 - 200
+Hello server - v2 - 200
+Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 503 (random)
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
+Hello server - v2 - 503 (random)
 
+
+# 총 12회 중  [ 200(정상) 4회, 503(실패)8회 ]
 
 ```
 
-전체 10회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다. [ 200(정상) 8회, 503(실패) 2회 ]
+전체 12회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다.
 
-2개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
+8개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
 
 500 에러가 발생하는 서비스에 접근을 일시적으로 차단 시키는 것이 좋다고 판단할 수 있다.
 
@@ -2701,9 +2729,20 @@ Hello server - v2 - 200
 #### Circuit breaker 설정
 
 - DestinationRule 를 생성 outlierDetection 스펙을 통해 circuit break 를 정의한다.
-  - 매 interval(1s)마다 스캔하여
-  - 연속적으로 consecutiveErrors(1) 번 5XX 에러 가 발생하면
-  - baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
+  - outlierDetection
+    - consecutiveErrors
+      - 연속적인 에러가 몇번까지 발생해야 circuit breaker를 동작시킬 것인지 결정
+  
+    - interval
+      - interval에서 지정한 시간 내에  consecutiveError 횟수 만큼 에러가 발생하는 경우 circuit breaker 동작. 즉, 20초 내에 3번의 연속적인 오류가 발생하면 circuit breaker 동작
+  
+    - baseEjectionTime
+      - 차단한 호스트를 얼마 동안 로드밸런서 pool에서 제외할 것인가?
+  
+    - maxEjectionPercent
+      - 네트워크를 차단할 최대 host의 비율
+      - 즉, 최대 몇 %까지 차단할 것인지 설정 현재 구성은 2개의 pod가 있으므로, 100%인 경우 2개 모두 차단이 가능
+  
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -2717,14 +2756,21 @@ spec:
   host: svc-hello
   trafficPolicy:
     outlierDetection:
-      interval: 1s
-      consecutive5xxErrors: 1
-      baseEjectionTime: 3m
+      interval: 10s
+      consecutive5xxErrors: 2
+      baseEjectionTime: 2m
       maxEjectionPercent: 100
 
 
 $ ku apply -f ./istio/hello/12.hello-dr.yaml
 ```
+
+* 설정값 설명
+  * 매 interval(1s)마다 스캔하여
+  * 연속적으로 consecutiveErrors(1) 번 5XX 에러 가 발생하면
+  * baseEjectionTime(3m)동안 배제(circuit breaking) 처리된다.
+
+
 
 
 
@@ -2735,6 +2781,31 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 ```sh
 $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
 
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+
+
+
+
+
 Hello server - v2
 Hello server - v2
 Hello server - v2
@@ -2744,7 +2815,7 @@ Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v2
-Hello server - v1 <-- 여기서 503을 반환받은 후 circuit breaker에 의해서 v1만 호출되는 모습을 볼수 있다.
+Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
@@ -2777,9 +2848,17 @@ Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+
 ```
 
-13회 정상 리턴이다.
+19회 정상 리턴이다.
 
 
 
@@ -2788,15 +2867,8 @@ Hello server - v1 - 200
 ```sh
 $ ku logs -f hello-server-2
 
-
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 200
 Hello server - v2 - 503 (random)
+
 
 ```
 
@@ -2819,6 +2891,31 @@ kiali 의 모습은 아래와 같다.
 - 1초간격(interval: 1s)으로 응답여부를 탐지하고 연속으로 1회 에러(consecutiveErrors) 가 발생하면 3분간(baseEjectionTime: 3m) *circuit break* 한다.
 
 ![istio circuit breaking use-case 2](ServiceMesh.assets/istio-circuit-break-p2.png)
+
+
+
+
+
+#### [참고] 모든 서비스에 Circuit break 적용
+
+```sh
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: circuit-breaker-for-the-entire-default-namespace
+spec:
+  host: "*.default.svc.cluster.local"
+  trafficPolicy:
+    outlierDetection:
+      interval: 1s
+      consecutive5xxErrors: 1
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+
+```
+
+
 
 
 
