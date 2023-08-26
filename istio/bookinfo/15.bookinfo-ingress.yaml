@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress
+  name: bookinfo-ingress-user02
 spec:
   ingressClassName: traefik
   rules:

@@ -1099,7 +1099,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user02.cloud.35.209.207.26.nip.io"    # 각자 계정명으로 변경 필요
+  - "bookinfo.user02.cloud.35.209.207.26.nip.io"    # 각자 Namespace명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1120,19 +1120,24 @@ spec:
         port:
           number: 9080
 
+
 # 생성
 $ ku apply -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+
 gateway.networking.istio.io/bookinfo-gateway created
 virtualservice.networking.istio.io/bookinfo created
+
 
 # 확인
 $ ku get gateway
 NAME               AGE
 bookinfo-gateway   4s
 
+
 $ ku get vs
 NAME       GATEWAYS               HOSTS                                            AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.35.209.207.26.nip.io"]   8s
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.35.209.207.26.nip.io"]   11s
+
 
 ```
 
@@ -1155,7 +1160,7 @@ $ cat ./istio/bookinfo/15.bookinfo-ingress.yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress
+  name: bookinfo-ingress-user02                         <-- 각자 NS명으로 변경 필요
 spec:
   ingressClassName: traefik
   rules:
