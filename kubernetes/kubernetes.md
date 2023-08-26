@@ -1490,11 +1490,10 @@ ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
 
 
 
-
-# 다시 개인 VM Cluster 로 접속할때
+# [참고] 다시 개인 VM Cluster 로 접속할때...
 $ export KUBECONFIG="${HOME}/.kube/config"
 
-# Cluste 확인
+# [참고] Cluster node 확인
 $ kubectl get nodes
 NAME        STATUS   ROLES                  AGE   VERSION
 bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1

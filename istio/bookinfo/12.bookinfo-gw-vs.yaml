@@ -19,7 +19,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.yjsong.cloud.35.209.207.26.nip.io"
+  - "bookinfo.user02.cloud.35.209.207.26.nip.io"
   gateways:
   - bookinfo-gateway
   http:
