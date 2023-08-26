@@ -783,7 +783,7 @@ $ kubectl get ns user02 -o yaml
 
 
 
-## 1) ktdsEduCluster 접속 설정 변경
+## 1) ktdsEduCluster 접속 설정 변경 - ★
 
 EduCluster 에 접속할 수 있는 접속정보 파일로 설정 변경 작업을 수행한다.
 
@@ -806,20 +806,36 @@ ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
 ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
 
 
+# 자신 Namespace alias 설정
+$ alias ku='kubectl -n user02'
 
-
-# [참고] 다시 개인 VM Cluster 로 접속할때...
-$ export KUBECONFIG="${HOME}/.kube/config"
-
-# [참고] Cluster node 확인
-$ kubectl get nodes
-NAME        STATUS   ROLES                  AGE   VERSION
-bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 
 ```
 
+* 주의할점
+  * 위 설정은 Terminal Session 에 설정된다.
+  * Terminal 을 재기동 하거나 새로운 Terminal 을 생성하게 되면 반드시 위 내용을 반영해야 한다.
 
+​	
+
+
+
+
+
+[참고] 다시 개인 VM Cluster 로 접속할때...
+
+```sh
+
+# VM Cluster 접속하도록 설정 변경 
+$ export KUBECONFIG="${HOME}/.kube/config"
+
+# Cluster node 확인
+$ kubectl get nodes
+NAME        STATUS   ROLES                  AGE   VERSION
+bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
+
+```
 
 
 
@@ -837,32 +853,42 @@ bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 ### (1) bookinfo application 설명
 
-bookinfo 프로그램은 온라인 서점의 단일 카탈로그 항목과 유사한 책에 대한 정보를 표시합니다. 페이지에는 책에 대한 설명, 책 세부 정보(ISBN, 페이지 수 등) 및 몇 가지 책 리뷰가 표시됩니다.
+bookinfo 프로그램은 온라인 서점의 단일 카탈로그 항목과 유사한 책에 대한 정보를 보여주는 프로그램이다.
+
+페이지에는 책에 대한 설명, 책 세부 정보(ISBN, 페이지 수 등) 및 몇 가지 책 리뷰가 표시된다.
+
+
 
 Bookinfo 애플리케이션은 4개의 개별 마이크로서비스로 나뉜다.
 
 - productpage
+
   - productpage 서비스는 및 details 과 reviews 로 구성된 서비스를 호출한다.
 
 - details
+
   - details 서비스는 도서 정보가 표현된다.
 
 - reviews
+
   - reviews 서비스는 서평을 표현하며 ratings 서비스를 호출한다.
 
 - ratings
+
   - ratings서비스는 도서 순위 정보를 표현한다.
 
+  
+
+![image-20230826121558547](ServiceMesh.assets/image-20230826121558547.png)
 
 
 
-reviews마이크로 서비스 에는 3가지 버전이 있습다.
+
+reviews마이크로 서비스 에는 3가지 버전이 있다.
 
 - 버전 v1은 ratings 서비스를 호출하지 않는다.
 - 버전 v2는 ratings 서비스를 호출하고 각 등급을 1~5개의 검은색 start로 표시한다.
 - 버전 v3은 ratings 서비스를 호출하고 각 등급을 1~5개의 빨간색 별표로 표시한다.
-
-애플리케이션의 end-to-end 간 아키텍처는 아래와 같습니다.
 
 
 
@@ -872,7 +898,7 @@ reviews마이크로 서비스 에는 3가지 버전이 있습다.
 
 ![bookinfo-noistio](ServiceMesh.assets/bookinfo-noistio.svg)
 
-이 응용 프로그램은 polyglot 예제이다. 즉, 각 마이크로서비스는 다른 언어로 작성되었다. 
+bookinfo 프로그램은 polyglot 예제이다. 즉, 각 마이크로서비스는 다른 언어로 작성되었다. 
 
 이러한 구성은 Istio를 적용하는데 있어서 전혀 영향이 주지 않는 대표적인 예제가 될 수 있다.
 
@@ -1185,12 +1211,23 @@ $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
 $ kubectl -n istio-ingress get ingress
-
-NAME                      CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-bookinfo-ingress          <none>   bookinfo.user02.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      5s
+NAME                      CLASS     HOSTS                                        ADDRESS                                                                 PORTS   AGE
+bookinfo-ingress-user02   traefik   bookinfo.user02.cloud.35.209.207.26.nip.io   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80      4s
 
 
 ```
+
+
+
+#### browser 에서 확인
+
+```
+http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
+```
+
+
+
+![image-20230826121558547](ServiceMesh.assets/image-20230826121558547.png)
 
 
 
@@ -1199,7 +1236,6 @@ bookinfo-ingress          <none>   bookinfo.user02.cloud.35.209.207.26.nip.io   
 ```sh
 
 ## ingress 확인
-## user02 를 각자 계정명으로 변경 필요
 $ curl -s "http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
@@ -1217,13 +1253,15 @@ $ curl -s "http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage" | grep
 # istio ingressgateway service 확인
 $ kii get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   102m
+istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TCP,80:32190/TCP,443:30919/TCP   74m
 
-# 31166 node port 로 접근 가능
+
+# 32190 node port 로 접근 가능
 
 
 # master01 IP의 node port 로 접근 테스트
-$ curl http://10.128.0.25:31166/productpage -H "Host:bookinfo.user02.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://10.128.0.35:32190/productpage -H "Host:bookinfo.user02.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
+
 <title>Simple Bookstore App</title>
 
 
@@ -1325,40 +1363,6 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 
 
 
-### (5) clean up
-
-```sh
-$ alias ku='kubectl -n user02'
-
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-
-# 삭제
-$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
-  ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
-  ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
-  kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
-
-
-# virtual Service 직접 삭제
-ku delete vs details
-ku delete vs productpage
-ku delete vs ratings
-ku delete vs reviews
-
-
-# 확인
-$ ku get all
-
-
-# label 삭제
-$ ku label --overwrite namespace user02 istio-injection-
-
-```
-
-
-
-
-
 ## 3) Monitoring
 
 
@@ -1392,7 +1396,7 @@ http://kiali.istio-system.cloud.35.209.207.26.nip.io
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
 * traffic-animation
-  * http://kiali.istio-system.cloud.35.209.207.26.nip.io/kiali/console/graph/namespaces/?traffic=grpc%2CgrpcRequest%2Chttp%2ChttpRequest%2Ctcp%2CtcpSent&graphType=versionedApp&namespaces=user02&duration=60&refresh=60000&layout=kiali-dagre&namespaceLayout=kiali-dagre&edges=trafficDistribution%2CtrafficRate&animation=true
+* replay
 
 
 
@@ -1405,8 +1409,6 @@ http://kiali.istio-system.cloud.35.209.207.26.nip.io
 http://jaeger.istio-system.cloud.35.209.207.26.nip.io
 
 ![img](ServiceMesh.assets/monitoring-jaeger.png)
-
-
 
 
 
@@ -1431,13 +1433,17 @@ $ while true; do curl -s http://bookinfo.user02.cloud.35.209.207.26.nip.io/produ
 
 
 
-## 1) Traffic Shifting
+## 1) Traffic Shifting(WBR)
 
 서비스별로 트래픽의 가중치를 조정하므로서 특정 버전에서 다른 버전으로 트래픽을 이동하는 방법을 제어할 수 있다.
 
+트래픽을 특정 Version 별 가중치를 기반으로 Routing 하므로 WBR(Weight) Based Routing) 이라고 한다.
+
 kiali 를 확인하면서 아래를 진행해보자.
 
-- WBR(Weight-bassed routing) 적용
+
+
+### (1) 기본 routing 설정
 
 ```sh
 
@@ -1512,6 +1518,10 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 
 
+### (2) reviews - v1/v3 - 50%
+
+> WBR(Weight-bassed routing) 적용
+
 
  reviews 서비스의 v1, v3에 각각 50% 씩만 흘려보자.
 
@@ -1541,6 +1551,8 @@ $ ku apply -f ./istio/bookinfo/22.virtual-service-reviews-50-v3.yaml
 ```
 
 
+
+### (3) reviews - v3 - 100%
 
 reviews:v3 서비스가 안정적이라고 판단되면 아래virtualservice 적용하여 review:v3으로 100% 라우팅할 수 있다.
 
@@ -1572,7 +1584,6 @@ $ ku apply -f ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 
 - kiali UI 에서 직접 수정가능하다.
 
-  참조링크: https://istio.io/latest/docs/tasks/observability/kiali/
 
 
 
@@ -1590,15 +1601,19 @@ $ ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 
 
-## 2) Request Routing
+## 2) Request Routing(CBR)
 
 여러 버전의 마이크로서비스로 동적으로 라우팅하는 방법을 확인할 수 있다.
+
+트래픽의 특정 Contents를 기반으로 Routing 하므로 CBR(Contents Based Routing) 이라고 한다.
 
 reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터링 하자.
 
 
 
-우선 모든 서비스가 v1 로만 흐르도록 변경한다.
+### (1) 기본 routing 설정
+
+우선 모든 서비스가 reviews:v1 로만 흐르도록 변경한다.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -1665,7 +1680,7 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 
 
-- user 기반 routing
+### (2) user 기반 routing
 
 아래 경우 jason이라는 사용자의 모든 트래픽은 reviews:v2로 라우팅 되도록 설정한다.
 
@@ -1821,6 +1836,8 @@ spec:
 $ ku apply -f ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 ```
 
+
+
 위와 같이 적용후  jason 으로 접속 시도해 보자.
 
 
@@ -1964,6 +1981,7 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 # istio sidecar 가 inject된 pod에서 수행 ( curltest pod 에서)
 $ ku run curltest --image=curlimages/curl -- sleep 365d
 
+# curltest pod 내로 진입
 $ ku exec -it curltest -- sh
 
 
@@ -2068,7 +2086,7 @@ $ exit
 
 
 
-* 초당 0.5회 Call 건 중지
+* 초당 0.5회 Call 건도 중지
   * Bookinfo Test 는 모두 완료됨
 
 - clean up
@@ -2114,7 +2132,6 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
   - 인스턴스(*endpoints*) 에 대한 load balancing pool 이 생성/운영 된다.
   - n개의 인스턴스를 가지는 load balancing pool 중 응답이 없는 인스턴스를 탐지하고 배제(*circuit break*)한다.
   - HTTP 서비스인 경우 미리 정의된 시간 동안 API 호출 할 때 5xx 에러가 지속적으로 리턴되면 pool 로 부터 제외된다.
-  - TCP 서비스인 경우 연속 오류 매트릭 측정시 connection timeout 또는 connection 실패 하게되면 오류 hosts 로 카운트된다.
 
 
 
@@ -2124,7 +2141,7 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 
 #### httpbin 서비스 실행
 
-circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 앱이다.
+circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 하는 테스트 App 이다.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -2166,11 +2183,17 @@ spec:
     targetPort: 80
 
 
+# 설치
+
 $ ku apply -f ./istio/httpbin/11.httpbin-deploy-svc.yaml
 deployment.apps/httpbin created
 service/httpbin created
 
 
+# 20초 정도 소요됨
+
+
+# 확인
 $ ku get pod
 NAME                              READY   STATUS            RESTARTS   AGE
 httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
@@ -2206,6 +2229,7 @@ spec:
     - containerPort: 8079
       name: grpc-ping
 
+
 $ ku apply -f ./istio/httpbin/12.fortio-pod.yaml
 pod/fortio created
 
@@ -2232,7 +2256,7 @@ $ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get 
 HTTP/1.1 200 OK
 
 
-
+# 0.5초에 한번씩 call
 $ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
 
 HTTP/1.1 200 OK
@@ -2304,8 +2328,8 @@ Kiali 에서는 아래와 같이 번개모양의 circuit break 뱃지가 나타�
 #### Tripping the circuit breaker
 
 - 비교를 위해 작은 양의 트래픽 load를 발생시킨다.
-  - 호출 10회
-  - 결과를 확인해보면 모두 응답코드 **200(정상)** 을 리턴 한다.
+- `-c 1` 옵션으로 동시 연결을 1로 총 10회를 부하를 발생시킨다.
+- 결과를 확인해보면 모두 응답코드 **200(정상)** 을 리턴 한다.
 
 ```sh
 
@@ -2316,59 +2340,91 @@ Code 200 : 10 (100.0 %)
 ...
 
 
-Code 200 : 8 (80.0 %)
-Code 503 : 2 (20.0 %)
+```
+
+
+
+- `-c 1` 옵션으로 총 100회로 트래픽 load를 발생 시킨다.
+- 결과를 확인해보면 100회 모두 **200(정상)** 을 리턴 한다.
+
+```sh
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+
+...
+Code 200 : 100 (100.0 %)
+...
 
 ```
 
 
 
 - `-c 2` 옵션으로 동시 연결을 2로 늘려 트래픽 load를 발생 시킨다.
-- 연결당 호출 10회, 총 20회
-  
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 5회 발생했다.
+- 결과를 확인해보면 100회 모두 **200(정상)** 을 리턴 한다.
+
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 15 (75.0 %)
-Code 503 : 5 (25.0 %)
+Code 200 : 100 (100.0 %)
 ...
-
-
-Code 200 : 7 (35.0 %)
-Code 503 : 13 (65.0 %)
-
-
 
 ```
 
 
 
 - `-c 3` 옵션으로 동시 연결을 3로 늘려 트래픽 load를 발생 시킨다.
-- 연결당 호출 10회, 총 30회
-  
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 14회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 6회 발생했다.
+
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 14 (46.7 %)
-Code 503 : 16 (53.3 %)
+Code 200 : 94 (94.0 %)
+Code 503 : 6 (6.0 %)
 ...
-
-
-Code 200 : 7 (23.3 %)
-Code 503 : 23 (76.7 %)
-
 
 ```
 
 
 
-- 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.
+
+
+- `-c 5` 옵션으로 동시 연결을 5로 늘려 트래픽 load를 발생 시킨다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 10회 발생했다.
+
+```sh
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+
+...
+Code 200 : 90 (90.0 %)
+Code 503 : 10 (10.0 %)
+...
+
+```
+
+
+
+
+
+- `-c 10` 옵션으로 동시 연결을 10로 늘려 트래픽 load를 발생 시킨다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 37회 발생했다.
+
+
+```sh
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+
+...
+Code 200 : 63 (63.0 %)
+Code 503 : 37 (37.0 %)
+...
+
+```
+
+
+
+- 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.  즉, 서버에 부하가 걸리더라도 WEB 서버를 보호하지 못하고 모두 처리를 하고 있는 상태라고 해석할 수 있다.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -2379,10 +2435,10 @@ $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
 
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 30 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 30 (100.0 %)
+Code 200 : 100 (100.0 %)
 ...
 
 ```
@@ -2410,7 +2466,6 @@ $ ku delete pod/fortio
   ku delete deployment.apps/httpbin 
   ku delete svc/httpbin
   ku delete pod/curltest
-
 
 ```
 
@@ -2510,6 +2565,12 @@ Hello server - v2
 Hello server - v1
 Hello server - v2
 ...
+
+
+#
+#$ wihle true;do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+
+
 ```
 
 
@@ -2518,32 +2579,27 @@ Hello server - v2
 
 - mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
 
-  - Terminal 1 : Client tool 수행
+  - Terminal 1 : hello-server-1 log 추척
 
-    - 명령
+    - ```sh
+      
+      $ ku logs -f hello-server-1 
+      
+      ```
 
-      - ```sh
-        $ alias ku='kubectl -n user02'
-        $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
-        ```
+  - Terminal 2 : hello-server-2 log 추척
 
-  - Terminal 2 : hello-server-1 log 추척
+    - ```sh
+      
+      $ ku logs -f hello-server-2
+      
+      ```
 
-    - 명령
+  - Terminal 3 : Client tool 수행
 
-      - ```sh
-        $ alias ku='kubectl -n user02'
-        $ ku logs -f hello-server-1 
-        ```
+    - 아래 명령 수행
 
-  - Terminal 3 : hello-server-2 log 추척
-
-    - 명령
-
-      - ```sh
-        $ alias ku='kubectl -n user02'
-        $ ku logs -f hello-server-2
-        ```
+    
 
 - curltest 컨테이너에서 svc-hello 서비스로 10개를 요청해 보자.
 
@@ -2552,8 +2608,9 @@ Hello server - v2
 
 ```sh
 
-# 10개를 0.1초간격으로 요청해 보자.
+# 20개를 0.1초간격으로 요청해 보자.
 $ for i in {1..20}; do ku exec -it curltest -- curl http://svc-hello:8080; sleep 0.1; done
+
 Hello server - v2
 Hello server - v1
 Hello server - v1
@@ -2777,6 +2834,48 @@ $ ku delete pod/hello-server-1
 # 확인
 $ ku get all
 ```
+
+
+
+
+
+
+
+
+
+## 5) bookinfo clean up
+
+필요시 삭제한다. 하지만 아래 실습이 남아 있으므로 아직
+
+```sh
+$ alias ku='kubectl -n user02'
+
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
+
+# 삭제
+$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
+  ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+  ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
+  kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
+
+
+# virtual Service 직접 삭제
+ku delete vs details
+ku delete vs productpage
+ku delete vs ratings
+ku delete vs reviews
+
+
+# 확인
+$ ku get all
+
+
+# label 삭제
+$ ku label --overwrite namespace user02 istio-injection-
+
+```
+
+
 
 
 
