@@ -99,9 +99,9 @@ gitbash 실행후 command 명령어로 아래와 같이 디렉토리를 생성�
 
 ```sh
 ## githubrepo directory 생성
-$ mkdir c:\githubrepo
+$ mkdir -p /c/githubrepo
 
-$ cd c:\githubrepo
+$ cd /c/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
@@ -200,7 +200,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Romote host
   - 개인별로 접근 주소가 다르므로 위 수강생별  VM  Server IP 주소를 확인하자.
-  - ex)  bastion03 : 35.247.230.92
+  - ex)  bastion03 : 35.247.230.92  (샘플)
 
 - User
   - Specify username 에 Check
@@ -208,7 +208,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Port : 22
 - Advanced SSH settings
-  - Use private key : C:\githubrepo\ktds-edu-kafka-redis\gcp-vm-key\ktdseduuser
+  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\gcp-vm-key\ktdsedustudent
     - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
 
 
