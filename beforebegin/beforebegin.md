@@ -140,7 +140,7 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 # 3. 실습 환경 준비(Cloud)
 
-본 교육 과정에서의 모든 실습은 Cloud 에서 수행할것이다.
+본 교육 과정에서의 모든 실습은 Cloud 에서 수행할 것이다.
 
 
 
@@ -148,69 +148,38 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 원할한 실습을 위해서 개인별 한개씩 VM 이 할당되어 있다.  해당 노드에 kubernetes 를 설치 및 다양한 실습을 진행할 것이다.
 
-수강생별 개인 VM Server 접속 주소를 확인하자.
+수강생별 개인 VM Server 접속 주소를 확인하자. 또한 KtdsEduCluster 에서 사용할 개인별 Namespace 를 확인하자.
 
 
 
-| 수강생 | VM Server | VM  Server IP | 비고 |
-| :----: | :-------: | :-----------: | :--: |
-| 송양xx | bastion01 |  34.xx.xx.xx  |      |
-| 송양xx | bastion02 |               |      |
-| 이도겸 | bastion03 |               |      |
-|        | bastion04 |               |      |
-|        | bastion05 |               |      |
-|        | bastion06 |               |      |
-|        | bastion07 |               |      |
-|        | bastion08 |               |      |
-|        | bastion09 |               |      |
-|        | bastion10 |               |      |
-|        | bastion11 |               |      |
-|        | bastion12 |               |      |
-|        | bastion13 |               |      |
-|        | bastion14 |               |      |
-|        | bastion15 |               |      |
-|        | bastion16 |               |      |
-|        | bastion17 |               |      |
-|        | bastion18 |               |      |
-|        | bastion19 |               |      |
-|        | bastion20 |               |      |
-
-
-
-
-
-## 2) KtdsEduCluster Namespace 확인
-
-KtdsEduCluster 에서 사용할 개인별 Namespace 를 확인하자.
-
-| 수강생 | Namespace | 비고 |
-| :----: | :-------: | :--: |
-| 송양xx |  user01   |      |
-| 송양xx |  user02   |      |
-| 이도겸 |  user03   |      |
-|        |  user04   |      |
-|        |  user05   |      |
-|        |  user06   |      |
-|        |  user07   |      |
-|        |  user08   |      |
-|        |  user09   |      |
-|        |  user10   |      |
-|        |  user11   |      |
-|        |  user12   |      |
-|        |  user13   |      |
-|        |  user14   |      |
-|        |  user15   |      |
-|        |  user16   |      |
-|        |  user17   |      |
-|        |  user18   |      |
-|        |  user19   |      |
-|        |  user20   |      |
+|  이름  |       소속팀       | VM Server | VM  Server IP | Namespace | 비고 |
+| :----: | :----------------: | :-------: | :-----------: | :-------: | :--: |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion01 |               |  user01   |      |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion02 |               |  user02   |      |
+| 이도겸 | ICIS Tr 아키텍처팀 | bastion03 |               |  user03   |      |
+| 김수진 | ICIS Tr 아키텍처팀 | bastion04 |               |  user04   |      |
+| 김영진 |   플랫폼인프라팀   | bastion05 |               |  user05   |      |
+| 김준엽 |     AI솔루션팀     | bastion06 |               |  user06   |      |
+| 김태산 |     AWS기술TF      | bastion07 |               |  user07   |      |
+| 김하성 |      SI개발팀      | bastion08 |               |  user08   |      |
+| 박동기 |  인프라품질혁신TF  | bastion09 |               |  user09   |      |
+| 안정민 | 금융결제DX플랫폼팀 | bastion10 |               |  user10   |      |
+| 윤상용 |  네트워크IT개발팀  | bastion11 |               |  user11   |      |
+| 윤여인 |        PM팀        | bastion12 |               |  user12   |      |
+| 윤영준 |     보안사업팀     | bastion13 |               |  user13   |      |
+| 윤현철 |  네트워크IT개발팀  | bastion14 |               |  user14   |      |
+| 이경은 |   플랫폼인프라팀   | bastion15 |               |  user15   |      |
+| 이은영 |     OSS개발1팀     | bastion16 |               |  user16   |      |
+| 이정운 |     AWS기술TF      | bastion17 |               |  user17   |      |
+| 이준경 |      SI개발팀      | bastion18 |               |  user18   |      |
+| 조민정 |     CRM사업팀      | bastion19 |               |  user19   |      |
+| 조영찬 |   ICIS Tr 빌링팀   | bastion20 |               |  user20   |      |
 
 
 
 
 
-## 3) SSH (Mobaxterm) 실행
+## 2) SSH (Mobaxterm) 실행
 
 Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성하자.
 
@@ -247,7 +216,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 
 
-## 4) 실습자료 download
+## 3) 실습자료 download
 
 접속 완료 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
 

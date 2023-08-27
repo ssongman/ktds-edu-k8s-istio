@@ -34,8 +34,7 @@
 
 ## 3) 실습 환경 준비(Cloud)
 
-- 개인 VM 서버 주소 확인
-- KtdsEduCluster Namespace 확인
+- 개인 VM 서버 주소 확인 및  KtdsEduCluster Namespace 확인
 - SSH (Mobaxterm) 실행
 - 실습자료 download
 
