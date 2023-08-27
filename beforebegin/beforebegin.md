@@ -93,7 +93,7 @@ github site 를 이용하기를 희망한다면 굳이 설치하지 않아도 �
 
 
 
-## 1) 교육자료 download
+## 1) 개인 PC에 교육자료 download
 
 gitbash 실행후 command 명령어로 아래와 같이 디렉토리를 생성후 git clone 으로 download 하자.
 
@@ -116,8 +116,22 @@ Resolving deltas: 100% (212/212), done.
 $ ll /c/githubrepo
 drwxr-xr-x 1 ssong 197609 0 Aug 27 15:19 ktds-edu-k8s-istio/
 
+```
+
+
+
+만약 교육중 (오타 변경 등의 사유로) 자료가 변경되어 다시 받아야 하는 경우 가 있을 경우 해당 위치에서 git pull 만 다시 받도록 하자.
+
+```sh
+$ cd /c/githubrepo/ktds-edu-k8s-istio
+
+$ git pull
 
 ```
+
+
+
+
 
 
 
@@ -211,7 +225,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Port : 22
 - Advanced SSH settings
-  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\gcp-vm-key\ktdsedustudent
+  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\gcp-vm-key\ktdseduuser
     - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
 
 
