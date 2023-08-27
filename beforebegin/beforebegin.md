@@ -233,14 +233,24 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 
 
-## 3) 실습자료 download
+## 3) VM 서버에서 실습자료 download
 
-접속 완료 하였다면 테스트를 위해서 git clone 으로 실습 자료를 받아 놓자.
+실습 테스트를 위해서 실습 자료를 받아 놓자.
+
+이미 각자 VM에 해당 교육자료가  git clone 되어 있으므로 git pull 로 최신 데이터로 update 만 진행하자
 
 ```sh
-## githubrepo directory 생성
-$ mkdir -p ~/githubrepo
 
+# 최신 데이터를 한번 더 받는다.
+$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ git pull
+
+
+
+# 만약 pull일 잘안되는 경우는 아래처럼 
+$ rm -rf ~/githubrepo/ktds-edu-k8s-istio/
+
+## git clone 수행
 $ cd ~/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
@@ -258,10 +268,6 @@ drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
 
-
-## 만약 ktds-edu-kafka-redis 이미 존재한다면 최신 데이터를 한번 더 받는다.
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-$ git pull
 
 ```
 
