@@ -171,13 +171,16 @@ CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
 $ docker pull docker.io/ssongman/userlist:v1
 
+## 약 10초 정도 소요됨
+
 $ docker images
 REPOSITORY                          TAG                  IMAGE ID      CREATED        SIZE
 docker.io/ssongman/userlist         v1                   bf0cd99d0bad  4 years ago    696 MB
 
 $ docker run -d --name userlist1 -p 8181:8181 ssongman/userlist:v1
 
-## 약 10초 정도 이후에 tomcat 기동이 완료된다.
+## 해당 이미지가 있어서 바로 기동된다.
+
 
 
 $ curl http://localhost:8181/
@@ -627,17 +630,14 @@ $ su
 Password:
 
 
-$ curl -sfL https://get.k3s.io | sh -
-
-# 다른 옵션 : kubeconfig 파일의 권한 조정
-# 
+# k3s 설치
 $ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 
 
 [INFO]  Finding release for channel stable
 [INFO]  Using v1.23.6+k3s1 as release
 …
-[INFO]  systemd: Starting k3s   <-- 마지막 성공 로그
+[INFO]  systemd: Starting k3s       <-- 마지막 성공 로그
 
 # 20초 정도 소요됨
 ```
@@ -657,9 +657,11 @@ Client 와 Server Version 이 각각 보인다면 설치가 잘 된 것이다.
 
 
 
-설치가 안된다면 아래와 같이 수동설치를 진행해 보자.
 
-- 수동설치
+
+### (2) [참고] 수동실행
+
+설치가 안된다면 아래와 같이 수동실행 진행해 보자.
 
 ```sh
 
@@ -689,7 +691,7 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 
 
 
-### (2) kubeconfig 설정
+### (3) kubeconfig 설정
 
 일반 User가 직접 kubctl 명령 실행을 위해서는 kube config 정보(~/.kube/config) 가 필요하다.
 
@@ -712,8 +714,9 @@ $ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 $ ll ~/.kube/config
 -rw-r--r-- 1 song song 2957 May 14 03:44 /home/song/.kube/config
 
-# 자신만 RW 권한 부여
+# 보안을 위해 자신만 RW 권한 부여
 $ chmod 600 ~/.kube/config
+
 
 $ ls -ltr ~/.kube/config
 -rw------- 1 song song 2957 May 14 03:44 /home/song/.kube/config
@@ -752,19 +755,20 @@ Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", G
 ## kubectl create ns [namespace_name]
 
 ## 자신만의 namespace 명으로 하나를 생성한다.
-$ kubectl create ns yjsong
-
-or
-
 $ kubectl create ns user02
 
 or
 
-$ kubectl create ns user10
+$ kubectl create ns user03
+
+or
+
+$ kubectl create ns user04
+...
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n yjsong'     <-- 자신의 namespace 명을 입력한다.
+$ alias ku='kubectl -n user02'        #    <-- 자신의 namespace 명을 입력한다.
 
 ```
 
@@ -781,7 +785,7 @@ kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 �
 
 $ cat > ~/env
 alias k='kubectl'
-alias ku='kubectl -n yjsong'
+alias ku='kubectl -n user02'
 
 Ctrl+D
 
@@ -877,7 +881,7 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-bfd857685-ljpnk   1/1     Running   0          4s
+userlist-74c9c8f969-t2bjz   1/1     Running   0          4s
 
 # Status가 Running 이 되어야 정상 기동된 상태임
 
@@ -891,11 +895,14 @@ userlist-bfd857685-ljpnk   1/1     Running   0          4s
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-bfd857685-k7mwt   1/1     Running   0          18s
+userlist-74c9c8f969-t2bjz   1/1     Running   0          18s
 
 
-# userlist pod 내에서 확인
-$ ku exec -it userlist-bfd857685-k7mwt -- curl -i localhost:8181/users/1
+# userlist pod 내로 진입
+$ ku exec -it userlist-74c9c8f969-t2bjz -- bash
+
+
+$ curl -i localhost:8181/users/1
 HTTP/1.1 200
 Content-Type: application/json;charset=UTF-8
 Transfer-Encoding: chunked
@@ -906,11 +913,8 @@ Date: Sun, 14 May 2023 02:38:20 GMT
 # 200 OK 로 정상
 
 
-# 몇번 반복해보자.
-$ ku exec -it userlist-bfd857685-ljpnk -- curl localhost:8181/users/1
-$ ku exec -it userlist-bfd857685-ljpnk -- curl localhost:8181/users/1
-{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
-
+# POD 빠져나오기
+Ctrl + D
 
 ```
 
@@ -949,13 +953,6 @@ NAME                        READY   STATUS        RESTARTS   AGE
 userlist-bfd857685-j9s4m    1/1     Running       0          4m5s
 curltest                    1/1     Running       0          13s
 
-# pod ip 확인
-$ ku get pod -o wide
-NAME                        READY   STATUS        RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
-curltest                   1/1     Running   0          7h40m   10.42.0.12   desktop-qfrh1cb   <none>           <none>
-userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   desktop-qfrh1cb   <none>           <none>
-
-
 ```
 
 
@@ -963,6 +960,15 @@ userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   des
 - curltest pod 내에서 테스트
 
 ```sh
+
+
+# pod ip 확인
+$ ku get pod -o wide
+NAME                        READY   STATUS        RESTARTS   AGE     IP           NODE              NOMINATED NODE   READINESS GATES
+curltest                   1/1     Running   0          7h40m   10.42.0.12   desktop-qfrh1cb   <none>           <none>
+userlist-bfd857685-ljpnk   1/1     Running   0          97s     10.42.0.13   desktop-qfrh1cb   <none>           <none>
+
+
 $ ku exec -it curltest -- sh
 
 $ curl 10.42.0.10:8181/users/1
@@ -1475,8 +1481,7 @@ EduCluster 에 접속할 수 있는 접속 정보 파일로 설정 변경 작업
 $ export KUBECONFIG="${HOME}/githubrepo/ktds-edu-k8s-istio/kubernetes/config/config-ktdseducluster"
 
 
-
-# Cluste 확인
+# Cluste 설정변경 확인 확인
 $ kubectl get nodes
 NAME                STATUS   ROLES                       AGE   VERSION
 ktds-k3s-master01   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
@@ -1486,16 +1491,33 @@ ktds-k3s-worker01   Ready    <none>                      97d   v1.26.4+k3s1
 ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
 ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
 
+# <-- 6개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
 
 
-# [참고] 다시 개인 VM Cluster 로 접속할때...
+# 자신 Namespace alias 설정
+$ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
+
+```
+
+주의할점
+
+* 위 설정은 Terminal Session 에 설정된다.
+* Terminal 을 재기동 하거나 새로운 Terminal 을 생성하게 되면 반드시 위 내용을 반영해야 한다.
+
+
+
+
+
+[참고] 다시 개인 VM Cluster 로 접속할때...
+
+```sh
+# VM Cluster 접속하도록 설정 변경 
 $ export KUBECONFIG="${HOME}/.kube/config"
 
-# [참고] Cluster node 확인
+# Cluster node 확인
 $ kubectl get nodes
 NAME        STATUS   ROLES                  AGE   VERSION
 bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
-
 
 ```
 
@@ -1503,9 +1525,13 @@ bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 
 
+
+
+
+
 ## 2) 개인 Namespace 확인
 
-각 수강생별 Namespace 를 확인하고 자기 Namespace 를 alais 로 설정하자.
+각 수강생별 Namespace 를 확인하자.
 
 ```sh
 
@@ -1814,9 +1840,9 @@ $ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 
 
-yjsong 을 자신의 Namespace 명으로 변경하자.
+user01을 자신의 Namespace 명으로 변경하자.
 
-IP 만 포함되어 있으면 어떠한 이름으로 변경해도 상관없다. 
+도메인명에 "*.nip.io" 가 포함되어 있어서 IP 만 포함되도록 한다면 어떠한 이름으로 변경해도 상관없이 해당 IP 로 매핑된다. 
 
  예를 들어 아래 hostname 으로 상관없다. 다른 사용자들과 겹치지만 않게 하자.
 
@@ -1826,7 +1852,7 @@ userlist.user07.cloud.35.209.207.26.nip.io
 userlist.songyangjong.cloud.35.209.207.26.nip.io
 ```
 
-도메인 이름에 "*.nip.io" 가 포함된 것을 볼 수 있다.  이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
+이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
 
 Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 후 사용해야 할 것이다.
 
@@ -1862,7 +1888,7 @@ $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
 NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
+userlist-ingress   <none>   userlist.user02.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
 
 ```
 
@@ -1872,15 +1898,19 @@ userlist-ingress   <none>   userlist.yjsong.cloud.35.209.207.26.nip.io   10.128.
 
 ```sh
 
-# traefik node port 로 접근시도
+# 1) 부여한 host 로 접근시도
+$ curl http://userlist.user02.cloud.35.209.207.26.nip.io/users/1
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
+
+
+
+
+# 2) traefik node port 로 접근시도
 # node 중 하나를 골라서 시도하자.  (master01_IP : 10.128.0.35)
+
 $ curl http://10.128.0.35:31353/users/1 -H "Host:userlist.user02.cloud.35.209.207.26.nip.io"
 {"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
 
-
-# 부여한 host 로 접근시도
-$ curl http://userlist.user02.cloud.35.209.207.26.nip.io/users/1
-{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 ```
 
 위 두개의 curl  을 잘 이해하자.
@@ -1908,6 +1938,7 @@ $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
   ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
   ku delete -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+
 
 # 20초정도 소요됨
 

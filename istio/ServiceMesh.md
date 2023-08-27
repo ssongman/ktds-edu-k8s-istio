@@ -814,7 +814,7 @@ ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
 
 
 # 자신 Namespace alias 설정
-$ alias ku='kubectl -n user02'
+$ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 
 

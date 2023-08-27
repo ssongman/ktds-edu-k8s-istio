@@ -245,11 +245,13 @@ $ cd ~/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
-remote: Enumerating objects: 69, done.
-remote: Counting objects: 100% (69/69), done.
-remote: Compressing objects: 100% (55/55), done.
-remote: Total 69 (delta 15), reused 62 (delta 11), pack-reused 0
-Unpacking objects: 100% (69/69), 1.63 MiB | 4.09 MiB/s, done.
+remote: Enumerating objects: 446, done.
+remote: Counting objects: 100% (73/73), done.
+remote: Compressing objects: 100% (53/53), done.
+remote: Total 446 (delta 34), reused 50 (delta 18), pack-reused 373
+Receiving objects: 100% (446/446), 3.86 MiB | 7.60 MiB/s, done.
+Resolving deltas: 100% (220/220), done.
+
 
 $ ll ~/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
