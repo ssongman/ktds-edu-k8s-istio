@@ -105,16 +105,17 @@ $ cd /c/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
-remote: Enumerating objects: 92, done.
-remote: Counting objects: 100% (92/92), done.
-remote: Compressing objects: 100% (79/79), done.
-remote: Total 92 (delta 12), reused 88 (delta 12), pack-reused 0
-Receiving objects: 100% (92/92), 2.94 MiB | 3.61 MiB/s, done.
-Resolving deltas: 100% (12/12), done.
+remote: Enumerating objects: 427, done.
+remote: Counting objects: 100% (54/54), done.
+remote: Compressing objects: 100% (39/39), done.
+remote: Total 427 (delta 26), reused 36 (delta 14), pack-reused 373
+Receiving objects: 100% (427/427), 3.84 MiB | 8.82 MiB/s, done.
+Resolving deltas: 100% (212/212), done.
 
-$ dir c:\githubrepo
-2023-05-07  오후 09:52    <DIR>          .
-2023-05-07  오후 09:52    <DIR>          ktds-edu-k8s-istio
+
+$ ll /c/githubrepo
+drwxr-xr-x 1 ssong 197609 0 Aug 27 15:19 ktds-edu-k8s-istio/
+
 
 ```
 
@@ -125,6 +126,8 @@ $ dir c:\githubrepo
 ## 2) Typora 로 readme.md 파일오픈
 
 - typora 로 오픈
+  - 파일열기(Ctrl + O)  후 아래 파일 오픈
+
 
 ```
 ## typora 에서 아래 파일 오픈
