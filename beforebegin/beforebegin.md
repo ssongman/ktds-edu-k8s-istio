@@ -161,7 +161,7 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-## 1) 개인 VM 서버 주소 확인
+## 1) 개인 VM 서버 주소 확인- ★
 
 원할한 실습을 위해서 개인별 한개씩 VM 이 할당되어 있다.  해당 노드에 kubernetes 를 설치 및 다양한 실습을 진행할 것이다.
 
@@ -169,28 +169,28 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-|  이름  |       소속팀       | VM Server | VM  Server IP | Namespace | 비고 |
-| :----: | :----------------: | :-------: | :-----------: | :-------: | :--: |
-| 송양종 | ICIS Tr 아키텍처팀 | bastion01 |               |  user01   |      |
-| 송양종 | ICIS Tr 아키텍처팀 | bastion02 |               |  user02   |      |
-| 이도겸 | ICIS Tr 아키텍처팀 | bastion03 |               |  user03   |      |
-| 김수진 | ICIS Tr 아키텍처팀 | bastion04 |               |  user04   |      |
-| 김영진 |   플랫폼인프라팀   | bastion05 |               |  user05   |      |
-| 김준엽 |     AI솔루션팀     | bastion06 |               |  user06   |      |
-| 김태산 |     AWS기술TF      | bastion07 |               |  user07   |      |
-| 김하성 |      SI개발팀      | bastion08 |               |  user08   |      |
-| 박동기 |  인프라품질혁신TF  | bastion09 |               |  user09   |      |
-| 안정민 | 금융결제DX플랫폼팀 | bastion10 |               |  user10   |      |
-| 윤상용 |  네트워크IT개발팀  | bastion11 |               |  user11   |      |
-| 윤여인 |        PM팀        | bastion12 |               |  user12   |      |
-| 윤영준 |     보안사업팀     | bastion13 |               |  user13   |      |
-| 윤현철 |  네트워크IT개발팀  | bastion14 |               |  user14   |      |
-| 이경은 |   플랫폼인프라팀   | bastion15 |               |  user15   |      |
-| 이은영 |     OSS개발1팀     | bastion16 |               |  user16   |      |
-| 이정운 |     AWS기술TF      | bastion17 |               |  user17   |      |
-| 이준경 |      SI개발팀      | bastion18 |               |  user18   |      |
-| 조민정 |     CRM사업팀      | bastion19 |               |  user19   |      |
-| 조영찬 |   ICIS Tr 빌링팀   | bastion20 |               |  user20   |      |
+|  이름  |       소속팀       | VM Server | VM  Server IP  | Namespace | 비고 |
+| :----: | :----------------: | :-------: | :------------: | :-------: | :--: |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion01 |                |  user01   |      |
+| 송양종 | ICIS Tr 아키텍처팀 | bastion02 | 34.88.104.210  |  user02   |      |
+| 이도겸 | ICIS Tr 아키텍처팀 | bastion03 |  34.82.54.143  |  user03   |      |
+| 김수진 | ICIS Tr 아키텍처팀 | bastion04 | 34.95.138.114  |  user04   |      |
+| 김영진 |   플랫폼인프라팀   | bastion05 |  34.95.46.146  |  user05   |      |
+| 김준엽 |     AI솔루션팀     | bastion06 | 35.234.254.217 |  user06   |      |
+| 김태산 |     AWS기술TF      | bastion07 |  35.203.3.171  |  user07   |      |
+| 김하성 |      SI개발팀      | bastion08 |  35.203.60.41  |  user08   |      |
+| 박동기 |  인프라품질혁신TF  | bastion09 | 35.203.34.192  |  user09   |      |
+| 안정민 | 금융결제DX플랫폼팀 | bastion10 | 34.130.245.220 |  user10   |      |
+| 윤상용 |  네트워크IT개발팀  | bastion11 | 34.130.165.53  |  user11   |      |
+| 윤여인 |        PM팀        | bastion12 | 34.130.182.248 |  user12   |      |
+| 윤영준 |     보안사업팀     | bastion13 | 34.130.123.44  |  user13   |      |
+| 윤현철 |  네트워크IT개발팀  | bastion14 | 34.130.131.90  |  user14   |      |
+| 이경은 |   플랫폼인프라팀   | bastion15 | 34.151.253.11  |  user15   |      |
+| 이은영 |     OSS개발1팀     | bastion16 |  35.198.11.0   |  user16   |      |
+| 이정운 |     AWS기술TF      | bastion17 | 35.228.209.185 |  user17   |      |
+| 이준경 |      SI개발팀      | bastion18 |  34.88.61.65   |  user18   |      |
+| 조민정 |     CRM사업팀      | bastion19 | 34.88.217.222  |  user19   |      |
+| 조영찬 |   ICIS Tr 빌링팀   | bastion20 |   34.88.59.5   |  user20   |      |
 
 
 
