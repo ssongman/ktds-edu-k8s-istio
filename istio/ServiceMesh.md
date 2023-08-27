@@ -10,7 +10,7 @@
 
 - 서비스 메시는 서비스간의 통신을 제어하고 관리하는 방식임
 - 서비스간 호출은 인프라계층의 proxy 를 통해 이루어짐
-- 서비스 메시를 구성하는 개벌 proxy는 서비스 내부가 아니라 각 서비스와 함께 실행되므로 sidecar 라고 부름
+- 서비스 메시를 구성하는 개별 proxy는 서비스 내부가 아니라 각 서비스와 함께 실행되므로 sidecar 라고 부름
 - 각 서비스에 inject 된 이러한 sidecar proxy 들이 모여 서 Mesh Network를 형성
 
 
@@ -58,7 +58,7 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 - HTTP, gRPC, WebSocket 및 TCP 트래픽에 대한 자동 로드 밸런싱
 - Routing rule, retry policy, failovers 및 복원력 테스트를위한 Fault Injection 등을 통해 트래픽 동작을 세밀하게 제어
 - 액세스 제어, 속도 제한 및 할당량을 지원하는 플러그형 정책 레이어 및 구성 API
-- 클러스터 수신 및 송신을 포함하여 클러스터 내의 모든 트래픽에 대한 자동 메트릭, 로그 및 추적
+- 클러스터 내의 모든 트래픽에 대한 메트릭을 확인 및 추적 가능
 
 
 
@@ -76,31 +76,10 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 
 
-## 3) Istio ServieMesh 이점
-
-- Istio 이점을 통한 서비스 보호
-  - 보안 운영자는 인증, 승인, 암호화를 비롯한 서비스 간 보안을 쉽게 구현할 수 있다.
-
-
-- 애플리케이션 성능 향상
-  - Canary 배포 등을 이용하여 애플리케이션을 심도 있게 파악하여 성능을 개선하기 위해 집중해야 하는 부분을 파악할 수 있다.
-
-- 안전한 클라우드 기반 앱
-  - 강력한 ID 기반 인증, 승인, 암호화를 통해 애플리케이션 수준에서 보안을 강화할 수 있다.
-
-- 효율적인 트래픽 관리
-  - 다양한 라우팅 규칙, 재시도, 장애 조치, 결함 주입으로 트래픽 동작을 세밀하게 제어할 수 있다.
-
-
-- 서비스 메시 모니터링
-  - Istio의 강력한 추적, 모니터링, 로깅 기능으로 서비스 성능이 업스트림에 미치는 영향을 자세히 파악할 수 있다.
 
 
 
-
-
-
-## 4) Istio 주요 기능
+## 3) Istio 주요 기능
 
 참조링크: https://istio.io/latest/docs/tasks/
 
@@ -108,31 +87,25 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 ### (1) Traffic management
 
-Istio의 트래픽 라우팅 규칙을 사용하면 서비스 간의 트래픽 흐름 및 API 호출을 쉽게 제어할 수 있다.
-
-Istio는 circuit breakers, timeouts, and retries 와 같은 서비스 수준의 속성을 쉽게 구성할 수 있다.
-
-A/B testing, canary 베포 및 백분율 기반 트래픽 분할을 통한 단계적 출시와 같은 중요한 작업을 쉽게 설정할 수 있다.
+* Istio의 트래픽 라우팅 규칙을 사용하여 서비스 간의 트래픽 흐름 및 API 호출을 쉽게 제어할 수 있다.
+* Istio는 circuit breakers, timeouts, and retries 와 같은 서비스 수준의 속성을 쉽게 구성할 수 있다.
+* A/B testing, canary 베포 및 백분율 기반 트래픽 분할을 통한 단계적 출시와 같은 중요한 작업을 쉽게 설정할 수 있다.
 
 
 
 ### (2) Observability
 
-Istio는 서비스 메시 내의 모든 통신에 대한 상세한 원격 메트릭을 생성한다.
-
-이 원격 메트릭은 서비스 동작의 상태 값을 제공하여 운영자가 문제를 해결하고 애플리케이션을 유지 관리하고 최적화할 수 있도록 한다. 
-
-Istio를 사용하면 전체적인 서비스 메시 Observability 이점을 을 얻을 수 있다.
+* Istio는 서비스 메시 내의 모든 통신에 대한 상세한 원격 메트릭을 생성한다.
+* 이 원격 메트릭은 서비스 동작의 상태 값을 제공하여 운영자가 문제를 해결하고 애플리케이션을 유지 관리하고 최적화할 수 있도록 한다. 
+* Istio를 사용하면 전체적인 서비스 메시 Observability 이점을 을 얻을 수 있다.
 
 
 
 ### (3) Security capabilities
 
-Istio에는 감사 도구 및 상호 TLS를 비롯한 보안 요구사항을 해결할 수 있는 포괄적인 보안 솔루션이 포함되어 있다. 
-
-강력한 정책, 투명한 TLS 암호화, AAA(인증, 권한 부여 및 감사) 도구를 제공하여 서비스와 데이터를 보호한다.
-
-Istio의 보안 모델은 기본 보안을 기반으로 하며, 신뢰할 수 없는 네트워크에서도 보안 중심 애플리케이션을 배포할 수 있도록 심층 방어를 제공하는 것을 목표로 한다.
+* Istio에는 감사 도구 및 상호 TLS를 비롯한 보안 요구사항을 해결할 수 있는 포괄적인 보안 솔루션이 포함되어 있다. 
+* 강력한 정책, 투명한 TLS 암호화, AAA(인증, 권한 부여 및 감사) 도구를 제공하여 서비스와 데이터를 보호한다.
+* Istio의 보안 모델은 기본 보안을 기반으로 하며, 신뢰할 수 없는 네트워크에서도 보안 중심 애플리케이션을 배포할 수 있도록 심층 방어를 제공하는 것을 목표로 한다.
 
 
 
@@ -140,7 +113,7 @@ Istio의 보안 모델은 기본 보안을 기반으로 하며, 신뢰할 수 �
 
 
 
-# 3. [개인VM] 실습
+# 3. [개인Cluster] 실습
 
 개인 VM 환경에서 istio 를 설치해 보자.
 
@@ -168,15 +141,17 @@ bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 
 
-## 2) helm install
+## 2) [참고] helm install
 
 쿠버네티스에 서비스를 배포하는 방법이 다양하게 존재하는데 그중 대표적인 방법중에 하나가 Helm chart 방식 이다.
 
 
 
-- helm chart 의 필요성
+### (1) [참고] helm chart 와 Architecture
 
-일반적으로 Kubernetes 에 서비스를 배포하기 위해 준비되는 Manifest 파일은 정적인 형태이다. 따라서 데이터를 수정하기 위해선 파일 자체를 수정해야 한다.  잘 관리를 한다면야 큰 어려움은 없겠지만, 문제는 CI/CD 등 자동화된 파이프라인을 구축해서 애플리케이션 라이프사이클을 관리할 때 발생한다.  
+#### helm chart 의 필요성
+
+일반적으로 Kubernetes 에 서비스를 배포하기 위해 준비되는 Manifest 파일은 정적인 형태이다. 따라서 데이터를 수정하기 위해선 파일 자체를 수정해야 한다.  잘 관리를 한다면 큰 어려움은 없겠지만, 문제는 CI/CD 등 자동화된 파이프라인을 구축해서 애플리케이션 라이프사이클을 관리할 때 발생한다.  
 
 보통 애플리케이션 이미지를 새로 빌드하게 되면, 빌드 넘버가 변경된다. 이렇게 되면 새로운 이미지를 사용하기 위해 Kubernetes Manifest의 Image도 변경되어야 한다.  하지만 Kubernetes Manifest를 살펴보면, 이를 변경하기 쉽지 않다. Image Tag가 별도로 존재하지 않고 Image 이름에 붙어있기 때문입니다. 이를 자동화 파이프라인에서 변경하려면, sed 명령어를 쓰는 등의 힘든 작업을 해야 한다.
 
@@ -186,9 +161,7 @@ Istio 도 마찬가지로 helm 배포를 위한 chart 를 제공해 준다.
 
 
 
-### (1) helm architecture
-
-
+#### Helm Architecture
 
 ![helm-architecure](ServiceMesh.assets/helm-architecure.png)
 
@@ -246,7 +219,7 @@ NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 ### (3) [참고] bitnami repo 추가
 
-- 유명한 charts 들이모여있는 bitnami repo 를 추가해 보자.
+- 유명한 charts 들이모여있는 bitnami repo 를 추가후 nginx 를 배포해 보자.
 
 ```sh
 # test# add stable repo
@@ -289,6 +262,8 @@ $ helm -n user02 delete nginx
 $ ku get all
 No resources found in user02 namespace.
 ```
+
+
 
 
 

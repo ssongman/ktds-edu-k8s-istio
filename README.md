@@ -57,7 +57,7 @@
 
 
 
-## 2) [개인PC] Docker 실습
+## 2) [개인VM] Docker 실습
 
 - sample app 실행
 - Scale Out
@@ -66,14 +66,14 @@
 
 
 
-## 3) [개인PC] k3s 설치
+## 3) [개인VM] k3s 설치
 
 - k3s 란?
 - wsl 에 k3s 설치
 
 
 
-## 4) [개인PC] Kubernetes 실습
+## 4) [개인Cluster] Kubernetes 실습
 
 - 개인 Namespace 확인
 - sample app deploy
@@ -84,9 +84,9 @@
 
 
 
-## 5) [Cloud] Kubernetes 실습
+## 5) [EduCluster] Kubernetes 실습
 
-- Cloud 접속
+- ktdsEduCluster 접속 설정 변경
 - 개인 Namespace 확인
 - Sample app deploy
   - Deployment/Service
@@ -110,7 +110,7 @@
 
 
 
-## 3) [개인PC] 실습
+## 3) [개인Cluster] 실습
 
 - helm 설치
 - helm 을 이용한 Istio 설치
@@ -119,7 +119,7 @@
 
 
 
-## 4) [Cloud] 실습
+## 4) [EduCluster] 실습
 
 - sample app (bookinfo) install
   - bookinfo application 을 활용한 실습을 통해서 istio 를 이해한다.
@@ -131,7 +131,7 @@
 
 
 
-## 5) [Cloud] 실습(Traffic control)
+## 5) [EduCluster] 실습(Traffic control)
 
 - Traffic Shifting
   - 서비스별로 트래픽의 가중치를 조정하므로서 특정 버전에서 다른 버전으로 트래픽을 이동하는 방법을 제어할 수 있다.
@@ -140,5 +140,5 @@
 - Fault Injection
   - application 의 복원력을 테스트하기 위해서 결함을 주입할 수 있다.
 - Circuit Breaking
-  - istio는 Connection pool 과   Load balancing pool 기반의 circuit breaking 기능을 제공한다.
+  - istio는 Connection pool 과  Load balancing pool 기반의 circuit breaking 기능을 제공한다.
 
