@@ -906,12 +906,34 @@ istio 적용하는데 있어서 Application 자체를 변경할 필요가 없다
 
 ```sh
 
-# alias 설정
-$ alias ku='kubectl -n user02'
+# user02 를 자신의 Namespace 명으로 변경
+
+
+# 설정전 확인
+$ kubectl get ns user02 -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: "2023-08-25T10:15:54Z"
+  labels:
+    kubernetes.io/metadata.name: user02
+  name: user02
+  resourceVersion: "5893422"
+  uid: 9bf4f81a-0fb4-4fe2-af4d-87fb0d073df0
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+
+
 
 # label 설정
 $ kubectl label namespace user02 istio-injection=enabled
 
+
+
+# 설정후 확인
 $ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
@@ -921,7 +943,7 @@ metadata:
     istio-injection: enabled              <-- 설정 완료
     kubernetes.io/metadata.name: user02
   name: user02
-  resourceVersion: "5706040"
+  resourceVersion: "6449390"
   uid: 9bf4f81a-0fb4-4fe2-af4d-87fb0d073df0
 spec:
   finalizers:
@@ -1070,7 +1092,7 @@ $ ku exec "$(ku get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')"
 
 
 
-### (5) virtualservice / gateway
+### (5) virtualservice / gateway 생성
 
 bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
@@ -1151,7 +1173,7 @@ bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.35.209.207.26.nip.io"]
 
 
 
-### (6) Ingress
+### (6) Ingress 생성
 
 bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
@@ -1188,6 +1210,8 @@ spec:
 $ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
 ...
 
+
+# ingress 생성
 # ingress 는 istio-ingress namespace 에서 실행해야 한다.
 $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
@@ -2084,12 +2108,18 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
+# alias 설정
+$ alias ku='kubectl -n user02'
  
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
   ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
   ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
   ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
   kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
+
+# namespace label 삭제
+$ kubectl label --overwrite namespace user02 istio-injection-
+
 
 ```
 
@@ -2911,8 +2941,8 @@ ku delete vs reviews
 $ ku get all
 
 
-# label 삭제
-$ ku label --overwrite namespace user02 istio-injection-
+# namespace label 삭제
+$ kubectl label --overwrite namespace user02 istio-injection-
 
 ```
 
