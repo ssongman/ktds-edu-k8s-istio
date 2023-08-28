@@ -1001,6 +1001,7 @@ $ cat ./istio/bookinfo/11.bookinfo.yaml
 ...
 
 # bookinfo 생성
+$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
 $ ku apply -f ./istio/bookinfo/11.bookinfo.yaml
 
 service/details created
@@ -1060,10 +1061,18 @@ reviews       ClusterIP   10.43.30.168    <none>        9080/TCP   88s
 $ ku get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
 ratings-v1-6fb94bb7cd-tdcdc   2/2     Running   0          4m11s
+ratings-v1-6fb94bb7cd-cwxvd   2/2     Running   0          27s
+
+ratings-v1-6fb94bb7cd-bgdtt   2/2     Running   0          17s
+
 
 
 # 2. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-9v8jz -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec ratings-v1-6fb94bb7cd-cwxvd -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec ratings-v1-6fb94bb7cd-bgdtt -c ratings -- curl -sS productpage:9080/productpage
+
+
+
 
 <!DOCTYPE html>
 <html>
@@ -1075,8 +1084,11 @@ $ ku exec ratings-v1-6fb94bb7cd-9v8jz -c ratings -- curl -sS productpage:9080/pr
 ...
 
 
+
+
 # 3. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-9v8jz -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ ku exec ratings-v1-6fb94bb7cd-bgdtt -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
 ```
@@ -1156,6 +1168,7 @@ spec:
 
 
 # 생성
+$ ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 $ ku apply -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 
 gateway.networking.istio.io/bookinfo-gateway created
@@ -1217,6 +1230,7 @@ $ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 # ingress 생성
 # ingress 는 istio-ingress namespace 에서 실행해야 한다.
+$ kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
@@ -1247,6 +1261,8 @@ http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
 
 ## ingress 확인
 $ curl -s "http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
+
+$ curl -s "http://bookinfo.user20.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
 
@@ -1297,10 +1313,70 @@ while문으로 call유지 한채로 아래 monitoring 에서 kiali / jaeger / gr
 
 
 
+## 3) Monitoring
+
+
+
+istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali / jaeger 가 있다.
+
+
+
+### (1) Grafana
+
+http://grafana.istio-system.cloud.35.209.207.26.nip.io/
+
+주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
+
+![image-20220602191900236](ServiceMesh.assets/monitoring-grafana.png)
+
+
+
+* Mesh-Dashboard
+  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+
+* Service Dashboard
+  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user02.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
+
+
+
+### (2) Kiali
+
+http://kiali.istio-system.cloud.35.209.207.26.nip.io
+
+![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
+
+* traffic-animation
+* replay
+
+
+
+
+
+
+
+### (3) Jaeger
+
+http://jaeger.istio-system.cloud.35.209.207.26.nip.io
+
+![img](ServiceMesh.assets/monitoring-jaeger.png)
+
+
+
+
+
+# 5. [EduCluster] 실습(Traffic control)
+
+
+
+
+
+## 0) 초기 셋팅
+
+
+
 #### default destination rules
 
 ```sh
-
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
 # 13.destination-rule-all.yaml 파일 확인
@@ -1378,64 +1454,7 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 
 
 
-## 3) Monitoring
 
-
-
-istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali / jaeger 가 있다.
-
-
-
-### (1) Grafana
-
-http://grafana.istio-system.cloud.35.209.207.26.nip.io/
-
-주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
-
-![image-20220602191900236](ServiceMesh.assets/monitoring-grafana.png)
-
-
-
-* Mesh-Dashboard
-  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
-
-* Service Dashboard
-  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user02.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
-
-
-
-### (2) Kiali
-
-http://kiali.istio-system.cloud.35.209.207.26.nip.io
-
-![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
-
-* traffic-animation
-* replay
-
-
-
-
-
-
-
-### (3) Jaeger
-
-http://jaeger.istio-system.cloud.35.209.207.26.nip.io
-
-![img](ServiceMesh.assets/monitoring-jaeger.png)
-
-
-
-
-
-# 5. [EduCluster] 실습(Traffic control)
-
-
-
-
-
-## 0) 초기 셋팅
 
 #### 초당 0.5회 call
 
