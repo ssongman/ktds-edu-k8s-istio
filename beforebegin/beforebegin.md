@@ -176,7 +176,7 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 | 이도겸 | ICIS Tr 아키텍처팀 | bastion03 |  34.82.54.143  |  user03   |      |
 | 김수진 | ICIS Tr 아키텍처팀 | bastion04 | 34.95.138.114  |  user04   |      |
 | 김영진 |   플랫폼인프라팀   | bastion05 |  34.95.46.146  |  user05   |      |
-| 김준엽 |     AI솔루션팀     | bastion06 | 35.234.254.217 |  user06   |      |
+| 김준엽 |     AI솔루션팀     | bastion06 | 35.234.254.217 |  user06   | 미참 |
 | 김태산 |     AWS기술TF      | bastion07 |  35.203.3.171  |  user07   |      |
 | 김하성 |      SI개발팀      | bastion08 |  35.203.60.41  |  user08   |      |
 | 박동기 |  인프라품질혁신TF  | bastion09 | 35.203.34.192  |  user09   |      |
@@ -186,9 +186,9 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 | 윤영준 |     보안사업팀     | bastion13 | 34.130.123.44  |  user13   |      |
 | 윤현철 |  네트워크IT개발팀  | bastion14 | 34.130.131.90  |  user14   |      |
 | 이경은 |   플랫폼인프라팀   | bastion15 | 34.151.253.11  |  user15   |      |
-| 이은영 |     OSS개발1팀     | bastion16 |  35.198.11.0   |  user16   |      |
+| 이은영 |     OSS개발1팀     | bastion16 |  35.198.11.0   |  user16   | 미참 |
 | 이정운 |     AWS기술TF      | bastion17 | 35.228.209.185 |  user17   |      |
-| 이준경 |      SI개발팀      | bastion18 |  34.88.61.65   |  user18   |      |
+| 이준경 |      SI개발팀      | bastion18 |  34.88.61.65   |  user18   | 미참 |
 | 조민정 |     CRM사업팀      | bastion19 | 34.88.217.222  |  user19   |      |
 | 조영찬 |   ICIS Tr 빌링팀   | bastion20 |   34.88.59.5   |  user20   |      |
 
@@ -225,7 +225,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Port : 22
 - Advanced SSH settings
-  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\gcp-vm-key\ktdseduuser
+  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\gcp-vm-key\ktdseduuser
     - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
 
 
