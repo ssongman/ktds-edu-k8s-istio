@@ -1001,7 +1001,6 @@ $ cat ./istio/bookinfo/11.bookinfo.yaml
 ...
 
 # bookinfo 생성
-$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
 $ ku apply -f ./istio/bookinfo/11.bookinfo.yaml
 
 service/details created
@@ -1168,7 +1167,6 @@ spec:
 
 
 # 생성
-$ ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 $ ku apply -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 
 gateway.networking.istio.io/bookinfo-gateway created
@@ -1230,7 +1228,6 @@ $ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 # ingress 생성
 # ingress 는 istio-ingress namespace 에서 실행해야 한다.
-$ kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
