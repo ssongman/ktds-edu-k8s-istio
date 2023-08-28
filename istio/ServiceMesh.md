@@ -1471,7 +1471,7 @@ $ while true; do curl -s http://bookinfo.user02.cloud.35.209.207.26.nip.io/produ
 
 서비스별로 트래픽의 가중치를 조정하므로서 특정 버전에서 다른 버전으로 트래픽을 이동하는 방법을 제어할 수 있다.
 
-트래픽을 특정 Version 별 가중치를 기반으로 Routing 하므로 WBR(Weight) Based Routing) 이라고 한다.
+트래픽을 특정 Version 별 가중치를 기반으로 Routing 하므로 WBR(Weight Based Routing) 이라고 한다.
 
 kiali 를 확인하면서 아래를 진행해보자.
 
@@ -2292,6 +2292,7 @@ $ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
 HTTP/1.1 200 OK
 ...
 
+
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
 HTTP/1.1 200 OK
 
@@ -2418,7 +2419,7 @@ Code 200 : 100 (100.0 %)
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 94 (94.0 %)
