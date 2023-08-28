@@ -89,7 +89,7 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 * Istio의 트래픽 라우팅 규칙을 사용하여 서비스 간의 트래픽 흐름 및 API 호출을 쉽게 제어할 수 있다.
 * Istio는 circuit breakers, timeouts, and retries 와 같은 서비스 수준의 속성을 쉽게 구성할 수 있다.
-* A/B testing, canary 베포 및 백분율 기반 트래픽 분할을 통한 단계적 출시와 같은 중요한 작업을 쉽게 설정할 수 있다.
+* A/B testing, canary 배포 및 백분율 기반 트래픽 분할을 통한 단계적 출시와 같은 중요한 작업을 쉽게 설정할 수 있다.
 
 
 
@@ -519,6 +519,10 @@ $ kii get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
 istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   90s
 
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.14.235   <pending>     15021:31638/TCP,80:30422/TCP,443:30044/TCP   92s
+
+
 
 31166 / 32560 nodeport 로 접근 가능
 
@@ -544,8 +548,8 @@ $ helm -n istio-ingress ls
 
 
 # namespace 삭제
-$ kubectl delete namespace istio-system
-  kubectl delete namespace istio-ingress
+# $ kubectl delete namespace istio-system
+#   kubectl delete namespace istio-ingress
 ```
 
 
@@ -1059,7 +1063,7 @@ ratings-v1-6fb94bb7cd-tdcdc   2/2     Running   0          4m11s
 
 
 # 2. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-tdcdc -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec ratings-v1-6fb94bb7cd-9v8jz -c ratings -- curl -sS productpage:9080/productpage
 
 <!DOCTYPE html>
 <html>
@@ -1072,7 +1076,7 @@ $ ku exec ratings-v1-6fb94bb7cd-tdcdc -c ratings -- curl -sS productpage:9080/pr
 
 
 # 3. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-tdcdc -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ ku exec ratings-v1-6fb94bb7cd-9v8jz -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
 ```
@@ -1260,6 +1264,11 @@ $ curl -s "http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage" | grep
 $ kii get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
 istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TCP,80:32190/TCP,443:30919/TCP   74m
+
+NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TCP,80:32190/TCP,443:30919/TCP   2d4h
+
+
 
 
 # 32190 node port 로 접근 가능
