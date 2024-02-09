@@ -40,11 +40,9 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 ## 3) Typora 설치
 
-교육자료(MarkDown 문서)를 typora 로 확인하기를 희망하는 경우 Typora 를 설치한다. 
+교육자료(MarkDown 문서)를 typora로 확인하기 위해 Typora를 설치한다. 
 
-github site 를 이용하기를 희망한다면 굳이 설치하지 않아도 된다.
-
-하지만  gcp vm 접속을 위한 key 가 필요하므로 아래 git clone 은 수행하도록 하자.
+github site 를 직접 확인해도 되긴 하지만 각종 실습 자료를 직접 수정해야 하므로 가능한 Typora 를 이용하자.
 
 
 
@@ -85,11 +83,7 @@ github site 를 이용하기를 희망한다면 굳이 설치하지 않아도 �
 
 # 2. 교육문서 Download
 
-해당 교육문서는 모두 markdown 형식으로 작성되었다.  Chrome Browser 에서 github 문서를 직접 확인해도 된다.
-
-하지만 실습을 따라가다 보면 개인별로 수정해야 할 부분이 있는데 web browser 에서는 수정이 안되기 때문에 수정이 용이한 환경이 훨씬 좋을 것이다.
-
-좀더 효율적인 실습을 위해서 해당 자료를 download 하여 markdown 전용 viewer 인 Typora 로 오픈하여 실습에 참여하자.
+실습을 위해서 해당 자료를 download 하여 markdown 전용 viewer 인 Typora 로 오픈하여 실습에 참여하자.
 
 
 
@@ -128,8 +122,6 @@ $ cd /c/githubrepo/ktds-edu-k8s-istio
 $ git pull
 
 ```
-
-
 
 
 
@@ -221,11 +213,11 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - User
   - Specify username 에 Check
-  - User : ktdseduuser  입력
+  - User : ubuntu 입력
 
 - Port : 22
 - Advanced SSH settings
-  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\gcp-vm-key\ktdseduuser
+  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\vm-key\ktdsedu-employee.pem
     - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
 
 
@@ -267,7 +259,6 @@ $ ll ~/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
-
 
 ```
 
