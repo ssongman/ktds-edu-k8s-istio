@@ -767,7 +767,7 @@ bastion02   Ready    control-plane,master   4m10s   v1.28.6+k3s2
 
 
 
-### (1) 개인별 Namespace 생성
+### (1) 개인별 Namespace ★★★
 
 아래 정보를 참조하여 개인별 Namespace 정보를 확인하자.
 
@@ -1306,6 +1306,8 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 예를들면, Openshift 의 경우 haproxy 로 구성된 route 라는 오브젝트를 제공한다. 
 
+
+
 우리가 실습하고 있는 환경에는 어떤 ingress controller 가 설치되어 있는지 살펴보자.
 
 ```sh
@@ -1314,17 +1316,6 @@ NAME             TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)           
 kube-dns         ClusterIP      10.43.0.10     <none>         53/UDP,53/TCP,9153/TCP       22m
 metrics-server   ClusterIP      10.43.210.19   <none>         443/TCP                      22m
 traefik          LoadBalancer   10.43.125.33   172.31.13.52   80:31556/TCP,443:31915/TCP   21m
-
-
-$ kubectl -n kube-system get ds
-$ kubectl -n kube-system get pod svclb-traefik-a5f2437f-k9gqx -o yaml
-
-    ports:
-    - containerPort: 80
-      hostPort: 80
-      name: lb-tcp-80
-      protocol: TCP
-
 
 
 ```
@@ -1336,6 +1327,56 @@ traefik(https://traefik.io/) 이라는 proxy tool 을 사용하는 것을 알 �
 또한 node port 가  31556인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
 
 아래 실습에서 계속사용될 예정이니 잘 기억해 놓자.
+
+
+
+또한 traefic 이라는 service 는 LoadBalancer type 으로 선언되어 있어서 모든 노드에서 80/443 port 가 hostport 로 binding 되어 있다.
+
+그러므로 node port 뿐 아니라 node 의 IP의 80/443 으로 접근한다면 traefic service 로 연결되도록 설정되어 있다.
+
+daemonset 으로 설정되어 있어서 모든 node 에 설정된다.
+
+아래 yaml 을 살펴보자.
+
+```sh
+
+# daemonset 확인
+$ kubectl -n kube-system get ds
+NAME                     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+svclb-traefik-a5f2437f   1         1         1       1            1           <none>          60m
+
+# daemonset yaml 확인
+$ kubectl -n kube-system get ds svclb-traefik-a5f2437f -o yaml
+...
+spec:
+  template:
+    spec:
+      containers:
+      - env:
+        - name: DEST_PORT
+          value: "80"
+        - name: DEST_IPS
+          value: 10.43.125.33    # traefik service ip 로 설정
+        ports:
+        - containerPort: 80
+          hostPort: 80           # hostport 로 선언되어 있다.
+          name: lb-tcp-80
+          protocol: TCP
+      - env:
+        - name: DEST_PORT
+          value: "443"
+        - name: DEST_IPS
+          value: 10.43.125.33    # traefik service ip 로 설정
+        ports:
+        - containerPort: 443
+          hostPort: 443          # hostport 로 선언되어 있다.
+          name: lb-tcp-443
+          protocol: TCP
+...
+
+```
+
+
 
 
 
@@ -1359,7 +1400,7 @@ metadata:
 spec:
   ingressClassName:  "traefik"
   rules:
-  - host: "userlist.54.180.160.149.nip.io"    #  <-- 자신의 공인 IP 로 변경
+  - host: "userlist.[my-public-ip].nip.io"    #  <-- 자신의 공인 IP 로 변경
     http:
       paths:
       - path: /
@@ -1372,11 +1413,11 @@ spec:
 ---
 
 
-# 자신의 공인 IP 로 변경하자.
+# [my-public-ip] 를 자신의 공인 IP로 변경하자.
 $ vi ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
-
-
+# 변경전 userlist.[my-public-ip].nip.io
+# 변경후 userlist.54.180.160.148.nip.io
 
 
 # 실행
@@ -1384,6 +1425,19 @@ $ ku create -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 ingress.networking.k8s.io/userlist-ingress created
 
 ```
+
+
+
+54.180.160.149 가 하위에 여러번 등장한다.
+
+편집기 일괄 변경 기능을 이용하여 54.180.160.149  를 자산의 공인 IP 로 일괄 변경하자.
+
+* 편집기가 typora 라면
+  * 일괄변경 단축기 : Ctrl + H 로 변경하자.
+  * 변경전 : 54.180.160.149
+  * 변경후 : 자신의 공인 IP
+
+
 
 
 
@@ -1395,10 +1449,6 @@ ingress.networking.k8s.io/userlist-ingress created
 $ ku create ingress userlist-ingress --class=traefik \
   --rule="userlist.songlab.co.kr/*=userlist-svc:80"
 
-$ ku get ingress
-NAME               CLASS     HOSTS                    ADDRESS       PORTS   AGE
-userlist-ingress   traefik   userlist.songlab.co.kr   10.158.0.43   80      2m29s
-
 ```
 
 
@@ -1408,12 +1458,12 @@ userlist-ingress   traefik   userlist.songlab.co.kr   10.158.0.43   80      2m29
 ```sh
 
 $ ku get ingress
-NAME               CLASS    HOSTS                    ADDRESS         PORTS   AGE
-userlist-ingress   <none>   userlist.songlab.co.kr   172.25.51.207   80      4s
+NAME               CLASS     HOSTS                            ADDRESS        PORTS   AGE
+userlist-ingress   traefik   userlist.54.180.160.148.nip.io   172.31.13.52   80      62s
 
 ```
 
-> 172.25.51.207 는 master node 의 IP 주소이다.
+> 172.31.13.52 는 master node 의 IP 주소이다.
 
 
 
@@ -1425,26 +1475,57 @@ traefik node port 를 확인후 curl로 테스트 해보자.
 
 # traefik node node port 확인
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       75d
-metrics-server   ClusterIP      10.43.134.123   <none>        443/TCP                      75d
-traefik          LoadBalancer   10.43.81.157    10.158.0.43   80:30497/TCP,443:30739/TCP   75d
+NAME             TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10     <none>         53/UDP,53/TCP,9153/TCP       49m
+metrics-server   ClusterIP      10.43.210.19   <none>         443/TCP                      49m
+traefik          LoadBalancer   10.43.125.33   172.31.13.52   80:31556/TCP,443:31915/TCP   48m
 
 
-# 확인
-$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
-{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
-{"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
+# < VM 에서 직접 확인 >
 
-$ curl http://localhost:30497/users/1 -H "Host:userlist.songlab.co.kr"
+# 1) localhost로 확인
+$ curl http://localhost:31556/users/1 -H "Host:userlist.54.180.160.149.nip.io"
+{"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ curl http://localhost:80/users/1 -H "Host:userlist.54.180.160.149.nip.io"
 {"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
+# 2) node IP 로 확인
 # node IP 로 접근해도 동일한 결과를 받을 수 있다.
-$ curl http://10.158.0.43:30497/users/1 -H "Host:userlist.songlab.co.kr"
+$ curl http://172.31.13.52:31556/users/1 -H "Host:userlist.54.180.160.149.nip.io"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ curl http://172.31.13.52:80/users/1 -H "Host:userlist.54.180.160.149.nip.io"
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+# 3) node public IP 로 확인
+$ curl http:/54.180.160.149:31556/users/1 -H "Host:userlist.54.180.160.149.nip.io"
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ curl http:/54.180.160.149:80/users/1 -H "Host:userlist.54.180.160.149.nip.io"
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+
+
+
+# 4) domain 으로 확인
+$ curl http:/userlist.54.180.160.149.nip.io:31556/users/1
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ curl http:/userlist.54.180.160.149.nip.io:80/users/1
+{"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
+
+
+
+# 5) web brower에서 domain 으로 확인
+http:/userlist.54.180.160.149.nip.io:31556/users/1
+
+http:/userlist.54.180.160.149.nip.io:80/users/1
+
+http://userlist.54.180.160.149.nip.io/
+
 
 ```
 
@@ -1456,11 +1537,9 @@ $ curl http://10.158.0.43:30497/users/1 -H "Host:userlist.songlab.co.kr"
 
 다시 말해서 개인 pc의 hosts 파일에 위 host name 을 등록해 주면 크롬과 같은 브라우저에서 접근이 가능하다는 의미이다.
 
-하지만 이 또한 완전환 모습은 아니다.  
+하지만 node IP 로 연결해야 해서 이 또한 완전환 모습은 아니다.  
 
-연결할때마다 node port (30497)를 붙여야 하는 불편함이 존재한다. 
-
-이런 불편을 해결하기 위해서 일반적으로 load balancer( L4) 를 이용하여 80 port 를 node port(30497) 으로 매핑하여 사용한다.
+이런 점들을 보완하기 위해서 일반적으로 load balancer( L4) 를 이용하여 80 port 를 node port(31556 or 80) 으로 매핑하여 사용한다.
 
 하지만 지금환경은 개인 PC 이므로 이해만 하자.
 
@@ -1469,10 +1548,13 @@ $ curl http://10.158.0.43:30497/users/1 -H "Host:userlist.songlab.co.kr"
 ### (3) [참고] Load Balancing
 
 - 참고링크
+  - AWS Load Balancing
+    - 링크 : https://docs.aws.amazon.com/ko_kr/elasticloadbalancing/
   - GCP Load Balancing
     - 링크 : https://cloud.google.com/load-balancing/docs/load-balancing-overview?hl=ko
   - KTCloud Load Balancing
     - 링크 : https://cloud.kt.com/portal/user-guide/network-loadbalancer-intro
+  
 
 
 
@@ -1501,11 +1583,13 @@ $ ku delete pod curltest
 
 
 
-### (2) k3s 삭제
+### (2) [참고] k3s 삭제
+
+아직 삭제 하지 말자.
 
 ```sh
 # root 권한으로
-$ su
+$ sudo -s
 
 ## k3s 삭제
 $ sh /usr/local/bin/k3s-killall.sh
@@ -1534,7 +1618,7 @@ $ eixt
 
 
 
-## 1) ktdsEduCluster 접속 설정 변경
+## 1) ktdsEduCluster 접속 설정 변경 - ★★★
 
 EduCluster 에 접속할 수 있는 접속 정보 파일로 설정 변경 작업을 수행한다.
 
@@ -1544,18 +1628,18 @@ EduCluster 에 접속할 수 있는 접속 정보 파일로 설정 변경 작업
 
 
 # ktdsEduCluster 접속하도록 설정 변경
-$ export KUBECONFIG="${HOME}/githubrepo/ktds-edu-k8s-istio/kubernetes/config/config-ktdseducluster"
+$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
 
 
 # Cluste 설정변경 확인 확인
 $ kubectl get nodes
-NAME                STATUS   ROLES                       AGE   VERSION
-ktds-k3s-master01   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
-ktds-k3s-master02   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
-ktds-k3s-master03   Ready    control-plane,etcd,master   83d   v1.26.5+k3s1
-ktds-k3s-worker01   Ready    <none>                      97d   v1.26.4+k3s1
-ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
-ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
+NAME          STATUS     ROLES                       AGE     VERSION
+master01.c1   Ready      control-plane,etcd,master   6h16m   v1.28.6+k3s2
+master02.c1   Ready      control-plane,etcd,master   6h13m   v1.28.6+k3s2
+master03.c1   Ready      control-plane,etcd,master   6h13m   v1.28.6+k3s2
+worker01.c1   Ready      <none>                      4h19m   v1.28.6+k3s2
+worker02.c1   NotReady   <none>                      3h55m   v1.28.6+k3s2
+worker03.c1   Ready      <none>                      3h55m   v1.28.6+k3s2
 
 # <-- 6개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
 
@@ -1574,7 +1658,7 @@ $ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하�
 
 
 
-[참고] 다시 개인 VM Cluster 로 접속할때...
+### [참고] 다시 개인 VM Cluster 로 접속할때...
 
 ```sh
 # VM Cluster 접속하도록 설정 변경 
@@ -1591,10 +1675,6 @@ bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 
 
-
-
-
-
 ## 2) 개인 Namespace 확인
 
 각 수강생별 Namespace 를 확인하자.
@@ -1603,37 +1683,43 @@ bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 $ kubectl get ns
 NAME              STATUS   AGE
-default           Active   12h
-kube-node-lease   Active   12h
-kube-public       Active   12h
-kube-system       Active   12h
-song              Active   12h
-yjsong            Active   10h
-user02            Active   10h
-user03            Active   10h
-user04            Active   10h
-user05            Active   10h
-user06            Active   10h
-user07            Active   10h
-user08            Active   10h
-user09            Active   10h
-user10            Active   10h
-user11            Active   10h
-user12            Active   10h
-user13            Active   10h
-user14            Active   10h
-user15            Active   10h
-user16            Active   10h
-user17            Active   10h
-user18            Active   10h
-user19            Active   10h
-user20            Active   10h
+default           Active   6h20m
+istio-ingress     Active   5h22m
+istio-system      Active   5h38m
+kube-node-lease   Active   6h20m
+kube-public       Active   6h20m
+kube-system       Active   6h20m
+user01            Active   44s
+user02            Active   44s
+user03            Active   44s
+user04            Active   44s
+user05            Active   44s
+user06            Active   44s
+user07            Active   44s
+user08            Active   44s
+user09            Active   44s
+user10            Active   44s
+user11            Active   44s
+user12            Active   44s
+user13            Active   43s
+user14            Active   43s
+user15            Active   43s
+user16            Active   43s
+user17            Active   43s
+user18            Active   43s
+user19            Active   43s
+user20            Active   43s
+user21            Active   43s
+user22            Active   43s
+yjsong            Active   6h8m
+
 
 
 # 각 수강생별 NS 를 확인해보자.
 $ kubectl get ns user02
 NAME     STATUS   AGE
-yjsong   Active   2m4s
+user02   Active   64s
+
 
 # ku 로 alias 선언
 $ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
@@ -1758,11 +1844,7 @@ userlist   1/1     1            1           3m27s
 
 # userlist deploy 수정
 $ ku edit deploy userlist
-```
-
-- replicas 수
-
-```yaml
+...
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1771,11 +1853,16 @@ metadata:
   name: userlist
   namespace: yjsong
 spec:
-  replicas: 1                     <--- 3으로 수정한다.
+  replicas: 1                 #    <--- 3으로 수정한다.
   ....
+
+# 저장후 종료한다.( :wq)   vi 명령어 임
+
 ```
 
-저장후 종료한다.( :wq)
+
+
+
 
 
 
@@ -1833,17 +1920,17 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                                                             PORT(S)                        AGE
-kube-dns         ClusterIP      10.43.0.10     <none>                                                                  53/UDP,53/TCP,9153/TCP         97d
-kubelet          ClusterIP      None           <none>                                                                  10250/TCP,10255/TCP,4194/TCP   82d
-metrics-server   ClusterIP      10.43.100.52   <none>                                                                  443/TCP                        97d
-traefik          LoadBalancer   10.43.73.178   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80:31353/TCP,443:32192/TCP     97d
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                           PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                                53/UDP,53/TCP,9153/TCP       6h25m
+metrics-server   ClusterIP      10.43.69.213    <none>                                                                443/TCP                      6h25m
+traefik          LoadBalancer   10.43.132.140   172.31.12.206,172.31.13.98,172.31.14.177,172.31.15.159,172.31.8.197   80:30690/TCP,443:32318/TCP   6h24m
+
 
 ```
 
-traefic 이라는 Proxy tool 이 node port (31353) 로 접근하여 routing 한다는 사실을 알 수 있다.
+traefic 이라는 Proxy tool 이 node port (30690, 80) 로 접근하여 routing 한다는 사실을 알 수 있다.
 
-이미 GCP Load balance  를 생성하여 공인IP 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
+이미 AWS Load balance  를 생성하여 공인IP(Elastic IP) 가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
 
 해당 공인 IP 와 위 traefik controller 의 node port가 서로 매핑되도록 설정작업을 해 놓았다.
 
@@ -1852,11 +1939,11 @@ traefic 이라는 Proxy tool 이 node port (31353) 로 접근하여 routing 한�
 - master node와 port-forwarding 정보
 
 ```
-35.209.207.26 : 80   = master01/master02/master03 : 31353
-35.209.207.26 : 443  = master01/master02/master03 : 32192
+43.203.62.69 : 80   = master01/master02/master03 : 30690
+43.203.62.69 : 443  = master01/master02/master03 : 32318
 ```
 
-그러므로 우리는 35.209.207.26 : 80 으로 call 을 보내면 된다. 
+그러므로 우리는 43.203.62.69 : 80 으로 call 을 보내면 된다. 
 
 대신 Cluster 내 진입후 자신의 service 를 찾기 위한 host address 를 같이 보내야 한다. (ingress 설정)
 
@@ -1887,7 +1974,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user01.cloud.35.209.207.26.nip.io"       <-- user01 을 자신의 Namespace 명으로 수정
+  - host: "userlist.user02.cloud.43.203.62.69.nip.io"     #   <-- user01 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
@@ -1902,6 +1989,8 @@ spec:
 # ingress 수정
 $ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 ...
+# 변경전 : "userlist.user02.cloud.43.203.62.69.nip.io"
+# 변경후 : "userlist.user99.cloud.43.203.62.69.nip.io"   <-- 자신의 Namespace 로 
 ```
 
 
