@@ -161,30 +161,67 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-| email               | VM  Server | VM  Server IP  | Namespace | 비고 |
-| ------------------- | ---------- | -------------- | --------- | ---- |
-| 강사1               | bastion01  | 43.202.56.89   | user01    |      |
-| 강사2               | bastion02  | 54.180.160.149 | user02    |      |
-| jinhoss.jang@kt.com | bastion03  | 43.201.58.161  | user03    |      |
-| ksyoo@kt.com        | bastion04  | 43.202.63.101  | user04    |      |
-| sj.park1203@kt.com  | bastion05  | 13.125.34.128  | user05    |      |
-| syno@kt.com         | bastion06  | 13.125.196.124 | user06    |      |
-| baejy@kt.com        | bastion07  | 13.125.108.5   | user07    |      |
-| inse.kim@kt.com     | bastion08  |                | user08    |      |
-| junyeong.yeo@kt.com | bastion09  |                | user09    |      |
-| zerois.park@kt.com  | bastion10  |                | user10    |      |
-| sg.kwon@kt.com      | bastion11  |                | user11    |      |
-| flying@kt.com       | bastion12  |                | user12    |      |
-| ye.park@kt.com      | bastion13  |                | user13    |      |
-| moongi.hong@kt.com  | bastion14  |                | user14    |      |
-| ishcho@kt.com       | bastion15  |                | user15    |      |
-| youbin.jeong@kt.com | bastion16  |                | user16    |      |
-| bottle.jang@kt.com  | bastion17  |                | user17    |      |
-| sally.park@kt.com   | bastion18  |                | user18    |      |
-| jiwon.baek@kt.com   | bastion19  |                | user19    |      |
-| edward.kang@kt.com  | bastion20  |                | user20    |      |
-| geonwo.lee@kt.com   | bastion21  |                | user21    |      |
-| leegy33@kt.com      | bastion22  |                | user22    |      |
+| 이름   | email                                             | Namespace | VM  Server | VM  Server IP  | 비고 |
+| ------ | ------------------------------------------------- | --------- | ---------- | -------------- | ---- |
+| 송양종 | 강사1                                             | user01    | bastion01  | 43.202.56.89   |      |
+| 송양종 | 강사2                                             | user02    | bastion02  | 54.180.160.149 |      |
+| 장진호 | [jinhoss.jang@kt.com](mailto:jinhoss.jang@kt.com) | user03    | bastion03  | 43.201.58.161  |      |
+| 유광선 | [ksyoo@kt.com](mailto:ksyoo@kt.com)               | user04    | bastion04  | 43.202.63.101  |      |
+| 박성준 | [sj.park1203@kt.com](mailto:sj.park1203@kt.com)   | user05    | bastion05  | 13.125.34.128  |      |
+| 노수윤 | [syno@kt.com](mailto:syno@kt.com)                 | user06    | bastion06  | 13.125.196.124 |      |
+| 배진용 | [baejy@kt.com](mailto:baejy@kt.com)               | user07    | bastion07  | 13.125.108.5   |      |
+| 김인세 | [inse.kim@kt.com](mailto:inse.kim@kt.com)         | user08    | bastion08  |                |      |
+| 여준영 | [junyeong.yeo@kt.com](mailto:junyeong.yeo@kt.com) | user09    | bastion09  |                |      |
+| 박영은 | [zerois.park@kt.com](mailto:zerois.park@kt.com)   | user10    | bastion10  |                |      |
+| 권성광 | [sg.kwon@kt.com](mailto:sg.kwon@kt.com)           | user11    | bastion11  |                |      |
+| 박창기 | [flying@kt.com](mailto:flying@kt.com)             | user12    | bastion12  |                |      |
+| 박영은 | [ye.park@kt.com](mailto:ye.park@kt.com)           | user13    | bastion13  |                |      |
+| 홍문기 | [moongi.hong@kt.com](mailto:moongi.hong@kt.com)   | user14    | bastion14  |                |      |
+| 조성희 | [ishcho@kt.com](mailto:ishcho@kt.com)             | user15    | bastion15  |                |      |
+| 정유빈 | [youbin.jeong@kt.com](mailto:youbin.jeong@kt.com) | user16    | bastion16  |                |      |
+| 장병훈 | [bottle.jang@kt.com](mailto:bottle.jang@kt.com)   | user17    | bastion17  |                |      |
+| 박윤형 | [sally.park@kt.com](mailto:sally.park@kt.com)     | user18    | bastion18  |                |      |
+| 백지원 | [jiwon.baek@kt.com](mailto:jiwon.baek@kt.com)     | user19    | bastion19  |                |      |
+| 강민수 | [edward.kang@kt.com](mailto:edward.kang@kt.com)   | user20    | bastion20  |                |      |
+| 이건우 | [geonwo.lee@kt.com](mailto:geonwo.lee@kt.com)     | user21    | bastion21  |                |      |
+| 이규용 | [leegy33@kt.com](mailto:leegy33@kt.com)           | user22    | bastion22  |                |      |
+
+
+
+2024.02.18 11시 기준
+
+* 현재 개인당 ec2 server 할당과정에서 cpu quota 를 초과하여 7개까지만 생성이 완료된 상태임.
+
+* cpu quota 증설을 요청해 놓은 상태임.
+
+* 실습 시간전까지 bastion server 할당 받지 못할 경우 아래와 같이 3인 1조 체제로 bastion server 가 운용 될 예정
+
+
+
+| 이름   | email                                             | Namespace | VM  Server | VM  Server IP  | 비고 |
+| ------ | ------------------------------------------------- | --------- | ---------- | -------------- | ---- |
+| 송양종 | 강사1                                             | user01    |            |                |      |
+| 송양종 | 강사2                                             | user02    | bastion01  | 43.202.56.89   |      |
+| 장진호 | [jinhoss.jang@kt.com](mailto:jinhoss.jang@kt.com) | user03    |            |                |      |
+| 유광선 | [ksyoo@kt.com](mailto:ksyoo@kt.com)               | user04    |            |                |      |
+| 박성준 | [sj.park1203@kt.com](mailto:sj.park1203@kt.com)   | user05    | bastion02  | 54.180.160.149 |      |
+| 노수윤 | [syno@kt.com](mailto:syno@kt.com)                 | user06    |            |                |      |
+| 배진용 | [baejy@kt.com](mailto:baejy@kt.com)               | user07    |            |                |      |
+| 김인세 | [inse.kim@kt.com](mailto:inse.kim@kt.com)         | user08    | bastion03  | 43.201.58.161  |      |
+| 여준영 | [junyeong.yeo@kt.com](mailto:junyeong.yeo@kt.com) | user09    |            |                |      |
+| 박영은 | [zerois.park@kt.com](mailto:zerois.park@kt.com)   | user10    |            |                |      |
+| 권성광 | [sg.kwon@kt.com](mailto:sg.kwon@kt.com)           | user11    | bastion04  | 43.202.63.101  |      |
+| 박창기 | [flying@kt.com](mailto:flying@kt.com)             | user12    |            |                |      |
+| 박영은 | [ye.park@kt.com](mailto:ye.park@kt.com)           | user13    |            |                |      |
+| 홍문기 | [moongi.hong@kt.com](mailto:moongi.hong@kt.com)   | user14    | bastion05  | 13.125.34.128  |      |
+| 조성희 | [ishcho@kt.com](mailto:ishcho@kt.com)             | user15    |            |                |      |
+| 정유빈 | [youbin.jeong@kt.com](mailto:youbin.jeong@kt.com) | user16    |            |                |      |
+| 장병훈 | [bottle.jang@kt.com](mailto:bottle.jang@kt.com)   | user17    | bastion06  | 13.125.196.124 |      |
+| 박윤형 | [sally.park@kt.com](mailto:sally.park@kt.com)     | user18    |            |                |      |
+| 백지원 | [jiwon.baek@kt.com](mailto:jiwon.baek@kt.com)     | user19    |            |                |      |
+| 강민수 | [edward.kang@kt.com](mailto:edward.kang@kt.com)   | user20    | bastion07  | 13.125.108.5   |      |
+| 이건우 | [geonwo.lee@kt.com](mailto:geonwo.lee@kt.com)     | user21    |            |                |      |
+| 이규용 | [leegy33@kt.com](mailto:leegy33@kt.com)           | user22    |            |                |      |
 
 
 
