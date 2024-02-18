@@ -1141,6 +1141,8 @@ $ ku exec "$(ku get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')"
 
 bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
+IP 는 AWS 의 Elastic IP 이므로 변경할 필요 없다.
+
 ```sh
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio
