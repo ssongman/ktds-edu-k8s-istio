@@ -90,7 +90,7 @@
 
 * OCI 표준에 맞는 대표적인 Container tool
 
-  * Docker / Buildah / Skopeo / Podman
+  * Docker / Buildah / Skopeo / Podman / Cri-o / Container-D
 
 
 
@@ -146,7 +146,21 @@ Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가
 
 개인 VM 서버로 접속후 sample app 인 userlist 를 실행해 보자.
 
+
+
+### [참고] userlist app
+
 userlist app 은 실행될때 10명의 사용자가 난수로 생성되도록 개발된 테스트용 app이다. 
+
+* 확인
+  * EduCluster 에 설치된 userlist 확인
+  * http://userlist.yjsong.cloud.43.203.62.69.nip.io/user
+
+
+
+### docker run
+
+
 
 ```sh
 $ docker ps -a
@@ -157,13 +171,13 @@ $ docker pull docker.io/ssongman/userlist:v1
 ## 약 10초 정도 소요됨
 
 $ docker images
-REPOSITORY                          TAG                  IMAGE ID      CREATED        SIZE
-docker.io/ssongman/userlist         v1                   bf0cd99d0bad  4 years ago    696 MB
+REPOSITORY          TAG       IMAGE ID       CREATED        SIZE
+ssongman/userlist   v1        bf0cd99d0bad   5 years ago    680MB
+
 
 $ docker run -d --name userlist1 -p 8181:8181 ssongman/userlist:v1
 
 ## 해당 이미지가 있어서 바로 기동된다.
-
 
 
 $ curl http://localhost:8181/
@@ -182,7 +196,7 @@ $ curl http://localhost:8181/users/2
 [참고] 만약 개인 PC 환경에서 docker-desktop 환경에서 수행했다면 브라우저에서도 아래처럼 확인할 수 있다.
 
 ```sh
-http://localhost:8181/ 
+http://localhost:8181/
 
 http://localhost:8181/users/1
 
@@ -431,6 +445,8 @@ ssongman/userlist   v1        bf0cd99d0bad   4 years ago     680MB
 - 실행
 
 ```sh
+
+
 # 실행전 syntax 체크
 $ docker run -it --rm \
     --name haproxy-syntax-check \
@@ -438,6 +454,19 @@ $ docker run -it --rm \
     my-haproxy haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
 
 Configuration file is valid
+or
+아무 메세지 없으면 정상
+
+
+# 실행전 haproxy version 체크
+$ docker run -it --rm \
+    --name haproxy-syntax-check \
+    --net my_network \
+    my-haproxy haproxy -v
+
+HAProxy version 2.9.5-260dbb8 2024/02/15 - https://haproxy.org/
+
+
 
 
 # 실행
@@ -537,7 +566,7 @@ backend testweb-backend
 
     - 언어나 프레임워크에 상관없이 애플리케이션을 동일한 방식으로 관리
 
-    - 개발, 테스팅, 운영 환경을 물론 로컬 피시와 클라우드까지 동일한 환경을 구축
+    - 개발, 테스팅, 운영 환경 뿐 아니라 로컬 피시와 클라우드까지 동일한 환경을 구축
 
     - 특정 클라우드 벤더에 종속적이지 않음
 
@@ -609,8 +638,7 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 ```sh
 ## root 권한으로 수행한다.
-$ su
-Password:
+$ sudo -s
 
 
 # k3s 설치
@@ -623,20 +651,20 @@ $ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 [INFO]  systemd: Starting k3s       <-- 마지막 성공 로그
 
 # 20초 정도 소요됨
-```
 
 
 
-- 확인
 
-```sh
+# 확인1
 $ k3s kubectl version
 Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
 Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
 
-```
+# Client 와 Server Version 이 각각 보인다면 설치가 잘 된 것이다.
 
-Client 와 Server Version 이 각각 보인다면 설치가 잘 된 것이다.
+
+
+```
 
 
 
@@ -663,10 +691,9 @@ root         626     591  5 13:05 pts/0    00:00:01 containerd -c /var/lib/ranch
 ...
 
 $ k3s kubectl version
-WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
-Client Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
-Kustomize Version: v4.5.7
-Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
+Client Version: v1.28.6+k3s2
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Server Version: v1.28.6+k3s2
 
 ```
 
@@ -697,7 +724,7 @@ $ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 $ ll ~/.kube/config
 -rw-r--r-- 1 song song 2957 May 14 03:44 /home/song/.kube/config
 
-# 보안을 위해 자신만 RW 권한 부여
+# 보안을 위해 자신만 RW 권한 부여( 644 --> 600)
 $ chmod 600 ~/.kube/config
 
 
@@ -707,10 +734,22 @@ $ ls -ltr ~/.kube/config
 
 ## 확인
 $ kubectl version
-WARNING: This version information is deprecated and will be replaced with the output from kubectl version --short.  Use --output=yaml|json to get the full version.
-Client Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
-Kustomize Version: v4.5.7
-Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.4+k3s1", GitCommit:"8d0255af07e95b841952563253d27b0d10bd72f0", GitTreeState:"clean", BuildDate:"2023-04-20T00:33:18Z", GoVersion:"go1.19.8", Compiler:"gc", Platform:"linux/amd64"}
+Client Version: v1.28.6+k3s2
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Server Version: v1.28.6+k3s2
+
+
+$ kubectl get ns
+NAME              STATUS   AGE
+kube-system       Active   4m2s
+kube-public       Active   4m2s
+kube-node-lease   Active   4m2s
+default           Active   4m2s
+
+
+$ kubectl get nodes
+NAME        STATUS   ROLES                  AGE     VERSION
+bastion02   Ready    control-plane,master   4m10s   v1.28.6+k3s2
 
 ```
 
@@ -751,7 +790,11 @@ $ kubectl create ns user04
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user02'        #    <-- 자신의 namespace 명을 입력한다.
+$ alias ku='kubectl -n user02'        #    <-- 자신의 namespace 명을 입력한다. 중요 ★★★
+
+$ ku bet pod
+No resources found in user02 namespace.
+
 
 ```
 
@@ -842,6 +885,16 @@ $ ku get pod -w
 userlist-75c7d7dfd7-kvtjh   0/1     ContainerCreating   0          15s
 userlist-75c7d7dfd7-kvtjh   1/1     Running             0          40s
 
+
+$ ku get deploy
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+userlist   1/1     1            1           46s
+
+
+$ ku get rs
+NAME                 DESIRED   CURRENT   READY   AGE
+userlist-9fbfc64bc   1         1         1       52s
+
 ```
 
 
@@ -864,7 +917,8 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-74c9c8f969-t2bjz   1/1     Running   0          4s
+userlist-9fbfc64bc-6ng8h   1/1     Running   0          100s
+
 
 # Status가 Running 이 되어야 정상 기동된 상태임
 
@@ -876,13 +930,8 @@ userlist-74c9c8f969-t2bjz   1/1     Running   0          4s
 
 ```sh
 
-$ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-userlist-74c9c8f969-t2bjz   1/1     Running   0          18s
-
-
 # userlist pod 내로 진입
-$ ku exec -it userlist-74c9c8f969-t2bjz -- bash
+$ ku exec -it userlist-9fbfc64bc-6ng8h -- bash
 
 
 $ curl -i localhost:8181/users/1
@@ -899,6 +948,7 @@ Date: Sun, 14 May 2023 02:38:20 GMT
 # POD 빠져나오기
 Ctrl + D
 
+# prompt 를 잘 확인해야 함.
 ```
 
 
@@ -911,6 +961,12 @@ curl test 를 위해서 별도pod(curltest) 를 생성하여 userlist 를 call �
 
 $ ku run curltest --image=curlimages/curl -- sleep 365d
 pod/curltest created
+
+$ ku get pod
+NAME                       READY   STATUS    RESTARTS   AGE
+userlist-9fbfc64bc-6ng8h   1/1     Running   0          2m53s
+curltest                   1/1     Running   0          8s
+
 
 
 $ ku exec -it curltest -- curl -h
@@ -928,13 +984,6 @@ Usage: curl [options...] <url>
  -v, --verbose              Make the operation more talkative
  -V, --version              Show version number and quit
 
-
-
-# 확인
-$ ku get pod
-NAME                        READY   STATUS        RESTARTS   AGE
-userlist-bfd857685-j9s4m    1/1     Running       0          4m5s
-curltest                    1/1     Running       0          13s
 
 ```
 
@@ -965,6 +1014,23 @@ $ exit
 userlist pod 내에서 실행한 결과와 curltest pod 에서 실행한 결과가 모두 동일하다.
 
 어떤 pod 이든 pod 내에서 수행되는 명령은 모두 동일한 Cluster 내부 network 임을 알 수 있다. 
+
+
+
+
+
+- vm 에서 테스트
+
+```sh
+ubuntu@bastion02:$   curl 10.42.0.10:8181/users/1
+curl: (7) Failed to connect to 10.42.0.10 port 8181 after 0 ms: Connection refused
+
+# 주소 인식 불가
+```
+
+
+
+VM 에서는 kubernetes 내부 network 을 인식할 수 없다.
 
 cluster 내에 내부 network 개념을 이해하는 중요한 예제이니 꼭 이해하자.
 
@@ -1015,8 +1081,6 @@ service/userlist-svc created
 - kubectl expose 명령으로 service 를 생성 할 수 있다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
 $ ku expose deployment userlist --name userlist-svc --port=80 --target-port=8181
 
 ```
@@ -1146,7 +1210,7 @@ userlist-bfd857685-28g8v   1/1     Running   0          5s
 
 
 
-### (3) curltest pod 내에서 테스트
+### (2) curltest pod 내에서 테스트
 
 ```sh
 
@@ -1208,7 +1272,7 @@ $ exit
 
 
 
-### (4) Round Robbin 방식
+### [참고] Round Robbin 방식
 
 Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서대로 순환을 하여 로드밸런싱을 처리하는 방법이다.
 
@@ -1246,10 +1310,21 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 ```sh
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       75d
-metrics-server   ClusterIP      10.43.134.123   <none>        443/TCP                      75d
-traefik          LoadBalancer   10.43.81.157    10.158.0.43   80:30497/TCP,443:30739/TCP   75d
+NAME             TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10     <none>         53/UDP,53/TCP,9153/TCP       22m
+metrics-server   ClusterIP      10.43.210.19   <none>         443/TCP                      22m
+traefik          LoadBalancer   10.43.125.33   172.31.13.52   80:31556/TCP,443:31915/TCP   21m
+
+
+$ kubectl -n kube-system get ds
+$ kubectl -n kube-system get pod svclb-traefik-a5f2437f-k9gqx -o yaml
+
+    ports:
+    - containerPort: 80
+      hostPort: 80
+      name: lb-tcp-80
+      protocol: TCP
+
 
 
 ```
@@ -1258,7 +1333,7 @@ kubernetes 관리영역 Namespace 인 kube-system 에서 service 를 살펴보�
 
 traefik(https://traefik.io/) 이라는 proxy tool 을 사용하는 것을 알 수 있다.
 
-또한 node port 가  30497인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
+또한 node port 가  31556인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
 
 아래 실습에서 계속사용될 예정이니 잘 기억해 놓자.
 
@@ -1270,7 +1345,7 @@ traefik(https://traefik.io/) 이라는 proxy tool 을 사용하는 것을 알 �
 
 ### (1) userlist ingress 생성
 
-* [참고] manifest file 을 이용해서 Ingress 를 만들 수 있다.
+* manifest file 을 이용해서 Ingress 를 만들 수 있다.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -1284,7 +1359,7 @@ metadata:
 spec:
   ingressClassName:  "traefik"
   rules:
-  - host: "userlist.songlab.co.kr"
+  - host: "userlist.54.180.160.149.nip.io"    #  <-- 자신의 공인 IP 로 변경
     http:
       paths:
       - path: /
@@ -1294,6 +1369,14 @@ spec:
             name: userlist-svc
             port:
               number: 80
+---
+
+
+# 자신의 공인 IP 로 변경하자.
+$ vi ./kubernetes/userlist/15.userlist-ingress-local.yaml
+
+
+
 
 
 # 실행
