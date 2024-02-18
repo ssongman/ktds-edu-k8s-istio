@@ -188,7 +188,11 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-2024.02.18 11시 기준
+
+
+###  3인 1조 체제 운용시
+
+2024.02.18 기준
 
 * 현재 개인당 ec2 server 할당과정에서 cpu quota 를 초과하여 7개까지만 생성이 완료된 상태임.
 
@@ -276,6 +280,42 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
 $ git pull
 
+```
+
+
+
+###  3인 1조 체제 운용시
+
+동일 bastion server 에서 3인이 사용해야 하므로 namespace 명으로 디텍토리 구조를 생성한다.
+
+user02 대신 다신의 namespace 명으로 변경하여 수정한다.
+
+```sh
+# 1) 교육자료를 clone 받는다.
+$ mkdir -p ~/user02/githubrepo
+$ cd ~/user02/githubrepo
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
+
+
+# 2) 확인
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
+$ ll
+drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
+
+
+# 3) 최신 데이터를 한번 더 받아야 하는 경우
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
+$ git pull
+
+```
+
+
+
+#### git pull 실패한 경우
+
+만약 기 수정 파일이 존재하여 pull이 잘 안되는 경우는 삭제후 다시 clone
+
+```sh
 
 
 # < 만약 기 수정 파일이 존재하여 pull이 잘 안되는 경우는 삭제후 다시 clone >
@@ -299,7 +339,6 @@ $ ll ~/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
-
 
 ```
 
