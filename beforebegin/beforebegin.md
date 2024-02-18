@@ -190,47 +190,6 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-###  3인 1조 체제 운용시
-
-2024.02.18 기준
-
-* 현재 개인당 ec2 server 할당과정에서 cpu quota 를 초과하여 7개까지만 생성이 완료된 상태임.
-
-* cpu quota 증설을 요청해 놓은 상태임.
-
-* 실습 시간전까지 bastion server 할당 받지 못할 경우 아래와 같이 3인 1조 체제로 bastion server 가 운용 될 예정
-
-
-
-| 이름   | email                                             | Namespace | VM  Server | VM  Server IP  | 비고 |
-| ------ | ------------------------------------------------- | --------- | ---------- | -------------- | ---- |
-| 송양종 | 강사1                                             | user01    |            |                |      |
-| 송양종 | 강사2                                             | user02    | bastion01  | 43.202.56.89   |      |
-| 장진호 | [jinhoss.jang@kt.com](mailto:jinhoss.jang@kt.com) | user03    |            |                |      |
-| 유광선 | [ksyoo@kt.com](mailto:ksyoo@kt.com)               | user04    |            |                |      |
-| 박성준 | [sj.park1203@kt.com](mailto:sj.park1203@kt.com)   | user05    | bastion02  | 54.180.160.149 |      |
-| 노수윤 | [syno@kt.com](mailto:syno@kt.com)                 | user06    |            |                |      |
-| 배진용 | [baejy@kt.com](mailto:baejy@kt.com)               | user07    |            |                |      |
-| 김인세 | [inse.kim@kt.com](mailto:inse.kim@kt.com)         | user08    | bastion03  | 43.201.58.161  |      |
-| 여준영 | [junyeong.yeo@kt.com](mailto:junyeong.yeo@kt.com) | user09    |            |                |      |
-| 박영은 | [zerois.park@kt.com](mailto:zerois.park@kt.com)   | user10    |            |                |      |
-| 권성광 | [sg.kwon@kt.com](mailto:sg.kwon@kt.com)           | user11    | bastion04  | 43.202.63.101  |      |
-| 박창기 | [flying@kt.com](mailto:flying@kt.com)             | user12    |            |                |      |
-| 박영은 | [ye.park@kt.com](mailto:ye.park@kt.com)           | user13    |            |                |      |
-| 홍문기 | [moongi.hong@kt.com](mailto:moongi.hong@kt.com)   | user14    | bastion05  | 13.125.34.128  |      |
-| 조성희 | [ishcho@kt.com](mailto:ishcho@kt.com)             | user15    |            |                |      |
-| 정유빈 | [youbin.jeong@kt.com](mailto:youbin.jeong@kt.com) | user16    |            |                |      |
-| 장병훈 | [bottle.jang@kt.com](mailto:bottle.jang@kt.com)   | user17    | bastion06  | 13.125.196.124 |      |
-| 박윤형 | [sally.park@kt.com](mailto:sally.park@kt.com)     | user18    |            |                |      |
-| 백지원 | [jiwon.baek@kt.com](mailto:jiwon.baek@kt.com)     | user19    |            |                |      |
-| 강민수 | [edward.kang@kt.com](mailto:edward.kang@kt.com)   | user20    | bastion07  | 13.125.108.5   |      |
-| 이건우 | [geonwo.lee@kt.com](mailto:geonwo.lee@kt.com)     | user21    |            |                |      |
-| 이규용 | [leegy33@kt.com](mailto:leegy33@kt.com)           | user22    |            |                |      |
-
-
-
-
-
 ## 2) SSH (Mobaxterm) 실행
 
 Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성하자.
@@ -278,33 +237,6 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 # 최신 데이터를 한번 더 받는다.
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
-$ git pull
-
-```
-
-
-
-###  3인 1조 체제 운용시
-
-동일 bastion server 에서 3인이 사용해야 하므로 namespace 명으로 디텍토리 구조를 생성한다.
-
-user02 대신 다신의 namespace 명으로 변경하여 수정한다.
-
-```sh
-# 1) 교육자료를 clone 받는다.
-$ mkdir -p ~/user02/githubrepo
-$ cd ~/user02/githubrepo
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
-
-
-# 2) 확인
-$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
-$ ll
-drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
-
-
-# 3) 최신 데이터를 한번 더 받아야 하는 경우
-$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 $ git pull
 
 ```
