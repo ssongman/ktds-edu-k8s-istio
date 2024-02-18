@@ -1291,8 +1291,11 @@ http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage
 ```sh
 
 ## ingress 확인
+# 각자 자신의 namespace 명으로 호출테스트 한다.
 $ curl -s "http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
-
+$ curl -s "http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
+...
+$ curl -s "http://bookinfo.user19.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
 $ curl -s "http://bookinfo.user20.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
@@ -1308,21 +1311,18 @@ $ curl -s "http://bookinfo.user20.cloud.43.203.62.69.nip.io/productpage" | grep 
 ```sh
 
 # istio ingressgateway service 확인
-$ kii get svc
+$ kubectl -n istio-ingress get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TCP,80:32190/TCP,443:30919/TCP   74m
-
-NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TCP,80:32190/TCP,443:30919/TCP   2d4h
+istio-ingressgateway   LoadBalancer   10.43.5.202   <pending>     15021:31248/TCP,80:31164/TCP,443:30105/TCP   7h48m
 
 
 
 
-# 32190 node port 로 접근 가능
+# 31164 node port 로 접근 가능
 
 
-# master01 IP의 node port 로 접근 테스트
-$ curl http://10.128.0.35:32190/productpage -H "Host:bookinfo.user02.cloud.43.203.62.69.nip.io"  | grep -o "<title>.*</title>"
+# master01 IP(172.31.14.177) 의 node port 로 접근 테스트
+$ curl http://172.31.14.177:31164/productpage -H "Host:bookinfo.user02.cloud.43.203.62.69.nip.io"  | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>
 
@@ -1356,7 +1356,7 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 http://grafana.istio-system.cloud.43.203.62.69.nip.io/
 
-주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
+* 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
 ![image-20220602191900236](ServiceMesh.assets/monitoring-grafana.png)
 
@@ -1374,10 +1374,18 @@ http://grafana.istio-system.cloud.43.203.62.69.nip.io/
 
 http://kiali.istio-system.cloud.43.203.62.69.nip.io
 
+* 주로 보닌 대쉬보드 : Graph
+  * Namespace 선택
+  * Display
+    * Traffic Distribution : check
+    * Traffic Rate : check
+    * Traffic Anymation : check
+
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
-* traffic-animation
 * replay
+  * 과거 기가동안의 트래픽 흐름을 검토 할 수 있음
+
 
 
 
@@ -2192,7 +2200,9 @@ istio 는 Connection pool 과   Load balancing pool 기반의 circuit breaking �
 
 
 
-Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPolicy.connectionPool` 스팩을 통해 *circuit breaking* 을 정의할 수 있으며 다음과 같이 2가지 유즈케이스를 가지고 있다.
+Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPolicy.connectionPool` 스팩을 통해 *circuit breaking* 을 정의할 수 있다.
+
+다음과 같이 2가지 유즈케이스를 살펴보자.
 
 - **첫번째**, Connection Max & Pending 수에 따른 *circuit break*
   - *service* 요청(upstream)에 대한 connection pool 을 정의한다.
@@ -2431,14 +2441,15 @@ Code 200 : 100 (100.0 %)
 
 
 - `-c 2` 옵션으로 동시 연결을 2로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 100회 모두 **200(정상)** 을 리턴 한다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 17회 발생했다.
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 100 (100.0 %)
+Code 200 : 83 (83.0 %)
+Code 503 : 17 (17.0 %)
 ...
 
 ```
@@ -2450,12 +2461,13 @@ Code 200 : 100 (100.0 %)
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
+$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 94 (94.0 %)
-Code 503 : 6 (6.0 %)
+Code 200 : 43 (43.0 %)
+Code 503 : 57 (57.0 %)
 ...
+
 
 ```
 
@@ -2464,39 +2476,38 @@ Code 503 : 6 (6.0 %)
 
 
 - `-c 5` 옵션으로 동시 연결을 5로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 10회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 74회 발생했다.
 
 ```sh
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 90 (90.0 %)
-Code 503 : 10 (10.0 %)
+Code 200 : 26 (26.0 %)
+Code 503 : 74 (74.0 %)
 ...
+
 
 ```
 
 
 
-
-
 - `-c 10` 옵션으로 동시 연결을 10로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 37회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 89회 발생했다.
 
 
 ```sh
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 63 (63.0 %)
-Code 503 : 37 (37.0 %)
+Code 200 : 11 (11.0 %)
+Code 503 : 89 (89.0 %)
 ...
 
 ```
 
 
 
-- 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시키면 응답코드가 모두 200(정상) 임을 확인할 수 있다.  즉, 서버에 부하가 걸리더라도 WEB 서버를 보호하지 못하고 모두 처리를 하고 있는 상태라고 해석할 수 있다.
+- 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시켜보자.
 
 ```sh
 $ cd ~/githubrepo/ktds-edu-k8s-istio
@@ -2504,7 +2515,6 @@ $ cd ~/githubrepo/ktds-edu-k8s-istio
 $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
 # kiali 에서 Circuit Braker Icon 이 사라진 것을 확인하자.
-
 
 
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
@@ -2515,12 +2525,14 @@ Code 200 : 100 (100.0 %)
 
 ```
 
+* 응답코드가 모두 200(정상) 임을 확인할 수 있다.  즉, 서버에 부하가 걸리더라도 WEB 서버를 보호하지 못하고 모두 처리를 하고 있는 상태라고 해석할 수 있다.
+
 
 
 #### 결론
 
 - istio 는 DestinationRule을 통해 *circuit break* 를 정의를 할 수 있다.
-- *k8s service* `httpbin` 에 *DestionationRule* `dr-httpbin` 을 정의하여 connections 의 volume 1개, ending valume 1개로 제한하였다.
+- *k8s service* `httpbin` 에 *DestionationRule* `dr-httpbin` 을 정의하여 connections=1, Pending=1로 제한하였다.
 - 1번 요청의 경우는 정상 요청처리 중이다.
 - 2번 요청이 발생 했을때 1번 요청 처리 중이라면 2번 요청은 pending 상태가 된다.
 - 1,2번 요청이 처리,pending 상태에서 3번 요청이 발생하게 된다면 설정에 따라 *circuit break* 가 발생하게 된다.
@@ -2547,7 +2559,7 @@ $ ku delete pod/fortio
 
 
 
-### (2) Load balancing pool의 인스턴스의 상태에 기반하는 *circuit break*
+### (2) Load balancing pool 기반 *circuit break*
 
 n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나 응답이 없는 인스턴스를 탐지하여 circuit break를 작동시키는 방법이다.
 
@@ -2638,11 +2650,6 @@ Hello server - v1
 Hello server - v2
 ...
 
-
-#
-#$ wihle true;do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
-
-
 ```
 
 
@@ -2673,7 +2680,7 @@ Hello server - v2
 
     - ```sh
       
-      $ ku exec -it curltest -- curl http://hello-svc:8080
+      $ ku exec -it curltest -- curl http://hello-svc:8080 -i
       
       ```
 
@@ -2823,7 +2830,7 @@ spec:
     outlierDetection:
       interval: 1s
       consecutive5xxErrors: 1
-      baseEjectionTime: 3m
+      baseEjectionTime: 2m
       maxEjectionPercent: 100
 
 
@@ -2908,7 +2915,7 @@ $ ku logs -f hello-server-2
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
-Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)  <-- 이지점에서 Circuit Breaker 에 의한 service Ejection 됨
 
 ```
 
@@ -2927,7 +2934,7 @@ kiali 의 모습은 아래와 같다.
 
 #### 결론
 
-- *k8s service* `hello-svc` 에 *DestionationRule* `hello-dr` 을 정의하여 오류가 발생하는 인스턴스를 배제(*circuit break*) 한다.
+- *k8s service* `hello-svc` 에 *DestionationRule* `hello-dr` 을 정의하여 오류가 발생하는 service 의 call 배제(*circuit break*) 한다.
 - 1초간격(interval: 1s)으로 응답여부를 탐지하고 연속으로 1회 에러(consecutiveErrors) 가 발생하면 3분간(baseEjectionTime: 3m) *circuit break* 한다.
 
 ![istio circuit breaking use-case 2](ServiceMesh.assets/istio-circuit-break-p2.png)
