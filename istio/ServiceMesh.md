@@ -987,17 +987,17 @@ status:
 
 - 실습자료 download
   - 실습자료는 이미 기존에 이미 받아 놓았으므로 생략한다.
-  - 만약 ~/githubrepo/ktds-edu-k8s-istio/  디렉토리가 없다면 아래를 참고하여 clone 하자.
+  - 만약 ~/user02/githubrepo/ktds-edu-k8s-istio/  디렉토리가 없다면 아래를 참고하여 clone 하자.
 
 
 ```sh
-$ mkdir ~/githubrepo
+$ mkdir ~/user02/githubrepo
 
-$ cd ~/githubrepo
+$ cd ~/user02/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 drwxr-xr-x 8 song song  4096 May 14 01:59 .git/
 -rw-r--r-- 1 song song 11357 May 14 01:59 LICENSE
 -rw-r--r-- 1 song song  2738 May 14 01:59 README.md
@@ -1014,7 +1014,7 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/11.bookinfo.yaml
 -rw-rw-r-- 1 ubuntu ubuntu 7974 Feb 18 07:00 ./istio/bookinfo/11.bookinfo.yaml
@@ -1145,7 +1145,7 @@ IP 는 AWS 의 Elastic IP 이므로 변경할 필요 없다.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 -rw-rw-r-- 1 ubuntu ubuntu 717 Feb 18 07:00 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
@@ -1229,7 +1229,7 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 
 
@@ -1416,7 +1416,7 @@ http://jaeger.istio-system.cloud.43.203.62.69.nip.io
 #### default destination rules
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 # 13.destination-rule-all.yaml 파일 확인
 $ cat ./istio/bookinfo/13.destination-rule-all.yaml
@@ -1520,7 +1520,7 @@ kiali 를 확인하면서 아래를 진행해보자.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1689,7 +1689,7 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 우선 모든 서비스가 reviews:v1 로만 흐르도록 변경한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1843,7 +1843,7 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 적절한 테스트를 위해서 바로 윗단계에서 테스트 한것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
@@ -1876,7 +1876,7 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 
@@ -1947,7 +1947,7 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 "Ratings service is currently unavailable" 라는 메세지가 나올것을 기대한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 
@@ -2015,7 +2015,7 @@ ratings 서비스를 call 했을때 500 error 비율을 50 으로 설정해 보�
 json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될 것이다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 
@@ -2173,7 +2173,7 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 ### (5) Clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 # alias 설정
 $ alias ku='kubectl -n user02'
@@ -2225,7 +2225,7 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 하는 테스트 App 이다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/11.httpbin-deploy-svc.yaml
 apiVersion: apps/v1
@@ -2289,7 +2289,7 @@ httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
 MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 설치한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/12.fortio-pod.yaml
 
@@ -2377,7 +2377,7 @@ Kiali 에서는 다음과 같이 조회된다.
 
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/httpbin/13.dr-httpbin.yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -2510,7 +2510,7 @@ Code 503 : 89 (89.0 %)
 - 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시켜보자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
@@ -2572,7 +2572,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 #### 테스트 POD 기동
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/11.hello-pod-svc.yaml
 apiVersion: v1
@@ -2817,7 +2817,7 @@ Hello server - v2 - 503 (random)
   
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./istio/hello/12.hello-dr.yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -2988,7 +2988,7 @@ $ ku get all
 ```sh
 $ alias ku='kubectl -n user02'
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 # 삭제
 $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml

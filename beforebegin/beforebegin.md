@@ -272,15 +272,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 실습 테스트를 위해서 실습 자료를 받아 놓자.
 
-이미 각자 VM에 해당 교육자료가  git clone 되어 있으므로 git pull 로 최신 데이터로 update 만 진행하자
-
-```sh
-
-# 최신 데이터를 한번 더 받는다.
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-$ git pull
-
-```
+이미 각자 VM에 해당 교육자료가  git clone 되어 있으므로 git pull 로 최신 데이터로 update 만 진행하자.
 
 
 
@@ -294,13 +286,24 @@ user02 대신 다신의 namespace 명으로 변경하여 수정한다.
 # 1) 교육자료를 clone 받는다.
 $ mkdir -p ~/user02/githubrepo
 $ cd ~/user02/githubrepo
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
+$ git clone -b 20240219_3p1t https://github.com/ssongman/ktds-edu-k8s-istio.git
+
+Cloning into 'ktds-edu-k8s-istio'...
+remote: Enumerating objects: 578, done.
+remote: Counting objects: 100% (205/205), done.
+remote: Compressing objects: 100% (142/142), done.
+remote: Total 578 (delta 116), reused 146 (delta 60), pack-reused 373
+Receiving objects: 100% (578/578), 3.90 MiB | 26.25 MiB/s, done.
+Resolving deltas: 100% (302/302), done.
+
+
 
 
 # 2) 확인
 $ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 $ ll
-drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
+drwxrwxr-x 6 ubuntu ubuntu 4096 Feb 18 23:17 ktds-edu-k8s-istio/
+
 
 
 # 3) 최신 데이터를 한번 더 받아야 하는 경우
@@ -321,10 +324,10 @@ $ git pull
 # < 만약 기 수정 파일이 존재하여 pull이 잘 안되는 경우는 삭제후 다시 clone >
 
 # 1) 모두 삭제
-$ rm -rf ~/githubrepo/ktds-edu-k8s-istio/
+$ rm -rf ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 # 2) git clone 수행
-$ cd ~/githubrepo
+$ cd ~/user02/githubrepo
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
 Cloning into 'ktds-edu-k8s-istio'...
 remote: Enumerating objects: 446, done.
@@ -335,10 +338,10 @@ Receiving objects: 100% (446/446), 3.86 MiB | 7.60 MiB/s, done.
 Resolving deltas: 100% (220/220), done.
 
 # 3) 확인
-$ ll ~/githubrepo
+$ ll ~/user02/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 ```
 

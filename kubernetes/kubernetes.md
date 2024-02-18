@@ -874,7 +874,7 @@ Deployment 가 Rolling update 와 rollback 등 Replicaset 을 관리한다.
 -  Manifest file 을 이용하여  deploy  해보자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./kubernetes/userlist/11.userlist-deployment.yaml
 apiVersion: apps/v1
@@ -1412,7 +1412,7 @@ spec:
 * manifest file 을 이용해서 Ingress 를 만들 수 있다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ cat ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
@@ -1596,7 +1596,7 @@ $ ku delete pod curltest
 
 
 # manifest file 실행시 삭제 방법
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
@@ -1742,7 +1742,7 @@ No resources found in yjsong namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio
 
 
 # deployment yaml 확인
@@ -1956,7 +1956,7 @@ traefic 이라는 Proxy tool 이 node port (30690, 80) 로 접근하여 routing 
 아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여  user01 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 
 $ ls -ltr ./kubernetes/userlist/
@@ -2019,7 +2019,7 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 - ingress 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 $ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 apiVersion: networking.k8s.io/v1
@@ -2102,7 +2102,7 @@ $ curl http://172.31.14.177:80/users/1 -H "Host:userlist.user02.cloud.43.203.62.
 ## 6) Clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+$ cd ~/user02/githubrepo/ktds-edu-k8s-istio/
 
 $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
