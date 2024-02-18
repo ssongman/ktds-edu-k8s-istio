@@ -239,13 +239,14 @@ $ git pull
 
 
 
-# 만약 pull일 잘안되는 경우는 아래처럼 
+# < 만약 기 수정 파일이 존재하여 pull이 잘 안되는 경우는 삭제후 다시 clone >
+
+# 1) 모두 삭제
 $ rm -rf ~/githubrepo/ktds-edu-k8s-istio/
 
-## git clone 수행
+# 2) git clone 수행
 $ cd ~/githubrepo
-
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
 Cloning into 'ktds-edu-k8s-istio'...
 remote: Enumerating objects: 446, done.
 remote: Counting objects: 100% (73/73), done.
@@ -254,11 +255,38 @@ remote: Total 446 (delta 34), reused 50 (delta 18), pack-reused 373
 Receiving objects: 100% (446/446), 3.86 MiB | 7.60 MiB/s, done.
 Resolving deltas: 100% (220/220), done.
 
-
+# 3) 확인
 $ ll ~/githubrepo
 drwxrwxr-x 7 ktdseduuser ktdseduuser 4096 May 13 17:36 ktds-edu-k8s-istio/
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio/
+
+
+```
+
+
+
+### [참고] git repo 초기화 방법
+
+수정된 파일이 존재하여 git pull 이 잘 안될때는 삭제후 다시 Clone 하는 방법도 있지만 
+
+내용이 많다거나 다른 사유로 인해 clone 작업이 힘들 경우 아래와 같은 명령어를 사용해도 된다.
+
+```sh
+
+
+# 1) 마지막 commit hash 값으로 reset 처리
+## 아직 staged 에 올라가지 않은 수정파일,  untracked file 까지 모두 사라진다.
+$ git reset --hard HEAD~
+
+
+
+# 2) untrackted file 을 초기화 해야 하는 경우
+$ git clean -f -d
+
+
+# 3) 파일단위로 restore 를 원할 경우
+$ git restore modified_file
 
 ```
 
