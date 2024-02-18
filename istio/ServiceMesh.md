@@ -1239,6 +1239,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: bookinfo-ingress-user02                         <-- 각자 NS명으로 변경 필요
+  namespace: istio-ingress
 spec:
   ingressClassName: traefik
   rules:
