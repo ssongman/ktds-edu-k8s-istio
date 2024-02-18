@@ -161,28 +161,30 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-|  이름  |       소속팀       | VM Server | VM  Server IP | Namespace | 비고 |
-| :----: | :----------------: | :-------: | :-----------: | :-------: | :--: |
-| 송양** | ICIS Tr 아키텍처팀 | bastion01 |               |  user01   |      |
-| 송양** | ICIS Tr 아키텍처팀 | bastion02 |               |  user02   |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
-|        |                    |           |               |           |      |
+| email               | VM  Server | VM  Server IP  | Namespace | 비고 |
+| ------------------- | ---------- | -------------- | --------- | ---- |
+| 강사1               | bastion01  | 43.202.56.89   | user01    |      |
+| 강사2               | bastion02  | 54.180.160.149 | user02    |      |
+| jinhoss.jang@kt.com | bastion03  | 43.201.58.161  | user03    |      |
+| ksyoo@kt.com        | bastion04  | 43.202.63.101  | user04    |      |
+| sj.park1203@kt.com  | bastion05  | 13.125.34.128  | user05    |      |
+| syno@kt.com         | bastion06  | 13.125.196.124 | user06    |      |
+| baejy@kt.com        | bastion07  | 13.125.108.5   | user07    |      |
+| inse.kim@kt.com     | bastion08  |                | user08    |      |
+| junyeong.yeo@kt.com | bastion09  |                | user09    |      |
+| zerois.park@kt.com  | bastion10  |                | user10    |      |
+| sg.kwon@kt.com      | bastion11  |                | user11    |      |
+| flying@kt.com       | bastion12  |                | user12    |      |
+| ye.park@kt.com      | bastion13  |                | user13    |      |
+| moongi.hong@kt.com  | bastion14  |                | user14    |      |
+| ishcho@kt.com       | bastion15  |                | user15    |      |
+| youbin.jeong@kt.com | bastion16  |                | user16    |      |
+| bottle.jang@kt.com  | bastion17  |                | user17    |      |
+| sally.park@kt.com   | bastion18  |                | user18    |      |
+| jiwon.baek@kt.com   | bastion19  |                | user19    |      |
+| edward.kang@kt.com  | bastion20  |                | user20    |      |
+| geonwo.lee@kt.com   | bastion21  |                | user21    |      |
+| leegy33@kt.com      | bastion22  |                | user22    |      |
 
 
 
@@ -209,7 +211,7 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Romote host
   - 개인별로 접근 주소가 다르므로 위 수강생별  VM  Server IP 주소를 확인하자.
-  - ex)  bastion03 : 35.247.230.92  (샘플)
+  - ex)  bastion02 : 54.180.160.149  (샘플)
 
 - User
   - Specify username 에 Check
@@ -288,5 +290,10 @@ $ git clean -f -d
 # 3) 파일단위로 restore 를 원할 경우
 $ git restore modified_file
 
+
+
+# 참고
+## commit log 확인
+$ git log --oneline -n10
 ```
 
