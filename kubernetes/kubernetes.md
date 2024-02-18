@@ -759,6 +759,29 @@ bastion02   Ready    control-plane,master   4m10s   v1.28.6+k3s2
 
 
 
+## 3) [참고] k3s 삭제
+
+아직 삭제 금지
+
+```sh
+# root 권한으로
+$ sudo -s
+
+## k3s 삭제
+$ sh /usr/local/bin/k3s-killall.sh
+  sh /usr/local/bin/k3s-uninstall.sh
+
+# 확인
+$ ps -ef|grep k3s
+
+# 사용자 권한으로
+$ eixt
+```
+
+
+
+
+
 # 4. [개인Cluster] Kubernetes 실습
 
 
@@ -1558,9 +1581,9 @@ http://userlist.54.180.160.149.nip.io/
 
 
 
-## 6) Clean up
+## [참고] Clean up
 
-### (1) 실습자료 삭제
+실습자료 는 아직 삭제 하지 말자.
 
 ```sh
 
@@ -1579,27 +1602,6 @@ $ ku delete pod curltest
   ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
   ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
   ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
-```
-
-
-
-### (2) [참고] k3s 삭제
-
-아직 삭제 하지 말자.
-
-```sh
-# root 권한으로
-$ sudo -s
-
-## k3s 삭제
-$ sh /usr/local/bin/k3s-killall.sh
-  sh /usr/local/bin/k3s-uninstall.sh
-
-# 확인
-$ ps -ef|grep k3s
-
-# 사용자 권한으로
-$ eixt
 ```
 
 
@@ -1633,13 +1635,13 @@ $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
 
 # Cluste 설정변경 확인 확인
 $ kubectl get nodes
-NAME          STATUS     ROLES                       AGE     VERSION
-master01.c1   Ready      control-plane,etcd,master   6h16m   v1.28.6+k3s2
-master02.c1   Ready      control-plane,etcd,master   6h13m   v1.28.6+k3s2
-master03.c1   Ready      control-plane,etcd,master   6h13m   v1.28.6+k3s2
-worker01.c1   Ready      <none>                      4h19m   v1.28.6+k3s2
-worker02.c1   NotReady   <none>                      3h55m   v1.28.6+k3s2
-worker03.c1   Ready      <none>                      3h55m   v1.28.6+k3s2
+NAME          STATUS   ROLES                       AGE     VERSION
+master01.c1   Ready    control-plane,etcd,master   7h44m   v1.28.6+k3s2
+master02.c1   Ready    control-plane,etcd,master   7h41m   v1.28.6+k3s2
+master03.c1   Ready    control-plane,etcd,master   7h40m   v1.28.6+k3s2
+worker01.c1   Ready    worker                      5h46m   v1.28.6+k3s2
+worker02.c1   Ready    worker                      5h22m   v1.28.6+k3s2
+worker03.c1   Ready    worker                      5h22m   v1.28.6+k3s2
 
 # <-- 6개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
 
@@ -2002,9 +2004,10 @@ user01을 자신의 Namespace 명으로 변경하자.
  예를 들어 아래 hostname 으로 상관없다. 다른 사용자들과 겹치지만 않게 하자.
 
 ```
-userlist.yjsong.cloud.35.209.207.26.nip.io
-userlist.user07.cloud.35.209.207.26.nip.io
-userlist.songyangjong.cloud.35.209.207.26.nip.io
+userlist.user02.cloud.43.203.62.69.nip.io
+userlist.user07.cloud.43.203.62.69.nip.io
+userlist.yjsong.cloud.43.203.62.69.nip.io
+userlist.songyangjong.cloud.43.203.62.69.nip.io
 ```
 
 이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
@@ -2027,7 +2030,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user02.cloud.35.209.207.26.nip.io"
+  - host: "userlist.user02.cloud.43.203.62.69.nip.io"
     http:
       paths:
       - path: /
@@ -2043,7 +2046,7 @@ $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
 NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.user02.cloud.35.209.207.26.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
+userlist-ingress   <none>   userlist.user02.cloud.43.203.62.69.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
 
 ```
 
@@ -2054,17 +2057,27 @@ userlist-ingress   <none>   userlist.user02.cloud.35.209.207.26.nip.io   10.128.
 ```sh
 
 # 1) 부여한 host 로 접근시도
-$ curl http://userlist.user02.cloud.35.209.207.26.nip.io/users/1
+$ curl http://userlist.user02.cloud.43.203.62.69.nip.io/users/1
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 
-
 # 2) traefik node port 로 접근시도
-# node 중 하나를 골라서 시도하자.  (master01_IP : 10.128.0.35)
 
-$ curl http://10.128.0.35:31353/users/1 -H "Host:userlist.user02.cloud.35.209.207.26.nip.io"
-{"id":1,"name":"Hester Yost","gender":"F","image":"/assets/image/cat1.jpg"}
+$ kubectl -n kube-system get svc
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                           PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                                53/UDP,53/TCP,9153/TCP       6h43m
+metrics-server   ClusterIP      10.43.69.213    <none>                                                                443/TCP                      6h43m
+traefik          LoadBalancer   10.43.132.140   172.31.12.206,172.31.13.98,172.31.14.177,172.31.15.159,172.31.8.197   80:30690/TCP,443:32318/TCP   6h43m
+
+# node 중 하나를 골라서 시도하자.  (master01_IP : 172.31.14.177)
+
+
+$ curl http://172.31.14.177:30690/users/1 -H "Host:userlist.user02.cloud.43.203.62.69.nip.io"
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
+
+$ curl http://172.31.14.177:80/users/1 -H "Host:userlist.user02.cloud.43.203.62.69.nip.io"
+{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
 
@@ -2079,6 +2092,8 @@ $ curl http://10.128.0.35:31353/users/1 -H "Host:userlist.user02.cloud.35.209.20
 
 
 - 크롬 브라우저에서 확인
+  - 주소 : userlist.user02.cloud.43.203.62.69.nip.io
+
 
 ![image-20230825222739086](kubernetes.assets/image-20230825222739086.png)
 

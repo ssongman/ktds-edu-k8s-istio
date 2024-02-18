@@ -121,7 +121,7 @@ Istio는 서비스 코드 변경이 거의 또는 전혀 없이 로드 밸런싱
 
 
 
-## 1) 개인 VM 접속 설정
+## 1) 개인 VM 접속 설정 - ★★★
 
 개인 VM Cluster에 접속할 수 있도록 설정 한다.
 
@@ -176,12 +176,12 @@ helm client 를 local 에 설치해 보자.
 ```sh
 
 # root 권한으로 수행
-$ su
+$ sudo -s
 
 
 ## 임시 디렉토리를 하나 만들자.
-$ mkdir -p ~/helm/
-$ cd ~/helm/
+$ mkdir -p ~/temp/helm/
+  cd ~/temp/helm/
 
 # 다운로드
 $ wget https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz
@@ -241,17 +241,17 @@ bitnami/cassandra                               10.2.2          4.1.1           
 $ helm -n user02 install nginx bitnami/nginx
 
 $ ku get all
-NAME                         READY   STATUS              RESTARTS   AGE
-pod/nginx-68c669f78d-wgnp4   0/1     ContainerCreating   0          10s
+NAME                        READY   STATUS    RESTARTS   AGE
+pod/nginx-6ddf75599-nnv99   1/1     Running   0          58s
 
-NAME            TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)        AGE
-service/nginx   LoadBalancer   10.43.197.4   <pending>     80:32754/TCP   10s
+NAME            TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+service/nginx   LoadBalancer   10.43.49.128   <pending>     80:30587/TCP   58s
 
 NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/nginx   0/1     1            0           10s
+deployment.apps/nginx   1/1     1            1           58s
 
-NAME                               DESIRED   CURRENT   READY   AGE
-replicaset.apps/nginx-68c669f78d   1         1         0       10s
+NAME                              DESIRED   CURRENT   READY   AGE
+
 
 # 간단하게 nginx 에 관련된 deployment / service / pod 들이 설치되었다.
 
@@ -303,8 +303,25 @@ istio/istiod                            1.17.2          1.17.2          Helm cha
 istio/base                              1.17.2          1.17.2          Helm chart for deploying Istio cluster resource...
 istio/cni                               1.17.2          1.17.2          Helm chart for istio-cni components
 istio/gateway                           1.17.2          1.17.2          Helm chart for deploying Istio gateways
+---
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
+istio/istiod                            1.20.2          1.20.2          Helm chart for istio control plane
+istio/base                              1.20.2          1.20.2          Helm chart for deploying Istio cluster resource...
+istio/cni                               1.20.2          1.20.2          Helm chart for istio-cni components
+istio/gateway                           1.20.2          1.20.2          Helm chart for deploying Istio gateways
+istio/ztunnel                           1.20.2          1.20.2          Helm chart for istio ztunnel components
+# 2024.02.09
+---
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
+istio/istiod                            1.20.3          1.20.3          Helm chart for istio control plane
+istio/base                              1.20.3          1.20.3          Helm chart for deploying Istio cluster resource...
+istio/cni                               1.20.3          1.20.3          Helm chart for istio-cni components
+istio/gateway                           1.20.3          1.20.3          Helm chart for deploying Istio gateways
+istio/ztunnel                           1.20.3          1.20.3          Helm chart for istio ztunnel components
+# 2024.02.18
 
-# 이렇게 조회되면 성공
 ```
 
 
@@ -323,8 +340,9 @@ $ kubectl create namespace istio-system
 ```sh
 # istio-base 설치
 $ helm -n istio-system install istio-base istio/base
+
 NAME: istio-base
-LAST DEPLOYED: Fri Aug 25 14:10:34 2023
+LAST DEPLOYED: Sun Feb 18 09:08:51 2024
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
@@ -346,33 +364,45 @@ $ helm -n istio-system get all istio-base
 # CRD 확인(istio 를 포함한 각종 CRD 를 확인할 수 있다.)
 $ kubectl get crd
 NAME                                       CREATED AT
-addons.k3s.cattle.io                       2023-05-13T18:39:00Z
-helmcharts.helm.cattle.io                  2023-05-13T18:39:00Z
-helmchartconfigs.helm.cattle.io            2023-05-13T18:39:00Z
-serverstransports.traefik.containo.us      2023-05-13T18:39:39Z
-middlewaretcps.traefik.containo.us         2023-05-13T18:39:39Z
-tlsstores.traefik.containo.us              2023-05-13T18:39:39Z
-tlsoptions.traefik.containo.us             2023-05-13T18:39:39Z
-ingressroutes.traefik.containo.us          2023-05-13T18:39:39Z
-ingressroutetcps.traefik.containo.us       2023-05-13T18:39:39Z
-traefikservices.traefik.containo.us        2023-05-13T18:39:39Z
-ingressrouteudps.traefik.containo.us       2023-05-13T18:39:39Z
-middlewares.traefik.containo.us            2023-05-13T18:39:39Z
-proxyconfigs.networking.istio.io           2023-05-14T04:48:19Z
-peerauthentications.security.istio.io      2023-05-14T04:48:19Z
-wasmplugins.extensions.istio.io            2023-05-14T04:48:19Z
-workloadgroups.networking.istio.io         2023-05-14T04:48:19Z
-gateways.networking.istio.io               2023-05-14T04:48:19Z
-requestauthentications.security.istio.io   2023-05-14T04:48:19Z
-serviceentries.networking.istio.io         2023-05-14T04:48:19Z
-authorizationpolicies.security.istio.io    2023-05-14T04:48:19Z
-workloadentries.networking.istio.io        2023-05-14T04:48:19Z
-telemetries.telemetry.istio.io             2023-05-14T04:48:19Z
-virtualservices.networking.istio.io        2023-05-14T04:48:19Z
-sidecars.networking.istio.io               2023-05-14T04:48:19Z
-envoyfilters.networking.istio.io           2023-05-14T04:48:19Z
-destinationrules.networking.istio.io       2023-05-14T04:48:19Z
-istiooperators.install.istio.io            2023-05-14T04:48:19Z
+addons.k3s.cattle.io                       2024-02-18T06:52:21Z
+etcdsnapshotfiles.k3s.cattle.io            2024-02-18T06:52:21Z
+helmcharts.helm.cattle.io                  2024-02-18T06:52:21Z
+helmchartconfigs.helm.cattle.io            2024-02-18T06:52:21Z
+traefikservices.traefik.containo.us        2024-02-18T06:52:51Z
+traefikservices.traefik.io                 2024-02-18T06:52:51Z
+middlewaretcps.traefik.io                  2024-02-18T06:52:51Z
+middlewares.traefik.io                     2024-02-18T06:52:51Z
+ingressroutes.traefik.containo.us          2024-02-18T06:52:51Z
+ingressroutetcps.traefik.containo.us       2024-02-18T06:52:51Z
+serverstransporttcps.traefik.io            2024-02-18T06:52:51Z
+ingressrouteudps.traefik.io                2024-02-18T06:52:51Z
+ingressrouteudps.traefik.containo.us       2024-02-18T06:52:51Z
+ingressroutetcps.traefik.io                2024-02-18T06:52:51Z
+tlsoptions.traefik.io                      2024-02-18T06:52:51Z
+serverstransports.traefik.io               2024-02-18T06:52:51Z
+ingressroutes.traefik.io                   2024-02-18T06:52:51Z
+tlsstores.traefik.containo.us              2024-02-18T06:52:51Z
+serverstransports.traefik.containo.us      2024-02-18T06:52:51Z
+tlsstores.traefik.io                       2024-02-18T06:52:51Z
+tlsoptions.traefik.containo.us             2024-02-18T06:52:51Z
+middlewaretcps.traefik.containo.us         2024-02-18T06:52:51Z
+middlewares.traefik.containo.us            2024-02-18T06:52:51Z
+sidecars.networking.istio.io               2024-02-18T09:08:48Z
+telemetries.telemetry.istio.io             2024-02-18T09:08:48Z
+peerauthentications.security.istio.io      2024-02-18T09:08:48Z
+requestauthentications.security.istio.io   2024-02-18T09:08:48Z
+authorizationpolicies.security.istio.io    2024-02-18T09:08:48Z
+destinationrules.networking.istio.io       2024-02-18T09:08:48Z
+wasmplugins.extensions.istio.io            2024-02-18T09:08:48Z
+workloadentries.networking.istio.io        2024-02-18T09:08:48Z
+virtualservices.networking.istio.io        2024-02-18T09:08:48Z
+envoyfilters.networking.istio.io           2024-02-18T09:08:48Z
+serviceentries.networking.istio.io         2024-02-18T09:08:48Z
+proxyconfigs.networking.istio.io           2024-02-18T09:08:48Z
+workloadgroups.networking.istio.io         2024-02-18T09:08:48Z
+gateways.networking.istio.io               2024-02-18T09:08:48Z
+istiooperators.install.istio.io            2024-02-18T09:08:48Z
+
 
 
 # istio 관련crd 가 존재한다면 정상 설치 된 것이다.
@@ -433,21 +463,24 @@ $ helm -n istio-system get all istio-istiod
 ## 확인
 $ kubectl -n istio-system get all
 NAME                         READY   STATUS    RESTARTS   AGE
-pod/istiod-649d466b9-66rkx   1/1     Running   0          3m11s
+pod/istiod-bc4584967-qnr58   1/1     Running   0          32s
 
-NAME             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                 AGE
-service/istiod   ClusterIP   10.43.92.167   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   3m11s
+NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                                 AGE
+service/istiod   ClusterIP   10.43.33.75   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   32s
 
 NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istiod   1/1     1            1           3m12s
+deployment.apps/istiod   1/1     1            1           33s
 
 NAME                               DESIRED   CURRENT   READY   AGE
-replicaset.apps/istiod-649d466b9   1         1         1       3m12s
+replicaset.apps/istiod-bc4584967   1         1         1       33s
 
-NAME                                         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1         5         1          3m12s
+NAME                                         REFERENCE           TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   <unknown>/80%   1         5         1          33s
+
 
 ```
+
+
 
 ### [참고] repo 설치 실패시
 
@@ -493,38 +526,29 @@ $ helm -n istio-ingress install istio-ingressgateway istio/gateway
 
 
 $ kubectl -n istio-ingress get all
-NAME                                        READY   STATUS    RESTARTS   AGE
-pod/istio-ingressgateway-7f675b6684-qzq8t   1/1     Running   0          20s
+NAME                                       READY   STATUS              RESTARTS   AGE
+pod/istio-ingressgateway-9cc99c9db-vrqvn   0/1     ContainerCreating   0          5s
 
 NAME                           TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-service/istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   21s
+service/istio-ingressgateway   LoadBalancer   10.43.6.103   <pending>     15021:30444/TCP,80:32135/TCP,443:30322/TCP   5s
 
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istio-ingressgateway   1/1     1            1           21s
+deployment.apps/istio-ingressgateway   0/1     1            0           5s
 
-NAME                                              DESIRED   CURRENT   READY   AGE
-replicaset.apps/istio-ingressgateway-7f675b6684   1         1         1       21s
+NAME                                             DESIRED   CURRENT   READY   AGE
+replicaset.apps/istio-ingressgateway-9cc99c9db   1         1         0       5s
 
 NAME                                                       REFERENCE                         TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         5         1          21s
-
-# istio version 1.14 에서 현재 1.17.2로 버전업되면서 DaemonSet 이 사라졌다.
-# traefik 과 충돌나는 현상도 사라졌다.
+horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         5         0          5s
 
 
-$ alias kii='kubectl -n istio-ingress'
 
-
-$ kii get svc
+$ kubectl -n istio-ingress get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   90s
-
-NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.14.235   <pending>     15021:31638/TCP,80:30422/TCP,443:30044/TCP   92s
+istio-ingressgateway   LoadBalancer   10.43.6.103   <pending>     15021:30444/TCP,80:32135/TCP,443:30322/TCP   56s
 
 
-
-31166 / 32560 nodeport 로 접근 가능
+32135 / 30322 nodeport 로 접근 가능
 
 
 ```
@@ -533,7 +557,7 @@ istio-ingressgateway   LoadBalancer   10.43.14.235   <pending>     15021:31638/T
 
 
 
-### (6) clean up
+### [참고] clean up
 
 모든 테스트를 마치고 istio를 최종 삭제할때는 아래 명령으로 삭제 하자.
 
@@ -558,6 +582,10 @@ $ helm -n istio-ingress ls
 
 ## 4) sample app sidecar inject
 
+특정 POD 에 sidecar 를 inject 하는 방법에 대해서 알아보자.
+
+
+
 
 
 ### (1) userlist pod 실행
@@ -569,8 +597,9 @@ $ alias ku='kubectl -n user02'
 
 # userlist pod 확인
 $ ku get pod
-NAME                        READY   STATUS    RESTARTS   AGE
-userlist-75c7d7dfd7-7tf7g   1/1     Running   0          6s
+NAME                       READY   STATUS    RESTARTS   AGE
+userlist-8d74d58d8-spffl   1/1     Running   0          2m25s
+
 
 
 # 존재하지 않는다면 아래명령으로 실행
@@ -613,17 +642,16 @@ $ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-08-25T14:14:46Z"
+  creationTimestamp: "2024-02-18T06:57:00Z"
   labels:                                     <-- labels 확인(istio label 이 없다.)
     kubernetes.io/metadata.name: user02
   name: user02
-  resourceVersion: "33275"
-  uid: 09a9330e-e4b9-4a6d-8edc-b123aa9296a1
+  resourceVersion: "740"
+  uid: aa9d25cd-4a3c-4785-81d9-17ff35049365
 spec:
   finalizers:
   - kubernetes
 status:
-  phase: Active
 ---
 
 
@@ -635,24 +663,22 @@ namespace/user02 labeled
 
 # 적용후 확인
 $ kubectl get ns user02 -o yaml
----
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-08-25T14:14:46Z"
+  creationTimestamp: "2024-02-18T06:57:00Z"
   labels:
     istio-injection: enabled                    <-- istio label 이 잘 추가되었다.
     kubernetes.io/metadata.name: user02
   name: user02
-  resourceVersion: "33389"
-  uid: 09a9330e-e4b9-4a6d-8edc-b123aa9296a1
+  resourceVersion: "4553"
+  uid: aa9d25cd-4a3c-4785-81d9-17ff35049365
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
 ---
-
 ```
 
 
@@ -669,48 +695,47 @@ status:
 # 확인
 $ ku get pod
 NAME                       READY   STATUS    RESTARTS   AGE
-userlist-6bfcd9456d-7dm8l   1/1     Running   0          2m18s
-
-
+userlist-8d74d58d8-spffl   1/1     Running   0          2m25s
 
 
 # pod 재기동(삭제)
-$ ku delete pod userlist-6bfcd9456d-7dm8l
-pod "userlist-6bfcd9456d-7dm8l" deleted
+$ ku delete pod userlist-8d74d58d8-spffl
+pod "userlist-8d74d58d8-spffl" deleted
+
 
 ## pod 삭제는 graceful 방식으로 삭제되므로 약간의 시간이 필요하다.
 
 # 확인
 $ ku get pod
-NAME                        READY   STATUS    RESTARTS   AGE
-userlist-6bfcd9456d-mrtmz   2/2     Running   0          47s
+NAME                       READY   STATUS    RESTARTS   AGE
+userlist-8d74d58d8-5j4jg   2/2     Running   0          33s
+
 
 
 # istio sidecar 가 포함되어 2개의 container 가 되었다.
 
 
 # describe 로 확인
-$ ku describe pod userlist-6bfcd9456d-mrtmz 
+$ ku describe pod userlist-8d74d58d8-5j4jg
 ...
-
 Containers:
   userlist:
-    Container ID:   containerd://74fedd66c86b89df8d2f9dc05d1e48aa2e5bc2925ebe66b62e4956f77b84582d
+    Container ID:   containerd://d1cc40a908feaf4baf9e51d6d4eb9f55e9adb305cddf8c1d9d5ee3b57cd53afd
     Image:          ssongman/userlist:v1
     Image ID:       docker.io/ssongman/userlist@sha256:74f32a7b4bab2c77bf98f2717fed49e034756d541e536316bba151e5830df0dc
     Port:           <none>
     Host Port:      <none>
     State:          Running
-      Started:      Fri, 25 Aug 2023 14:17:24 +0000
+      Started:      Sun, 18 Feb 2024 09:29:58 +0000
     Ready:          True
     Restart Count:  0
     Environment:    <none>
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-db7qg (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zhkvp (ro)
   istio-proxy:
-    Container ID:  containerd://cdda45b0378489cb61e1c99173c5fc4a5b4805868c9e298ff7e652fbf2cc1503
-    Image:         docker.io/istio/proxyv2:1.18.2
-    Image ID:      docker.io/istio/proxyv2@sha256:b71f2657e038a0d6092dfd954050a2783c7887ff8e72f77ce64840c0c39b076e
+    Container ID:  containerd://579f37df58ee9c684574d71c91aaf860083e23b37dab98558f9441e1c5d0a606
+    Image:         docker.io/istio/proxyv2:1.20.3
+    Image ID:      docker.io/istio/proxyv2@sha256:18163bd4fdb641bdff1489e124a0b9f1059bb2cec9c8229161b73517db97c05a
     Port:          15090/TCP
     Host Port:     0/TCP
     Args:
@@ -722,7 +747,7 @@ Containers:
       --proxyComponentLogLevel=misc:error
       --log_output_level=default:info
     State:          Running
-      Started:      Fri, 25 Aug 2023 14:17:24 +0000
+      Started:      Sun, 18 Feb 2024 09:29:58 +0000
     Ready:          True
     Restart Count:  0
     Limits:
@@ -731,8 +756,6 @@ Containers:
     Requests:
       cpu:      100m
       memory:   128Mi
-
-
 
 ```
 
@@ -769,7 +792,7 @@ $ kubectl get ns user02 -o yaml
 
 
 
-## 1) ktdsEduCluster 접속 설정 변경 - ★
+## 1) ktdsEduCluster 접속 설정 변경 - ★★★
 
 EduCluster 에 접속할 수 있는 접속정보 파일로 설정 변경 작업을 수행한다.
 
@@ -778,23 +801,23 @@ EduCluster 에 접속할 수 있는 접속정보 파일로 설정 변경 작업�
 ```sh
 
 # ktdsEduCluster 접속하도록 설정 변경
-$ export KUBECONFIG="${HOME}/githubrepo/ktds-edu-k8s-istio/kubernetes/config/config-ktdseducluster"
+$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
 
 
 # Cluste 확인
 $ kubectl get nodes
-NAME                STATUS   ROLES                       AGE   VERSION
-ktds-k3s-master01   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
-ktds-k3s-master02   Ready    control-plane,etcd,master   97d   v1.26.4+k3s1
-ktds-k3s-master03   Ready    control-plane,etcd,master   83d   v1.26.5+k3s1
-ktds-k3s-worker01   Ready    <none>                      97d   v1.26.4+k3s1
-ktds-k3s-worker02   Ready    <none>                      83d   v1.26.5+k3s1
-ktds-k3s-worker03   Ready    <none>                      83d   v1.26.5+k3s1
+NAME          STATUS   ROLES                       AGE     VERSION
+master01.c1   Ready    control-plane,etcd,master   7h44m   v1.28.6+k3s2
+master02.c1   Ready    control-plane,etcd,master   7h41m   v1.28.6+k3s2
+master03.c1   Ready    control-plane,etcd,master   7h40m   v1.28.6+k3s2
+worker01.c1   Ready    worker                      5h46m   v1.28.6+k3s2
+worker02.c1   Ready    worker                      5h22m   v1.28.6+k3s2
+worker03.c1   Ready    worker                      5h22m   v1.28.6+k3s2
+
 
 
 # 자신 Namespace alias 설정
 $ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
-
 
 
 ```
@@ -918,17 +941,18 @@ $ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-08-25T10:15:54Z"
+  creationTimestamp: "2024-02-18T08:21:00Z"
   labels:
     kubernetes.io/metadata.name: user02
   name: user02
-  resourceVersion: "5893422"
-  uid: 9bf4f81a-0fb4-4fe2-af4d-87fb0d073df0
+  resourceVersion: "98957"
+  uid: 02d09df1-ac89-40e5-b0fb-36ade0087989
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
+
 
 
 
@@ -942,19 +966,19 @@ $ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-08-25T10:15:54Z"
+  creationTimestamp: "2024-02-18T08:21:00Z"
   labels:
     istio-injection: enabled              <-- 설정 완료
     kubernetes.io/metadata.name: user02
   name: user02
-  resourceVersion: "6449390"
-  uid: 9bf4f81a-0fb4-4fe2-af4d-87fb0d073df0
+  resourceVersion: "122074"
+  uid: 02d09df1-ac89-40e5-b0fb-36ade0087989
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
-
+---
 ```
 
 
@@ -993,7 +1017,8 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/11.bookinfo.yaml
--rw-rw-r-- 1 ktdseduuser ktdseduuser 7974 Aug 26 02:43 ./istio/bookinfo/11.bookinfo.yaml
+-rw-rw-r-- 1 ubuntu ubuntu 7974 Feb 18 07:00 ./istio/bookinfo/11.bookinfo.yaml
+
 
 
 # 4개의 마이크로서비스들에 대한 생성 yaml 확인
@@ -1059,16 +1084,19 @@ reviews       ClusterIP   10.43.30.168    <none>        9080/TCP   88s
 # 1. ratings app pod 확인
 $ ku get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
-ratings-v1-6fb94bb7cd-tdcdc   2/2     Running   0          4m11s
-ratings-v1-6fb94bb7cd-cwxvd   2/2     Running   0          27s
+ratings-v1-5bf485ffc8-tnm5t   2/2     Running   0          42m
 
-ratings-v1-6fb94bb7cd-bgdtt   2/2     Running   0          17s
 
+$ ku describe pod -l app=ratings
+...
+Containers:
+  ratings:
+  istio-proxy:
+...
 
 
 # 2. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-cwxvd -c ratings -- curl -sS productpage:9080/productpage
-$ ku exec ratings-v1-6fb94bb7cd-bgdtt -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec ratings-v1-5bf485ffc8-tnm5t -c ratings -- curl -sS productpage:9080/productpage
 
 
 
@@ -1086,13 +1114,15 @@ $ ku exec ratings-v1-6fb94bb7cd-bgdtt -c ratings -- curl -sS productpage:9080/pr
 
 
 # 3. rating 에서 productpage call 확인
-$ ku exec ratings-v1-6fb94bb7cd-bgdtt -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ ku exec ratings-v1-5bf485ffc8-tnm5t -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
 ```
 
 
+
+#### [참고] 
 
 위 작업을 한개의 명령으로 확인 할 수 있다.
 
@@ -1116,7 +1146,8 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
--rw-rw-r-- 1 ktdseduuser ktdseduuser 717 Aug 26 02:43 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+-rw-rw-r-- 1 ubuntu ubuntu 717 Feb 18 07:00 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+
 
 
 
@@ -1144,7 +1175,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user02.cloud.35.209.207.26.nip.io"    # 각자 Namespace명으로 변경 필요
+  - "bookinfo.user02.cloud.43.203.62.69.nip.io"    # 각자 Namespace명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1181,7 +1212,7 @@ bookinfo-gateway   4s
 
 $ ku get vs
 NAME       GATEWAYS               HOSTS                                            AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.35.209.207.26.nip.io"]   11s
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.43.203.62.69.nip.io"]   11s
 
 
 ```
@@ -1209,7 +1240,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "bookinfo.user02.cloud.35.209.207.26.nip.io"   <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.user02.cloud.43.203.62.69.nip.io"   <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1233,7 +1264,7 @@ $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 $ kubectl -n istio-ingress get ingress
 NAME                      CLASS     HOSTS                                        ADDRESS                                                                 PORTS   AGE
-bookinfo-ingress-user02   traefik   bookinfo.user02.cloud.35.209.207.26.nip.io   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80      4s
+bookinfo-ingress-user02   traefik   bookinfo.user02.cloud.43.203.62.69.nip.io   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80      4s
 
 
 ```
@@ -1243,7 +1274,7 @@ bookinfo-ingress-user02   traefik   bookinfo.user02.cloud.35.209.207.26.nip.io  
 #### browser 에서 확인
 
 ```
-http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
+http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage
 ```
 
 
@@ -1257,9 +1288,9 @@ http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
 ```sh
 
 ## ingress 확인
-$ curl -s "http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
+$ curl -s "http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
 
-$ curl -s "http://bookinfo.user20.cloud.35.209.207.26.nip.io/productpage" | grep -o "<title>.*</title>"
+$ curl -s "http://bookinfo.user20.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
 
@@ -1288,7 +1319,7 @@ istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TC
 
 
 # master01 IP의 node port 로 접근 테스트
-$ curl http://10.128.0.35:32190/productpage -H "Host:bookinfo.user02.cloud.35.209.207.26.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://10.128.0.35:32190/productpage -H "Host:bookinfo.user02.cloud.43.203.62.69.nip.io"  | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>
 
@@ -1302,7 +1333,7 @@ $ curl http://10.128.0.35:32190/productpage -H "Host:bookinfo.user02.cloud.35.20
 #### 초당 0.5회 call 
 
 ```sh
-$ while true; do curl -s http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1320,7 +1351,7 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 ### (1) Grafana
 
-http://grafana.istio-system.cloud.35.209.207.26.nip.io/
+http://grafana.istio-system.cloud.43.203.62.69.nip.io/
 
 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
@@ -1329,16 +1360,16 @@ http://grafana.istio-system.cloud.35.209.207.26.nip.io/
 
 
 * Mesh-Dashboard
-  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+  * http://grafana.istio-system.cloud.43.203.62.69.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
 
 * Service Dashboard
-  * http://grafana.istio-system.cloud.35.209.207.26.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user02.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
+  * http://grafana.istio-system.cloud.43.203.62.69.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user02.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
 
 
 
 ### (2) Kiali
 
-http://kiali.istio-system.cloud.35.209.207.26.nip.io
+http://kiali.istio-system.cloud.43.203.62.69.nip.io
 
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
@@ -1353,7 +1384,7 @@ http://kiali.istio-system.cloud.35.209.207.26.nip.io
 
 ### (3) Jaeger
 
-http://jaeger.istio-system.cloud.35.209.207.26.nip.io
+http://jaeger.istio-system.cloud.43.203.62.69.nip.io
 
 ![img](ServiceMesh.assets/monitoring-jaeger.png)
 
@@ -1456,7 +1487,7 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 #### 초당 0.5회 call
 
 ```sh
-$ while true; do curl -s http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1750,7 +1781,7 @@ $ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
 browser 에서 jason 으로 로그인 한다음 접근해보자. 
 
-http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
+http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage
 
 
 
@@ -2001,7 +2032,7 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 ```
 
 * UI 에서 확인
-  * http://bookinfo.user02.cloud.35.209.207.26.nip.io/productpage
+  * http://bookinfo.user02.cloud.43.203.62.69.nip.io/productpage
 
 
 
@@ -2060,7 +2091,7 @@ HTTP/1.1 200 OK
 kiali 에서도 쉽게 조정이 가능하다.
 
 * 메뉴 : graph > Rating > Detail > VS 선택
-  * 링크 : http://kiali.istio-system.cloud.35.209.207.26.nip.io/kiali/console/namespaces/user02/istio/virtualservices/ratings
+  * 링크 : http://kiali.istio-system.cloud.43.203.62.69.nip.io/kiali/console/namespaces/user02/istio/virtualservices/ratings
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
