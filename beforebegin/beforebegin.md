@@ -161,30 +161,30 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-| 이름   | email                                             | Namespace | VM  Server | VM  Server IP  | 비고 |
-| ------ | ------------------------------------------------- | --------- | ---------- | -------------- | ---- |
-| 송양종 | 강사1                                             | user01    | bastion01  | 43.202.56.89   |      |
-| 송양종 | 강사2                                             | user02    | bastion02  | 54.180.160.149 |      |
-| 장진호 | [jinhoss.jang@kt.com](mailto:jinhoss.jang@kt.com) | user03    | bastion03  | 43.201.58.161  |      |
-| 유광선 | [ksyoo@kt.com](mailto:ksyoo@kt.com)               | user04    | bastion04  | 43.202.63.101  |      |
-| 박성준 | [sj.park1203@kt.com](mailto:sj.park1203@kt.com)   | user05    | bastion05  | 13.125.34.128  |      |
-| 노수윤 | [syno@kt.com](mailto:syno@kt.com)                 | user06    | bastion06  | 13.125.196.124 |      |
-| 배진용 | [baejy@kt.com](mailto:baejy@kt.com)               | user07    | bastion07  | 13.125.108.5   |      |
-| 김인세 | [inse.kim@kt.com](mailto:inse.kim@kt.com)         | user08    | bastion08  |                |      |
-| 여준영 | [junyeong.yeo@kt.com](mailto:junyeong.yeo@kt.com) | user09    | bastion09  |                |      |
-| 박영은 | [zerois.park@kt.com](mailto:zerois.park@kt.com)   | user10    | bastion10  |                |      |
-| 권성광 | [sg.kwon@kt.com](mailto:sg.kwon@kt.com)           | user11    | bastion11  |                |      |
-| 박창기 | [flying@kt.com](mailto:flying@kt.com)             | user12    | bastion12  |                |      |
-| 박영은 | [ye.park@kt.com](mailto:ye.park@kt.com)           | user13    | bastion13  |                |      |
-| 홍문기 | [moongi.hong@kt.com](mailto:moongi.hong@kt.com)   | user14    | bastion14  |                |      |
-| 조성희 | [ishcho@kt.com](mailto:ishcho@kt.com)             | user15    | bastion15  |                |      |
-| 정유빈 | [youbin.jeong@kt.com](mailto:youbin.jeong@kt.com) | user16    | bastion16  |                |      |
-| 장병훈 | [bottle.jang@kt.com](mailto:bottle.jang@kt.com)   | user17    | bastion17  |                |      |
-| 박윤형 | [sally.park@kt.com](mailto:sally.park@kt.com)     | user18    | bastion18  |                |      |
-| 백지원 | [jiwon.baek@kt.com](mailto:jiwon.baek@kt.com)     | user19    | bastion19  |                |      |
-| 강민수 | [edward.kang@kt.com](mailto:edward.kang@kt.com)   | user20    | bastion20  |                |      |
-| 이건우 | [geonwo.lee@kt.com](mailto:geonwo.lee@kt.com)     | user21    | bastion21  |                |      |
-| 이규용 | [leegy33@kt.com](mailto:leegy33@kt.com)           | user22    | bastion22  |                |      |
+| 이름 | email | Namespace | VM  Server | VM  Server IP | 비고 |
+| ---- | ----- | --------- | ---------- | ------------- | ---- |
+| 송   | 강사1 | user01    | bastion01  | 43.202.56.89  |      |
+|      | 강사2 | user02    |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
+|      |       |           |            |               |      |
 
 
 
