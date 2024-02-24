@@ -276,32 +276,38 @@ $ cd ~/githubrepo/ktds-edu-k8s-istio/
 
 
 
-### [참고] git repo 초기화 방법
+## [참고] git repo 초기화 방법
 
-수정된 파일이 존재하여 git pull 이 잘 안될때는 삭제후 다시 Clone 하는 방법도 있지만 
+수정된 파일이 존재하여 git pull 이 잘 안될때는 삭제후 다시 Clone 하는 방법도 있지만
 
 내용이 많다거나 다른 사유로 인해 clone 작업이 힘들 경우 아래와 같은 명령어를 사용해도 된다.
 
 ```sh
-
-
 # 1) 마지막 commit hash 값으로 reset 처리
 ## 아직 staged 에 올라가지 않은 수정파일,  untracked file 까지 모두 사라진다.
 $ git reset --hard HEAD~
+$ git pull
 
 
 
 # 2) untrackted file 을 초기화 해야 하는 경우
 $ git clean -f -d
+$ git pull
 
 
 # 3) 파일단위로 restore 를 원할 경우
 $ git restore modified_file
+$ git pull
 
+
+# 4) stash
+# stash 는 내가 수행한 작업을 commit 하기전 임시로 저장해 놓는 명령이다.
+$ git stash
+$ git pull
 
 
 # 참고
 ## commit log 확인
-$ git log --oneline -n10
+$ git
 ```
 
