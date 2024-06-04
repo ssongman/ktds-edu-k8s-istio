@@ -190,6 +190,41 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
+
+
+
+
+JOONTAE.KIM@KT.COM
+JUNYEOB.KIM@KT.COM
+KYUNGHA.RYU@KT.COM
+SSLIM@KT.COM
+KIM.DB@KT.COM
+LEE.SEOUNGMIN@KT.COM
+MOONJUNG.KANG@KT.COM
+MUNGYEONG.JEONG@KT.COM
+FLYING@KT.COM
+TAEHYEONG.KIM@KT.COM
+SIYOUNG.JANG0409@KT.COM
+SEUNG_YEON.BAEK@KT.COM
+GYEONG-HO.KIM@KT.COM
+		
+
+김준태(AI구독서비스팀)      
+김준엽(AI구독서비스팀)      
+류경하(아키텍처팀)         
+임성식(ICIS Tr 빌링팀)   
+김재현(DX개발팀)         
+이성민(B2B CRM팀)      
+강문정(DX개발팀)         
+정문경(ICT CoE팀)      
+박창기(메시징플랫폼팀)       
+김태형(AI/DX기술팀)      
+장시영(ICIS Tr 고객팀)   
+백승연(ICT CoE팀)      
+김경호(보안정책팀)   
+
+
+
 ## 2) SSH (Mobaxterm) 실행
 
 Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성하자.
