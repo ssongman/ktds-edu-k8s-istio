@@ -161,67 +161,27 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 
 
-| 이름 | email | Namespace | VM  Server | VM  Server IP | 비고 |
-| ---- | ----- | --------- | ---------- | ------------- | ---- |
-| 송   | 강사1 | user01    | bastion01  | 43.202.56.89  |      |
-|      | 강사2 | user02    |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
-|      |       |           |            |               |      |
+| 이름   | 팀             | Email                   | Namespace | VM  Server | VM  Server IP | 비고 |
+| ------ | -------------- | ----------------------- | --------- | ---------- | ------------- | ---- |
+| 송양종 | AX성장전략팀   | 강사1                   | user01    | bastion01  | 43.202.56.89  |      |
+| 송양종 | AX성장전략팀   | 강사2                   | user02    | bastion02  |               |      |
+| 김준태 | AI구독서비스팀 | joontae.kim@kt.com      | user03    | bastion03  |               |      |
+| 김준엽 | AI구독서비스팀 | junyeob.kim@kt.com      | user04    | bastion04  |               |      |
+| 류경하 | 아키텍처팀     | kyungha.ryu@kt.com      | user05    | bastion05  |               |      |
+| 임성식 | ICIS Tr 빌링팀 | sslim@kt.com            | user06    | bastion06  |               |      |
+| 김재현 | DX개발팀       | kim.db@kt.com           | user07    | bastion07  |               |      |
+| 이성민 | B2B CRM팀      | lee.seoungmin@kt.com    | user08    | bastion08  |               |      |
+| 강문정 | DX개발팀       | moonjung.kang@kt.com    | user09    | bastion09  |               |      |
+| 정문경 | ICT CoE팀      | mungyeong.jeong@kt.com  | user10    | bastion10  |               |      |
+| 박창기 | 메시징플랫폼팀 | flying@kt.com           | user11    | bastion11  |               |      |
+| 김태형 | AI/DX기술팀    | taehyeong.kim@kt.com    | user12    | bastion12  |               |      |
+| 장시영 | ICIS Tr 고객팀 | siyoung.jang0409@kt.com | user13    | bastion13  |               |      |
+| 백승연 | ICT CoE팀      | seung_yeon.baek@kt.com  | user14    | bastion14  |               |      |
+| 김경호 | 보안정책팀     | gyeong-ho.kim@kt.com    | user15    | bastion15  |               |      |
+|        |                |                         |           |            |               |      |
+|        |                |                         |           |            |               |      |
 
 
-
-
-
-
-
-
-
-JOONTAE.KIM@KT.COM
-JUNYEOB.KIM@KT.COM
-KYUNGHA.RYU@KT.COM
-SSLIM@KT.COM
-KIM.DB@KT.COM
-LEE.SEOUNGMIN@KT.COM
-MOONJUNG.KANG@KT.COM
-MUNGYEONG.JEONG@KT.COM
-FLYING@KT.COM
-TAEHYEONG.KIM@KT.COM
-SIYOUNG.JANG0409@KT.COM
-SEUNG_YEON.BAEK@KT.COM
-GYEONG-HO.KIM@KT.COM
-		
-
-김준태(AI구독서비스팀)      
-김준엽(AI구독서비스팀)      
-류경하(아키텍처팀)         
-임성식(ICIS Tr 빌링팀)   
-김재현(DX개발팀)         
-이성민(B2B CRM팀)      
-강문정(DX개발팀)         
-정문경(ICT CoE팀)      
-박창기(메시징플랫폼팀)       
-김태형(AI/DX기술팀)      
-장시영(ICIS Tr 고객팀)   
-백승연(ICT CoE팀)      
-김경호(보안정책팀)   
 
 
 
