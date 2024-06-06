@@ -18,3 +18,4 @@ spec:
     - destination:
         host: reviews
         subset: v1
+        

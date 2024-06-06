@@ -1203,7 +1203,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user03.cloud.43.203.62.69.nip.io"    # 각자 Namespace명으로 변경 필요
+  - "bookinfo.user03.cloud.20.249.174.177.nip.io"         # <-- 각자 Namespace명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1240,7 +1240,7 @@ bookinfo-gateway   4s
 
 $ ku get vs
 NAME       GATEWAYS               HOSTS                                            AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user03.cloud.43.203.62.69.nip.io"]   11s
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.user03.cloud.20.249.174.177.nip.io"]   11s
 
 
 ```
@@ -1269,7 +1269,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "bookinfo.user03.cloud.43.203.62.69.nip.io"   <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.user03.cloud.20.249.174.177.nip.io"  <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1292,8 +1292,8 @@ $ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 
 $ kubectl -n istio-ingress get ingress
-NAME                      CLASS     HOSTS                                        ADDRESS                                                                 PORTS   AGE
-bookinfo-ingress-user03   traefik   bookinfo.user03.cloud.43.203.62.69.nip.io   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80      4s
+NAME                      CLASS     HOSTS                                         ADDRESS                      PORTS   AGE
+bookinfo-ingress-user02   traefik   bookinfo.user03.cloud.20.249.174.177.nip.io   10.0.0.4,10.0.0.5,10.0.0.6   80      11s
 
 
 ```
@@ -1303,7 +1303,7 @@ bookinfo-ingress-user03   traefik   bookinfo.user03.cloud.43.203.62.69.nip.io   
 #### browser 에서 확인
 
 ```
-http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage
+http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
 ```
 
 
@@ -1318,11 +1318,8 @@ http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage
 
 ## ingress 확인
 # 각자 자신의 namespace 명으로 호출테스트 한다.
-$ curl -s "http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
-$ curl -s "http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
-...
-$ curl -s "http://bookinfo.user19.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
-$ curl -s "http://bookinfo.user20.cloud.43.203.62.69.nip.io/productpage" | grep -o "<title>.*</title>"
+$ curl -s "http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage" | grep -o "<title>.*</title>"
+
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
 
@@ -1340,6 +1337,9 @@ $ curl -s "http://bookinfo.user20.cloud.43.203.62.69.nip.io/productpage" | grep 
 $ kubectl -n istio-ingress get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
 istio-ingressgateway   LoadBalancer   10.43.5.202   <pending>     15021:31248/TCP,80:31164/TCP,443:30105/TCP   7h48m
+---
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.80.118   <pending>     15021:32199/TCP,80:31019/TCP,443:30766/TCP   51m
 
 
 
@@ -1347,8 +1347,8 @@ istio-ingressgateway   LoadBalancer   10.43.5.202   <pending>     15021:31248/TC
 # 31164 node port 로 접근 가능
 
 
-# master01 IP(172.31.14.177) 의 node port 로 접근 테스트
-$ curl http://172.31.14.177:31164/productpage -H "Host:bookinfo.user03.cloud.43.203.62.69.nip.io"  | grep -o "<title>.*</title>"
+# master01 IP(10.0.0.4) 의 node port 로 접근 테스트
+$ curl http://10.0.0.4:31019/productpage -H "Host:bookinfo.user03.cloud.20.249.174.177.nip.io"  | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>
 
@@ -1362,7 +1362,7 @@ $ curl http://172.31.14.177:31164/productpage -H "Host:bookinfo.user03.cloud.43.
 #### 초당 0.5회 call 
 
 ```sh
-$ while true; do curl -s http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1380,7 +1380,7 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 ### (1) Grafana
 
-http://grafana.istio-system.cloud.43.203.62.69.nip.io/
+http://grafana.istio-system.cloud.20.249.174.177.nip.io/
 
 * 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
@@ -1389,23 +1389,27 @@ http://grafana.istio-system.cloud.43.203.62.69.nip.io/
 
 
 * Mesh-Dashboard
-  * http://grafana.istio-system.cloud.43.203.62.69.nip.io/d/G8wLrJIZk/istio-mesh-dashboard?orgId=1&refresh=5s
+  * http://grafana.istio-system.cloud.20.249.174.177.nip.io/dashboards/f/adnyukxidn8jkd/
 
 * Service Dashboard
-  * http://grafana.istio-system.cloud.43.203.62.69.nip.io/d/LJ_uJAvmk/istio-service-dashboard?orgId=1&refresh=1m&var-datasource=default&var-service=productpage.user03.svc.cluster.local&var-qrep=destination&var-srccluster=All&var-srcns=All&var-srcwl=All&var-dstcluster=All&var-dstns=All&var-dstwl=All
+  * http://grafana.istio-system.cloud.20.249.174.177.nip.io/d/ddnyuky16dq80d/istio-service-dashboard?orgId=1&refresh=1m
+  
+    
 
 
 
 ### (2) Kiali
 
-http://kiali.istio-system.cloud.43.203.62.69.nip.io
+http://kiali.istio-system.cloud.20.249.174.177.nip.io
 
-* 주로 보닌 대쉬보드 : Graph
-  * Namespace 선택
+* 주로 보는 대쉬보드
+  * 메뉴 : Traffic Graph
+  * Namespace 선택 : user03
   * Display
     * Traffic Distribution : check
     * Traffic Rate : check
     * Traffic Anymation : check
+  
 
 ![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
 
@@ -1421,9 +1425,15 @@ http://kiali.istio-system.cloud.43.203.62.69.nip.io
 
 ### (3) Jaeger
 
-http://jaeger.istio-system.cloud.43.203.62.69.nip.io
+http://jaeger.istio-system.cloud.20.249.174.177.nip.io
 
 ![img](ServiceMesh.assets/monitoring-jaeger.png)
+
+
+
+
+
+
 
 
 
@@ -1524,7 +1534,7 @@ $ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 #### 초당 0.5회 call
 
 ```sh
-$ while true; do curl -s http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1610,8 +1620,8 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 - 변화사항
   - reviews 의 v2,v3호출 되지 않도록 라우팅 변경함.
 - kiali 변화사항 모니터링
-  - graph 모니터링
-  - replay 기능 모니터링
+  - Traffic Graph 모니터링
+  - Replay 기능 모니터링
   - Service 확인
     - VS yaml 확인
 
@@ -1653,7 +1663,7 @@ $ ku apply -f ./istio/bookinfo/22.virtual-service-reviews-50-v3.yaml
 
 ### (3) reviews - v3 - 100%
 
-reviews:v3 서비스가 안정적이라고 판단되면 아래virtualservice 적용하여 review:v3으로 100% 라우팅할 수 있다.
+reviews:v3 서비스가 안정적이라고 판단되면 아래 virtualservice 적용하여 review:v3으로 100% 라우팅할 수 있다.
 
 ```sh
 $ cat ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
@@ -1818,7 +1828,7 @@ $ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
 browser 에서 jason 으로 로그인 한다음 접근해보자. 
 
-http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage
+http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
 
 
 
@@ -2069,7 +2079,7 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 ```
 
 * UI 에서 확인
-  * http://bookinfo.user03.cloud.43.203.62.69.nip.io/productpage
+  * http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
 
 
 
@@ -2128,7 +2138,7 @@ HTTP/1.1 200 OK
 kiali 에서도 쉽게 조정이 가능하다.
 
 * 메뉴 : graph > Rating > Detail > VS 선택
-  * 링크 : http://kiali.istio-system.cloud.43.203.62.69.nip.io/kiali/console/namespaces/user03/istio/virtualservices/ratings
+  * 링크 : http://kiali.istio-system.cloud.20.249.174.177.nip.io/kiali/console/namespaces/user03/istio/virtualservices/ratings
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
