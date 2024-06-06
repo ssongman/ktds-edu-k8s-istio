@@ -253,7 +253,7 @@ $ rm -rf ~/githubrepo/ktds-edu-k8s-istio/
 
 # 2) git clone 수행
 $ cd ~/githubrepo
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.gitvk
+$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
 remote: Enumerating objects: 446, done.
 remote: Counting objects: 100% (73/73), done.
