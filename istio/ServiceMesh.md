@@ -2137,7 +2137,7 @@ HTTP/1.1 200 OK
 
 kiali 에서도 쉽게 조정이 가능하다.
 
-* 메뉴 : graph > Rating > Detail > VS 선택
+* 메뉴 : Traffic Graph > Rating > Detail > VS 선택
   * 링크 : http://kiali.istio-system.cloud.20.249.174.177.nip.io/kiali/console/namespaces/user03/istio/virtualservices/ratings
 
 ```yaml
@@ -2221,7 +2221,7 @@ $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
   kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
 
 # namespace label 삭제
-$ kubectl label --overwrite namespace user03 istio-injection-
+# $ kubectl label --overwrite namespace user03 istio-injection-
 
 
 ```
@@ -2493,15 +2493,16 @@ Code 503 : 17 (17.0 %)
 
 
 - `-c 3` 옵션으로 동시 연결을 3로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 6회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 38회 발생했다.
 
 
 ```sh
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 43 (43.0 %)
-Code 503 : 57 (57.0 %)
+Code 200 : 62 (62.0 %)
+Code 503 : 38 (38.0 %)
+
 ...
 
 
@@ -2512,14 +2513,15 @@ Code 503 : 57 (57.0 %)
 
 
 - `-c 5` 옵션으로 동시 연결을 5로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 74회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 71회 발생했다.
 
 ```sh
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 26 (26.0 %)
-Code 503 : 74 (74.0 %)
+Code 200 : 29 (29.0 %)
+Code 503 : 71 (71.0 %)
+
 ...
 
 
@@ -2528,15 +2530,16 @@ Code 503 : 74 (74.0 %)
 
 
 - `-c 10` 옵션으로 동시 연결을 10로 늘려 트래픽 load를 발생 시킨다.
-- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 89회 발생했다.
+- 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 82회 발생했다.
 
 
 ```sh
 $ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
-Code 200 : 11 (11.0 %)
-Code 503 : 89 (89.0 %)
+Code 200 : 18 (18.0 %)
+Code 503 : 82 (82.0 %)
+
 ...
 
 ```
@@ -2586,6 +2589,8 @@ $ ku delete pod/fortio
   ku delete deployment.apps/httpbin 
   ku delete svc/httpbin
   ku delete pod/curltest
+
+# 0.5초에 한번씩 Call 하는 문장도 불필요하니 종료하자.
 
 ```
 
@@ -2697,6 +2702,9 @@ Hello server - v2
   - Terminal 1 : hello-server-1 log 추척
 
     - ```sh
+      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+        alias ku='kubectl -n user03'
+      
       
       $ ku logs -f hello-server-1 
       
@@ -2705,7 +2713,9 @@ Hello server - v2
   - Terminal 2 : hello-server-2 log 추척
 
     - ```sh
-      
+      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+        alias ku='kubectl -n user03'
+        
       $ ku logs -f hello-server-2
       
       ```
@@ -2715,13 +2725,15 @@ Hello server - v2
     - 아래 명령 수행
 
     - ```sh
-      
+      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+        alias ku='kubectl -n user03'
+        
       $ ku exec -it curltest -- curl http://hello-svc:8080 -i
       
       ```
-
+      
     - 
-
+    
     
 
 - curltest 컨테이너에서 hello-svc 서비스로 10개를 요청해 보자.
@@ -2735,27 +2747,26 @@ Hello server - v2
 $ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v2
+Hello server - v2
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
 Hello server - v1
 Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v1
-
+Hello server - v1
+Hello server - v1
+Hello server - v2
 
 ```
 
@@ -2770,24 +2781,23 @@ Hello server - v1
 ```sh
 $ ku logs -f hello-server-1
 
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
 
-
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
+Hello server - v1 - 200
 
 ```
 
@@ -2800,27 +2810,28 @@ Hello server - v1 - 200
 ```sh
 $ ku logs -f hello-server-2
 
-Hello server - v2 - 200
-Hello server - v2 - 200
-Hello server - v2 - 503 (random)
-Hello server - v2 - 503 (random)
-Hello server - v2 - 503 (random)
-Hello server - v2 - 503 (random)
+
 Hello server - v2 - 503 (random)
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 503 (random)
+Hello server - v2 - 200
 Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
+Hello server - v2 - 200
 
 
-# 총 12회 중  [ 200(정상) 4회, 503(실패)8회 ]
+
+# 총 9회 중  [ 200(정상) 4회, 503(실패)5회 ]
 
 ```
 
-전체 12회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다.
+전체 9회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다.
 
-8개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
+5개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
+
+그러므로 16회 + 4회 로 총 20회가 성공적으로 retern 되었다.
 
 500 에러가 발생하는 서비스에 접근을 일시적으로 차단 시키는 것이 좋다고 판단할 수 있다.
 
