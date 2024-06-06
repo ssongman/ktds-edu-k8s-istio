@@ -19,9 +19,9 @@
 
 
 
-### (2) Container 이전 시대에는?
+### (2) Container 변천사
 
-* 전통방식 --> VM --> Container 변천사
+* 전통방식 --> VM --> Container
 
 
 
@@ -55,7 +55,7 @@
 
   
 
-### (3) 컨테이너의 특정
+### (3) 컨테이너의 특징
 
 - 기민한 애플리케이션 생성과 배포
   - VM 이미지를 사용하는 것에 비해 컨테이너 이미지 생성이 보다 쉽고 효율적임.
@@ -154,7 +154,7 @@ userlist app 은 실행될때 10명의 사용자가 난수로 생성되도록 �
 
 * 확인
   * EduCluster 에 설치된 userlist 확인
-  * http://userlist.yjsong.cloud.43.203.62.69.nip.io/user
+  * http://userlist.songedu.duckdns.org
 
 
 
@@ -465,7 +465,7 @@ $ docker run -it --rm \
     my-haproxy haproxy -v
 
 HAProxy version 2.9.5-260dbb8 2024/02/15 - https://haproxy.org/
-
+HAProxy version 3.0.0-5590ada 2024/05/29 - https://haproxy.org/
 
 
 
@@ -599,7 +599,12 @@ $ docker rm -f userlist1
 
 ## 1) k3s 란?
 
-Rancher 에서 만든 kubernetes 경량화 제품
+> K3s - Lightweight Kubernetes
+
+* Rancher 에서 만든 kubernetes 경량화 제품
+* k3s 의미
+  * k3s는 메모리 사용측면에서 K8s 의 절반의 크기 희망
+  * k8s 는 총 10글자이며 k3s 는 총 5글자임
 
 
 
@@ -618,7 +623,9 @@ Rancher 에서 만든 kubernetes 경량화 제품
 
 ### (2) k3s 구조
 
-![Deploying, Securing Clusters in 8 minutes with Kubernetes](kubernetes.assets/k3s_falco_sysdig-02-k3s_arch.png)
+
+
+![k3s-architecture](./kubernetes.assets/k3s-architecture.svg)
 
 - k3s 에서는 containerd 라는 Container runtime을 사용함
 
