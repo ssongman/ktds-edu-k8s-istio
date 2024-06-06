@@ -809,7 +809,7 @@ $ eixt
 ## kubectl create ns [namespace_name]
 
 ## 자신만의 namespace 명으로 하나를 생성한다.
-$ kubectl create ns user02
+$ kubectl create ns user03
 
 or
 
@@ -850,7 +850,7 @@ alias ki='kubectl -n istio-system'
 alias kb='kubectl -n bookinfo'
 alias kii='kubectl -n istio-ingress'
 
-alias ku='kubectl -n user02'     # <===  자신의 Namespace 로 변경하자.
+alias ku='kubectl -n user03'     # <===  자신의 Namespace 로 변경하자.
 
 #export KUBECONFIG=~/.kube/config-ktdseducluster
 
@@ -1315,6 +1315,34 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 
 
 
+### (3) deployment replicas 원복
+
+deploy  replicas 값을 1로 원복하자.
+
+```sh
+$ ku edit deploy userlist
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userlist
+  namespace: song
+  ...
+spec:
+  replicas: 3                      <--- 1으로 수정한다.
+  selector:
+    matchLabels:
+      app: userlist
+      ....
+---
+
+# 저장후 종료한다. ( :wq )
+```
+
+
+
+
+
 ## 5) Ingress
 
 인그레스는 클러스터 내의 서비스에 대한 외부 접근을 관리하는 API 오브젝트이며, 일반적으로 HTTP를 관리한다.
@@ -1666,7 +1694,7 @@ ke-master03   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
 
 
 # 자신 Namespace alias 설정
-$ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
+$ alias ku='kubectl -n user03'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 ```
 
@@ -1711,7 +1739,7 @@ kube-node-lease   Active   6h20m
 kube-public       Active   6h20m
 kube-system       Active   6h20m
 user01            Active   44s
-user02            Active   44s
+user03            Active   44s
 user03            Active   44s
 user04            Active   44s
 user05            Active   44s
@@ -1737,13 +1765,13 @@ yjsong            Active   6h8m
 
 
 # 각 수강생별 NS 를 확인해보자.
-$ kubectl get ns user02
+$ kubectl get ns user03
 NAME     STATUS   AGE
-user02   Active   64s
+user03   Active   64s
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user02'     <-- 각자 Namespace 를 alais 로 설정하자.
+$ alias ku='kubectl -n user03'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 $ ku get pod
 No resources found in yjsong namespace.
@@ -1855,6 +1883,8 @@ userlist-svc 라는 서비스명으로 접근이 잘 되는 것을 확인 할 �
 
 ## 4) Scale Out
 
+### (1) deployment replicas 증가
+
 - deployment 에서 replicas 조정
 
 ```sh
@@ -1883,12 +1913,6 @@ spec:
 
 
 
-
-
-
-
-
-
 - 상태확인
 
 ```sh
@@ -1905,6 +1929,8 @@ userlist-bfd857685-x4v6h   1/1     Running   0          26s
 너무나 쉽게 replicas 3 으로 scale out 이 되었다.
 
 
+
+### (2) curltest pod 내에서 테스트
 
 - curltest pod 내에서 테스트
 
@@ -1932,6 +1958,36 @@ $ exit
 ```
 
 round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
+
+
+
+
+
+### (3) deployment replicas 원복
+
+deploy  replicas 값을 1로 원복하자.
+
+```sh
+$ ku edit deploy userlist
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userlist
+  namespace: song
+  ...
+spec:
+  replicas: 3                      <--- 1으로 수정한다.
+  selector:
+    matchLabels:
+      app: userlist
+      ....
+---
+
+# 저장후 종료한다. ( :wq )
+```
+
+
 
 
 
@@ -2005,7 +2061,7 @@ spec:
 $ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 ...
 # 변경전 : "userlist.[my-namespace].cloud.20.249.174.177.nip.io"
-# 변경후 : "userlist.user02.cloud.20.249.174.177.nip.io"         <-- 자신의 Namespace 로 
+# 변경후 : "userlist.user03.cloud.20.249.174.177.nip.io"         <-- 자신의 Namespace 로 
 ```
 
 
@@ -2017,7 +2073,7 @@ user01을 자신의 Namespace 명으로 변경하자.
  예를 들어 아래 hostname 으로 상관없다. 다른 사용자들과 겹치지만 않게 하자.
 
 ```
-userlist.user02.cloud.20.249.174.177.nip.io
+userlist.user03.cloud.20.249.174.177.nip.io
 userlist.user07.cloud.20.249.174.177.nip.io
 userlist.yjsong.cloud.20.249.174.177.nip.io
 userlist.songyangjong.cloud.20.249.174.177.nip.io
@@ -2043,7 +2099,7 @@ metadata:
     kubernetes.io/ingress.class: "traefik"
 spec:
   rules:
-  - host: "userlist.user02.cloud.20.249.174.177.nip.io"
+  - host: "userlist.user03.cloud.20.249.174.177.nip.io"
     http:
       paths:
       - path: /
@@ -2059,7 +2115,7 @@ $ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
 
 $ ku get ingress
 NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.user02.cloud.20.249.174.177.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
+userlist-ingress   <none>   userlist.user03.cloud.20.249.174.177.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
 
 ```
 
@@ -2070,7 +2126,7 @@ userlist-ingress   <none>   userlist.user02.cloud.20.249.174.177.nip.io   10.128
 ```sh
 
 # 1) 부여한 host 로 접근시도
-$ curl http://userlist.user02.cloud.20.249.174.177.nip.io/users/1
+$ curl http://userlist.user03.cloud.20.249.174.177.nip.io/users/1
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
@@ -2078,18 +2134,18 @@ $ curl http://userlist.user02.cloud.20.249.174.177.nip.io/users/1
 # 2) traefik node port 로 접근시도
 
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                                           PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>                                                                53/UDP,53/TCP,9153/TCP       6h43m
-metrics-server   ClusterIP      10.43.69.213    <none>                                                                443/TCP                      6h43m
-traefik          LoadBalancer   10.43.132.140   172.31.12.206,172.31.13.98,172.31.14.177,172.31.15.159,172.31.8.197   80:30690/TCP,443:32318/TCP   6h43m
+NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                  PORT(S)                      AGE
+kube-dns         ClusterIP      10.43.0.10     <none>                       53/UDP,53/TCP,9153/TCP       5d21h
+metrics-server   ClusterIP      10.43.85.38    <none>                       443/TCP                      5d21h
+traefik          LoadBalancer   10.43.241.86   10.0.0.4,10.0.0.5,10.0.0.6   80:31271/TCP,443:31448/TCP   5d21h
 
 # node 중 하나를 골라서 시도하자.  (master01_IP : 172.31.14.177)
 
 
-$ curl http://172.31.14.177:30690/users/1 -H "Host:userlist.user02.cloud.20.249.174.177.nip.io"
+$ curl http://10.0.0.4:31271/users/1 -H "Host:userlist.user03.cloud.20.249.174.177.nip.io"
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://172.31.14.177:80/users/1 -H "Host:userlist.user02.cloud.20.249.174.177.nip.io"
+$ curl http://10.0.0.4:80/users/1 -H "Host:userlist.user03.cloud.20.249.174.177.nip.io"
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
@@ -2105,7 +2161,7 @@ $ curl http://172.31.14.177:80/users/1 -H "Host:userlist.user02.cloud.20.249.174
 
 
 - 크롬 브라우저에서 확인
-  - 주소 : userlist.user02.cloud.20.249.174.177.nip.io
+  - 주소 : https://userlist.user03.cloud.20.249.174.177.nip.io
 
 
 ![image-20230825222739086](kubernetes.assets/image-20230825222739086.png)
