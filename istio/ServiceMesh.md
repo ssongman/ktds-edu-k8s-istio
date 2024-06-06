@@ -961,17 +961,18 @@ $ kubectl get ns user03 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2024-02-18T08:21:00Z"
+  creationTimestamp: "2024-06-06T12:47:43Z"
   labels:
     kubernetes.io/metadata.name: user03
   name: user03
-  resourceVersion: "98957"
-  uid: 02d09df1-ac89-40e5-b0fb-36ade0087989
+  resourceVersion: "719552"
+  uid: 6e9233af-2651-4553-a741-f6c3af4be0fd
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
+
 
 
 
@@ -986,19 +987,21 @@ $ kubectl get ns user03 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2024-02-18T08:21:00Z"
+  creationTimestamp: "2024-06-06T12:47:43Z"
   labels:
-    istio-injection: enabled              <-- 설정 완료
+    istio-injection: enabled                  #  <-- 설정 완료
     kubernetes.io/metadata.name: user03
   name: user03
-  resourceVersion: "122074"
-  uid: 02d09df1-ac89-40e5-b0fb-36ade0087989
+  resourceVersion: "734681"
+  uid: 6e9233af-2651-4553-a741-f6c3af4be0fd
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
 ---
+
+
 ```
 
 
@@ -1037,7 +1040,7 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/11.bookinfo.yaml
--rw-rw-r-- 1 ubuntu ubuntu 7974 Feb 18 07:00 ./istio/bookinfo/11.bookinfo.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 7974 Jun  6 12:01 ./istio/bookinfo/11.bookinfo.yaml
 
 
 
@@ -1065,18 +1068,20 @@ deployment.apps/productpage-v1 created
 
 
 
+
 # 약 2분 소요...
 
 
 # 확인
 $ ku get pods
-NAME                              READY   STATUS    RESTARTS   AGE
-details-v1-58c888794b-86dnl       2/2     Running   0          71s
-productpage-v1-5c9b8f457d-4hh94   2/2     Running   0          66s
-ratings-v1-6fb94bb7cd-tdcdc       2/2     Running   0          70s
-reviews-v1-6dbbc44b9d-9qvst       2/2     Running   0          68s
-reviews-v2-7fcd6bfb8b-pblcl       2/2     Running   0          68s
-reviews-v3-6b778f96f4-j7xgb       2/2     Running   0          67s
+NAME                             READY   STATUS            RESTARTS   AGE
+details-v1-b8f86b9f4-shkm6       2/2     Running           0          24s
+productpage-v1-d774cffb6-nm78j   0/2     PodInitializing   0          24s
+ratings-v1-5bf485ffc8-fvfxv      0/2     PodInitializing   0          24s
+reviews-v1-c898599bb-t5jb4       0/2     PodInitializing   0          24s
+reviews-v2-75f445766-nwddf       0/2     PodInitializing   0          24s
+reviews-v3-75846597d6-skkdw      0/2     PodInitializing   0          24s
+
 
 
 # 모든 pod가 2개 container로 실행되었다.
@@ -1084,10 +1089,11 @@ reviews-v3-6b778f96f4-j7xgb       2/2     Running   0          67s
 
 $ ku get services
 NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-details       ClusterIP   10.43.184.228   <none>        9080/TCP   91s
-productpage   ClusterIP   10.43.66.156    <none>        9080/TCP   86s
-ratings       ClusterIP   10.43.165.5     <none>        9080/TCP   90s
-reviews       ClusterIP   10.43.30.168    <none>        9080/TCP   88s
+details       ClusterIP   10.43.174.226   <none>        9080/TCP   36s
+productpage   ClusterIP   10.43.178.204   <none>        9080/TCP   36s
+ratings       ClusterIP   10.43.61.170    <none>        9080/TCP   36s
+reviews       ClusterIP   10.43.201.114   <none>        9080/TCP   36s
+
 
 
 ```
@@ -1104,7 +1110,8 @@ reviews       ClusterIP   10.43.30.168    <none>        9080/TCP   88s
 # 1. ratings app pod 확인
 $ ku get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
-ratings-v1-5bf485ffc8-tnm5t   2/2     Running   0          42m
+ratings-v1-5bf485ffc8-fvfxv   2/2     Running   0          49s
+
 
 
 $ ku describe pod -l app=ratings
@@ -1116,9 +1123,8 @@ Containers:
 
 
 # 2. rating 에서 productpage call 확인
-$ ku exec ratings-v1-5bf485ffc8-tnm5t -c ratings -- curl -sS productpage:9080/productpage
-
-
+# $ ku exec ratings-v1-5bf485ffc8-fvfxv -c ratings -- curl -sS productpage:9080/productpage
+$ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
 
 
 <!DOCTYPE html>
@@ -1134,7 +1140,7 @@ $ ku exec ratings-v1-5bf485ffc8-tnm5t -c ratings -- curl -sS productpage:9080/pr
 
 
 # 3. rating 에서 productpage call 확인
-$ ku exec ratings-v1-5bf485ffc8-tnm5t -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
@@ -1161,14 +1167,14 @@ $ ku exec "$(ku get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')"
 
 bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
-IP 는 AWS 의 Elastic IP 이므로 변경할 필요 없다.
+IP 는 이미 생성된 공인 IP 이므로 변경할 필요 없다.
 
 ```sh
 
 $ cd ~/githubrepo/ktds-edu-k8s-istio
 
 $ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
--rw-rw-r-- 1 ubuntu ubuntu 717 Feb 18 07:00 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+-rw-rw-r-- 1 ktdseduuser ktdseduuser 716 Jun  6 12:01 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
 
 
 

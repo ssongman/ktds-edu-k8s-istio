@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "bookinfo.user02.cloud.20.249.174.177.nip.io"
+  - host: "bookinfo.user03.cloud.20.249.174.177.nip.io"
     http:
       paths:
       - path: /
