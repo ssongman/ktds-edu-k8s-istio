@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "jaeger.istio-system.cloud.43.203.62.69.nip.io"
+  - host: "jaeger.istio-system.cloud.20.249.174.177.nip.io"
     http:
       paths:
       - path: /
