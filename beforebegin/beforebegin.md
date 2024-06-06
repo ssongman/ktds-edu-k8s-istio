@@ -31,7 +31,7 @@ CMD / PowerShell / putty 와 같은 기본 터미널을 이용해도 되지만 �
 
 교육문서를 다운로드 받으려면 Git Command 가 필요하다. Windows 에서는 기본 제공되지 않아 별도 설치 해야 한다.
 
-- 다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.40.1.windows.1/Git-2.40.1-64-bit.exe
+- 다운로드 주소 : https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe
 - 참조 링크 : https://git-scm.com/
 
 
@@ -99,22 +99,23 @@ $ cd /c/githubrepo
 
 $ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
 Cloning into 'ktds-edu-k8s-istio'...
-remote: Enumerating objects: 427, done.
-remote: Counting objects: 100% (54/54), done.
-remote: Compressing objects: 100% (39/39), done.
-remote: Total 427 (delta 26), reused 36 (delta 14), pack-reused 373
-Receiving objects: 100% (427/427), 3.84 MiB | 8.82 MiB/s, done.
-Resolving deltas: 100% (212/212), done.
+remote: Enumerating objects: 597, done.
+remote: Counting objects: 100% (32/32), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 597 (delta 22), reused 28 (delta 20), pack-reused 565
+Receiving objects: 100% (597/597), 3.85 MiB | 9.97 MiB/s, done.
+Resolving deltas: 100% (326/326), done.
+
 
 
 $ ll /c/githubrepo
-drwxr-xr-x 1 ssong 197609 0 Aug 27 15:19 ktds-edu-k8s-istio/
+drwxr-xr-x 1 송양종 197121 0 Jun  6 11:06 ktds-edu-k8s-istio/
 
 ```
 
 
 
-만약 교육중 (오타 변경 등의 사유로) 자료가 변경되어 다시 받아야 하는 경우 가 있을 경우 해당 위치에서 git pull 만 다시 받도록 하자.
+만약 교육중 자료가 변경(오타 변경 등의 사유로) 되어 다시 받아야 하는 경우 가 있을 경우 해당 위치에서 git pull 만 다시 받도록 하자.
 
 ```sh
 $ cd /c/githubrepo/ktds-edu-k8s-istio
@@ -303,6 +304,6 @@ $ git pull
 
 # 참고
 ## commit log 확인
-$ git
+$ git log 
 ```
 
