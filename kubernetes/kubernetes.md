@@ -1487,7 +1487,7 @@ ingress.networking.k8s.io/userlist-ingress created
 
 4.217.252.117 가 하위에 여러번 등장한다.
 
-편집기 일괄 변경 기능을 이용하여 4.217.252.117  를 자산의 공인 IP 로 일괄 변경하자.
+편집기 일괄 변경 기능을 이용하여 4.217.252.117  를 자신의 공인 IP 로 일괄 변경하자.
 
 * 편집기가 typora 라면
   * 일괄변경 단축기 : Ctrl + H 로 변경하자.
@@ -1618,6 +1618,8 @@ http://userlist.4.217.252.117.nip.io/
 ### (3) [참고] Load Balancing
 
 - 참고링크
+  - Azure Load Balancing
+    - 링크 : https://learn.microsoft.com/ko-kr/azure/load-balancer/load-balancer-overview
   - AWS Load Balancing
     - 링크 : https://docs.aws.amazon.com/ko_kr/elasticloadbalancing/
   - GCP Load Balancing
