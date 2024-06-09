@@ -13,7 +13,7 @@
 
 
 
-# 1. 시작전에 ( [가이드 문서 보기](./beforebegin/beforebegin.md) )  
+# 1. 시작전에 ( [바로가기](./beforebegin/beforebegin.md) )  
 
 
 
@@ -43,7 +43,7 @@
 
 
 
-# 2. Class1: kubernetes 맛보기 ( [가이드 문서 보기](./kubernetes/kubernetes.md) )  
+# 2. Class1: kubernetes 맛보기 ( [바로가기](./kubernetes/kubernetes.md) )  
 
 
 
@@ -98,7 +98,7 @@
 
 
 
-# 3. Class2: ServiceMesh ( [가이드 문서 보기](./istio/ServiceMesh.md) )  
+# 3. Class2: ServiceMesh ( [바로가기](./istio/ServiceMesh.md) )  
 
 
 
@@ -149,7 +149,7 @@
 
 
 
-# 4. 별첨: Istio-Setup( [가이드 문서 보기](./istio/Istio-Setup.md) )  
+# 4. 별첨: Istio-Setup( [바로가기](./istio/Istio-Setup.md) )  
 
 * Istio setup
 * Istio Monitoring tool Install
