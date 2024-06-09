@@ -668,6 +668,12 @@ Client Version: v1.29.5+k3s1
 Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
 Server Version: v1.29.5+k3s1
 
+
+
+# 확인2
+$ systemctl status k3s
+
+
 # Client 와 Server Version 이 각각 보인다면 설치가 잘 된 것이다.
 
 ```
@@ -701,6 +707,9 @@ Client Version: v1.28.6+k3s2
 Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
 Server Version: v1.28.6+k3s2
 
+
+# root 권한 종료(일반유저로 복귀)
+$ exit
 ```
 
 
@@ -717,7 +726,7 @@ k3s 를 설치하면 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이
 
 - 일반 user 로 수행
 
-* * kubectl 명령을 수행하기를 원하는 특정 사용자로 아래 작업을 진행한다.
+* kubectl 명령을 수행하기를 원하는 일반 사용자로 아래 작업을 진행한다.
 
 ```sh
 
