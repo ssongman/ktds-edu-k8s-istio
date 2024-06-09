@@ -160,27 +160,24 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 
 수강생별 개인 VM Server 접속 주소를 확인하자. 또한 KtdsEduCluster 에서 사용할 개인별 Namespace 를 확인하자.
 
-
-
-| 이름   | 팀             | Email                   | Namespace | VM  Server | VM  Server IP | 비고 |
-| ------ | -------------- | ----------------------- | --------- | ---------- | ------------- | ---- |
-| 송양종 | AX성장전략팀   | 강사1                   | user01    | bastion01  | 43.202.56.89  |      |
-| 송양종 | AX성장전략팀   | 강사2                   | user02    | bastion02  |               |      |
-| 김준태 | AI구독서비스팀 | joontae.kim@kt.com      | user03    | bastion03  |               |      |
-| 김준엽 | AI구독서비스팀 | junyeob.kim@kt.com      | user04    | bastion04  |               |      |
-| 류경하 | 아키텍처팀     | kyungha.ryu@kt.com      | user05    | bastion05  |               |      |
-| 임성식 | ICIS Tr 빌링팀 | sslim@kt.com            | user06    | bastion06  |               |      |
-| 김재현 | DX개발팀       | kim.db@kt.com           | user07    | bastion07  |               |      |
-| 이성민 | B2B CRM팀      | lee.seoungmin@kt.com    | user08    | bastion08  |               |      |
-| 강문정 | DX개발팀       | moonjung.kang@kt.com    | user09    | bastion09  |               |      |
-| 정문경 | ICT CoE팀      | mungyeong.jeong@kt.com  | user10    | bastion10  |               |      |
-| 박창기 | 메시징플랫폼팀 | flying@kt.com           | user11    | bastion11  |               |      |
-| 김태형 | AI/DX기술팀    | taehyeong.kim@kt.com    | user12    | bastion12  |               |      |
-| 장시영 | ICIS Tr 고객팀 | siyoung.jang0409@kt.com | user13    | bastion13  |               |      |
-| 백승연 | ICT CoE팀      | seung_yeon.baek@kt.com  | user14    | bastion14  |               |      |
-| 김경호 | 보안정책팀     | gyeong-ho.kim@kt.com    | user15    | bastion15  |               |      |
-|        |                |                         |           |            |               |      |
-|        |                |                         |           |            |               |      |
+| 이름   | 소속            | Email                   | Namespace | VM  Server   | VM  Server IP  | 비고 |
+| ------ | --------------- | ----------------------- | --------- | ------------ | -------------- | ---- |
+| 송양종 | AX성장전략팀    | 강사1                   | user01    | ke-bastion01 |                |      |
+| 송양종 | AX성장전략팀    | 강사2                   | user02    | ke-bastion02 |                |      |
+| 송양종 | AX성장전략팀    | 강사3                   | user03    | ke-bastion03 |                |      |
+| 강문정 | DX개발팀        | moonjung.kang@kt.com    | user04    | ke-bastion04 | 4.217.255.28   |      |
+| 김경호 | 보안정책팀      | gyeong-ho.kim@kt.com    | user05    | ke-bastion05 | 20.41.80.183   |      |
+| 김재현 | DX개발팀        | kim.db@kt.com           | user06    | ke-bastion06 | 20.41.86.64    |      |
+| 김준엽 | AI구독서비스팀  | junyeob.kim@kt.com      | user07    | ke-bastion07 | 52.231.103.156 |      |
+| 김준태 | AI구독서비스팀  | joontae.kim@kt.com      | user08    | ke-bastion08 | 52.231.95.179  |      |
+| 김태형 | AI/DX기술팀     | taehyeong.kim@kt.com    | user09    | ke-bastion09 | 4.217.233.128  |      |
+| 류경하 | 아키텍처팀      | kyungha.ryu@kt.com      | user10    | ke-bastion10 | 4.217.233.235  |      |
+| 박창기 | 메시징플랫폼팀  | flying@kt.com           | user11    | ke-bastion11 | 4.217.234.92   |      |
+| 백승연 | ICT  CoE팀      | seung_yeon.baek@kt.com  | user12    | ke-bastion12 | 4.230.1.78     |      |
+| 이성민 | B2B  CRM팀      | lee.seoungmin@kt.com    | user13    | ke-bastion13 | 4.230.1.99     |      |
+| 임성식 | ICIS  Tr 빌링팀 | sslim@kt.com            | user14    | ke-bastion14 | 20.249.168.44  |      |
+| 장시영 | ICIS  Tr 고객팀 | siyoung.jang0409@kt.com | user15    | ke-bastion15 | 4.217.234.171  |      |
+| 정문경 | ICT  CoE팀      | mungyeong.jeong@kt.com  | user16    | ke-bastion16 | 20.249.169.61  |      |
 
 
 
