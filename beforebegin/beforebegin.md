@@ -164,7 +164,7 @@ C:\githubrepo\ktds-edu-k8s-istio\README.md
 | ------ | --------------- | ----------------------- | --------- | ------------ | -------------- | ---- |
 | 송양종 | AX성장전략팀    | 강사1                   | user01    | ke-bastion01 |                |      |
 | 송양종 | AX성장전략팀    | 강사2                   | user02    | ke-bastion02 |                |      |
-| 송양종 | AX성장전략팀    | 강사3                   | user03    | ke-bastion03 |                |      |
+| 송양종 | AX성장전략팀    | 강사3                   | user03    | ke-bastion03 | 4.217.252.117  |      |
 | 강문정 | DX개발팀        | moonjung.kang@kt.com    | user04    | ke-bastion04 | 4.217.255.28   |      |
 | 김경호 | 보안정책팀      | gyeong-ho.kim@kt.com    | user05    | ke-bastion05 | 20.41.80.183   |      |
 | 김재현 | DX개발팀        | kim.db@kt.com           | user06    | ke-bastion06 | 20.41.86.64    |      |
@@ -194,9 +194,9 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 
 
+![image-20240609163324386](./beforebegin.assets/image-20240609163324386.png)
 
 
-![image-20230514022214007](beforebegin.assets/image-20230514022214007.png)
 
 빨간색 영역을 주의해서 입력한후 접속하자.
 
@@ -204,16 +204,14 @@ Mobaxterm 을 실행하여 VM 접속정보를 위한 신규 session 을 생성�
 
 - Romote host
   - 개인별로 접근 주소가 다르므로 위 수강생별  VM  Server IP 주소를 확인하자.
-  - ex)  bastion02 : 54.180.160.149  (샘플)
+  - ex)  bastion03 : 4.217.252.117  (샘플)
 
 - User
   - Specify username 에 Check
-  - User : ubuntu 입력
-
+  - User : ktdseduuser입력
+    - Password 는 별도 공지
+  
 - Port : 22
-- Advanced SSH settings
-  - Use private key : C:\githubrepo\ktds-edu-k8s-istio\beforebegin\vm-key\ktdsedu-employee.pem
-    - 교육자료 Download 되는 자료에 위 key가 포함되어 있음
 
 
 
