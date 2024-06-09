@@ -1697,11 +1697,10 @@ NAME          STATUS   ROLES                       AGE     VERSION
 ke-master01   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
 ke-master02   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
 ke-master03   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
-...
-...
-...
+ke-worker01   Ready    <none>                      13m   v1.29.5+k3s1
+ke-worker02   Ready    <none>                      11m   v1.29.5+k3s1
 
-# <-- 6개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
+# <-- 이렇게 N개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
 
 
 # 자신 Namespace alias 설정
@@ -1726,8 +1725,8 @@ $ export KUBECONFIG="${HOME}/.kube/config"
 
 # Cluster node 확인
 $ kubectl get nodes
-NAME        STATUS   ROLES                  AGE   VERSION
-bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
+NAME           STATUS   ROLES                  AGE   VERSION
+ke-bastion03   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 ```
 
@@ -2012,8 +2011,6 @@ NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                  PORT
 kube-dns         ClusterIP      10.43.0.10     <none>                       53/UDP,53/TCP,9153/TCP       5d21h
 metrics-server   ClusterIP      10.43.85.38    <none>                       443/TCP                      5d21h
 traefik          LoadBalancer   10.43.241.86   10.0.0.4,10.0.0.5,10.0.0.6   80:31271/TCP,443:31448/TCP   5d21h
-
-
 
 ```
 
