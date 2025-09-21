@@ -58,7 +58,16 @@ istio/cni                               1.20.3          1.20.3          Helm cha
 istio/gateway                           1.20.3          1.20.3          Helm chart for deploying Istio gateways
 istio/ztunnel                           1.20.3          1.20.3          Helm chart for istio ztunnel components
 # 2024.02.18
-
+---
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION
+istio/istiod            1.27.1          1.27.1          Helm chart for istio control plane
+istio/istiod-remote     1.23.6          1.23.6          Helm chart for a remote cluster using an extern...
+istio/ambient           1.27.1          1.27.1          Helm umbrella chart for ambient
+istio/base              1.27.1          1.27.1          Helm chart for deploying Istio cluster resource...
+istio/cni               1.27.1          1.27.1          Helm chart for istio-cni components
+istio/gateway           1.27.1          1.27.1          Helm chart for deploying Istio gateways
+istio/ztunnel           1.27.1          1.27.1          Helm chart for istio ztunnel components
+# 2025.09.20
 
 ```
 
@@ -78,14 +87,16 @@ $ kubectl create namespace istio-system
 ```sh
 # istio-base 설치
 $ helm -n istio-system install istio-base istio/base
+
 NAME: istio-base
-LAST DEPLOYED: Fri Feb  9 13:40:30 2024
+LAST DEPLOYED: Sat Sep 20 12:53:35 2025
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 Istio base successfully installed!
+
 
 To learn more about the release, try:
   $ helm status istio-base
@@ -95,11 +106,9 @@ To learn more about the release, try:
 
 
 $ helm -n istio-system ls
-NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-istio-base      istio-system    1               2023-05-14 13:48:21.21648216 +0900 KST  deployed        base-1.17.2     1.17.2
 
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-istio-base      istio-system    1               2024-02-09 13:40:30.255845915 +0000 UTC deployed        base-1.20.2     1.20.2
+istio-base      istio-system    1               2025-09-20 12:53:35.324444407 +0000 UTC deployed        base-1.27.1     1.27.1
 
 
 # helm 확인
@@ -108,47 +117,22 @@ $ helm -n istio-system get all istio-base
 
 
 # CRD 확인(istio 를 포함한 각종 CRD 를 확인할 수 있다.)
-$ kubectl get crd
+$ kubectl get crd | grep istio
 NAME                                       CREATED AT
-addons.k3s.cattle.io                       2024-02-18T02:00:52Z
-authorizationpolicies.security.istio.io    2024-02-18T02:43:19Z
-destinationrules.networking.istio.io       2024-02-18T02:43:19Z
-envoyfilters.networking.istio.io           2024-02-18T02:43:19Z
-etcdsnapshotfiles.k3s.cattle.io            2024-02-18T02:00:52Z
-gateways.networking.istio.io               2024-02-18T02:43:19Z
-helmchartconfigs.helm.cattle.io            2024-02-18T02:00:52Z
-helmcharts.helm.cattle.io                  2024-02-18T02:00:52Z
-ingressroutes.traefik.containo.us          2024-02-18T02:01:23Z
-ingressroutes.traefik.io                   2024-02-18T02:01:23Z
-ingressroutetcps.traefik.containo.us       2024-02-18T02:01:23Z
-ingressroutetcps.traefik.io                2024-02-18T02:01:23Z
-ingressrouteudps.traefik.containo.us       2024-02-18T02:01:23Z
-ingressrouteudps.traefik.io                2024-02-18T02:01:23Z
-istiooperators.install.istio.io            2024-02-18T02:43:19Z
-middlewares.traefik.containo.us            2024-02-18T02:01:23Z
-middlewares.traefik.io                     2024-02-18T02:01:23Z
-middlewaretcps.traefik.containo.us         2024-02-18T02:01:23Z
-middlewaretcps.traefik.io                  2024-02-18T02:01:23Z
-peerauthentications.security.istio.io      2024-02-18T02:43:19Z
-proxyconfigs.networking.istio.io           2024-02-18T02:43:19Z
-requestauthentications.security.istio.io   2024-02-18T02:43:19Z
-serverstransports.traefik.containo.us      2024-02-18T02:01:23Z
-serverstransports.traefik.io               2024-02-18T02:01:23Z
-serverstransporttcps.traefik.io            2024-02-18T02:01:23Z
-serviceentries.networking.istio.io         2024-02-18T02:43:19Z
-sidecars.networking.istio.io               2024-02-18T02:43:19Z
-telemetries.telemetry.istio.io             2024-02-18T02:43:19Z
-tlsoptions.traefik.containo.us             2024-02-18T02:01:23Z
-tlsoptions.traefik.io                      2024-02-18T02:01:23Z
-tlsstores.traefik.containo.us              2024-02-18T02:01:23Z
-tlsstores.traefik.io                       2024-02-18T02:01:23Z
-traefikservices.traefik.containo.us        2024-02-18T02:01:23Z
-traefikservices.traefik.io                 2024-02-18T02:01:23Z
-virtualservices.networking.istio.io        2024-02-18T02:43:19Z
-wasmplugins.extensions.istio.io            2024-02-18T02:43:19Z
-workloadentries.networking.istio.io        2024-02-18T02:43:19Z
-workloadgroups.networking.istio.io         2024-02-18T02:43:19Z
-
+authorizationpolicies.security.istio.io     2025-09-20T12:53:36Z
+destinationrules.networking.istio.io        2025-09-20T12:53:36Z
+envoyfilters.networking.istio.io            2025-09-20T12:53:36Z
+gateways.networking.istio.io                2025-09-20T12:53:36Z
+peerauthentications.security.istio.io       2025-09-20T12:53:36Z
+proxyconfigs.networking.istio.io            2025-09-20T12:53:36Z
+requestauthentications.security.istio.io    2025-09-20T12:53:36Z
+serviceentries.networking.istio.io          2025-09-20T12:53:36Z
+sidecars.networking.istio.io                2025-09-20T12:53:36Z
+telemetries.telemetry.istio.io              2025-09-20T12:53:36Z
+virtualservices.networking.istio.io         2025-09-20T12:53:36Z
+wasmplugins.extensions.istio.io             2025-09-20T12:53:36Z
+workloadentries.networking.istio.io         2025-09-20T12:53:36Z
+workloadgroups.networking.istio.io          2025-09-20T12:53:36Z
 
 
 # istio 관련crd 가 존재한다면 정상 설치 된 것이다.
@@ -207,20 +191,20 @@ $ helm -n istio-system get all istio-istiod
 
 ## 확인
 $ kubectl -n istio-system get all
-NAME                          READY   STATUS    RESTARTS   AGE
-pod/istiod-5d95465974-t9cxx   1/1     Running   0          47s
+NAME                          READY   STATUS              RESTARTS   AGE
+pod/istiod-868755b6bf-hq6x7   0/1     ContainerCreating   0          5s
 
-NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                                 AGE
-service/istiod   ClusterIP   10.43.82.71   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   47s
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
+service/istiod   ClusterIP   10.43.196.221   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   5s
 
 NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istiod   1/1     1            1           47s
+deployment.apps/istiod   0/1     1            0           5s
 
 NAME                                DESIRED   CURRENT   READY   AGE
-replicaset.apps/istiod-5d95465974   1         1         1       47s
+replicaset.apps/istiod-868755b6bf   1         1         0       5s
 
-NAME                                         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1         5         1          47s
+NAME                                         REFERENCE           TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   cpu: <unknown>/80%   1         5         0          5s
 
 
 ```
@@ -269,20 +253,20 @@ $ helm -n istio-ingress install istio-ingressgateway istio/gateway
 
 
 $ kubectl -n istio-ingress get all
-NAME                                       READY   STATUS    RESTARTS   AGE
-pod/istio-ingressgateway-9cc99c9db-czkc8   1/1     Running   0          14s
+NAME                                        READY   STATUS              RESTARTS   AGE
+pod/istio-ingressgateway-5b86b655cc-27qxz   0/1     ContainerCreating   0          4s
 
 NAME                           TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-service/istio-ingressgateway   LoadBalancer   10.43.33.106   <pending>     15021:32118/TCP,80:32217/TCP,443:31768/TCP   15s
+service/istio-ingressgateway   LoadBalancer   10.43.120.76   <pending>     15021:31595/TCP,80:31287/TCP,443:30369/TCP   4s
 
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istio-ingressgateway   1/1     1            1           15s
+deployment.apps/istio-ingressgateway   0/1     1            0           4s
 
-NAME                                             DESIRED   CURRENT   READY   AGE
-replicaset.apps/istio-ingressgateway-9cc99c9db   1         1         1       15s
+NAME                                              DESIRED   CURRENT   READY   AGE
+replicaset.apps/istio-ingressgateway-5b86b655cc   1         1         0       4s
 
-NAME                                                       REFERENCE                         TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         5         0          15s
+NAME                                                       REFERENCE                         TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   cpu: <unknown>/80%   1         5         0          4s
 
 
 
@@ -290,10 +274,7 @@ horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingr
 # traefik 과 충돌나는 현상도 사라졌다.
 
 
-$ alias kii='kubectl -n istio-ingress'
-
-
-$ kii get svc
+$ kubectl -n istio-ingress get svc
 NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
 istio-ingressgateway   LoadBalancer   10.43.165.9   <pending>     15021:30613/TCP,80:31166/TCP,443:32560/TCP   90s
 ---
@@ -302,11 +283,15 @@ istio-ingressgateway   LoadBalancer   10.43.78.43   <pending>     15021:32086/TC
 ---
 NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
 istio-ingressgateway   LoadBalancer   10.43.33.106   <pending>     15021:32118/TCP,80:32217/TCP,443:31768/TCP   62s
+---
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.120.76   <pending>     15021:31595/TCP,80:31287/TCP,443:30369/TCP   34s
 
 
 
 32190 / 30919 nodeport 로 접근 가능
 32217 / 31768 nodeport 로 접근 가능
+31287 / 30369 nodeport 로 접근 가능
 
 
 ```
@@ -347,16 +332,18 @@ $ kubectl delete namespace istio-system
 1교시 kubernetes 실습때 수행했던 userlist pod 를 다시 확인해 보자.
 
 ```sh
-$ alias ku='kubectl -n yjsong'
+
 
 # userlist pod 확인
-$ ku get pod
+$ kubectl -n yjsong get pod
 NAME                        READY   STATUS    RESTARTS   AGE
-userlist-75c7d7dfd7-7tf7g   1/1     Running   0          6s
+curltest                    1/1     Running   0          4h10m
+userlist-858d9c87d5-ncbzp   1/1     Running   0          4h49m
+
 
 
 # 존재하지 않는다면 아래명령으로 실행
-$ ku create deploy userlist --image=ssongman/userlist:v1
+$ kubectl -n yjsong create deploy userlist --image=ssongman/userlist:v1
 ```
 
 
@@ -390,16 +377,16 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 # 적용전 확인
-$ kubectl get ns yjsong -o yaml
+$ kubectl -n yjsong -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2023-05-13T18:48:19Z"
+  creationTimestamp: "2025-09-20T08:04:55Z"
   labels:                                     <-- labels 확인(istio label 이 없다.)
     kubernetes.io/metadata.name: yjsong
   name: yjsong
-  resourceVersion: "771"
-  uid: df181e8d-5c13-411f-8abd-29c73961cb1a
+  resourceVersion: "7565"
+  uid: 86b97931-0103-4a68-a78b-19d51c9c0256
 spec:
   finalizers:
   - kubernetes
@@ -414,18 +401,18 @@ namespace/yjsong labeled
 
 
 # 적용후 확인
-$ kubectl get ns yjsong -o yaml
-
+$ kubectl -n yjsong -o yaml
+ktdsedu@ke-bastion01:~$ kubectl -n yjsong -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2024-02-09T12:29:41Z"
+  creationTimestamp: "2025-09-20T08:04:55Z"
   labels:
     istio-injection: enabled                    <-- istio label 이 잘 추가되었다.
     kubernetes.io/metadata.name: yjsong
   name: yjsong
-  resourceVersion: "18477"
-  uid: 0b68ba76-c5ba-41c4-8b95-2ee9ae4f6bd1
+  resourceVersion: "71380"
+  uid: 86b97931-0103-4a68-a78b-19d51c9c0256
 spec:
   finalizers:
   - kubernetes
@@ -447,77 +434,47 @@ status:
 
 ```sh
 # 확인
-$ ku get pod
-NAME                       READY   STATUS    RESTARTS        AGE
-curltest                   1/1     Running   11 (4d1h ago)   97d
-userlist-bfd857685-g9hsg   1/1     Running   11 (4d1h ago)   97d
+$ kubectl -n yjsong get pod
+NAME                        READY   STATUS    RESTARTS   AGE
+curltest                    1/1     Running   0          4h13m
+userlist-858d9c87d5-ncbzp   1/1     Running   0          4h52m
 
 
 
-
-# pod 재기동(삭제)
-$ ku delete pod userlist-bfd857685-g9hsg
-pod "userlist-6bfcd9456d-5rjmc" deleted
+# userlist pod 재기동
+$ kubectl -n yjsong rollout restart deploy/userlist
+deployment.apps/userlist restarted
 
 ## gracefule 방식으로 삭제되므로 시간이 어느정도 소요됨.
 
 # 확인
-$ ku get pod
-NAME                       READY   STATUS    RESTARTS        AGE
-curltest                   1/1     Running   11 (4d1h ago)   97d
-userlist-bfd857685-p9bzr   2/2     Running   0               33s
+$ kubectl -n yjsong get pod
+NAME                        READY   STATUS        RESTARTS   AGE
+curltest                    1/1     Running       0          4h13m
+userlist-766c9b8874-xh7rg   2/2     Running       0          25s
+userlist-858d9c87d5-ncbzp   1/1     Terminating   0          4h53m
+
 
 
 # istio sidecar 가 포함되어 2개의 container 가 되었다.
 
 
 # describe 로 확인
-$ ku describe pod userlist-bfd857685-p9bzr
+$ kubectl -n yjsong describe pod userlist-766c9b8874-xh7rg
 ...
+Init Containers:
+  istio-init:
+  istio-proxy:
 Containers:
   userlist:
-    Container ID:   containerd://ad5eb2796057a1323c8453a224050122aa7097ec7ad2883244c6f6925c86bb55
-    Image:          ssongman/userlist:v1
-    Image ID:       docker.io/ssongman/userlist@sha256:74f32a7b4bab2c77bf98f2717fed49e034756d541e536316bba151e5830df0dc
-    Port:           8181/TCP
-    Host Port:      0/TCP
-    State:          Running
-      Started:      Sat, 26 Aug 2023 02:10:58 +0000
-    Ready:          True
-    Restart Count:  0
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-vdv7l (ro)
-  istio-proxy:
-    Container ID:  containerd://b570594e24d6e39ff3391f2218de185fcf140fe0e9d1896a7bd916c9c283d98d
-    Image:         docker.io/istio/proxyv2:1.18.2
-    Image ID:      docker.io/istio/proxyv2@sha256:b71f2657e038a0d6092dfd954050a2783c7887ff8e72f77ce64840c0c39b076e
-    Port:          15090/TCP
-    Host Port:     0/TCP
-    Args:
-      proxy
-      sidecar
-      --domain
-      $(POD_NAMESPACE).svc.cluster.local
-      --proxyLogLevel=warning
-      --proxyComponentLogLevel=misc:error
-      --log_output_level=default:info
-    State:          Running
-      Started:      Sat, 26 Aug 2023 02:10:58 +0000
-    Ready:          True
-    Restart Count:  0
-    Limits:
-      cpu:     2
-      memory:  1Gi
-    Requests:
-      cpu:      100m
-      memory:   128Mi
+...
 
 
 
 ```
 
-위 Containers 내부에 userlist 와 istio-proxy 2개가 존재하는 것을 확인할 수 있다.
+- istio-proxy 컨테이너는 **Pod 라이프사이클 내내 Running** 상태로 유지
+- 그러므로 Containers 내부에 userlist 와 istio-proxy 2개가 존재하게 된다.
 
 
 
@@ -525,7 +482,7 @@ Containers:
 
 ```sh
 # Userlit 삭제시...
-$ ku delete deploy userlist
+$ kubectl -n yjsong delete deploy userlist
 
 # label 삭제시...
 $ kubectl label --overwrite namespace yjsong istio-injection-
@@ -547,10 +504,10 @@ $ kubectl label --overwrite namespace yjsong istio-injection-
 
 ```sh
 # prometheus 설치
-# istio 버젼을 확인후 동일한 버젼의 prometheus 를 설치하자.
+# 반드시 istio 버젼을 확인후 동일한 버젼의 prometheus 를 설치하자.
 
-$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml
-
+$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/prometheus.yaml
+ons/prometheus.yaml
 serviceaccount/prometheus created
 configmap/prometheus created
 clusterrole.rbac.authorization.k8s.io/prometheus created
@@ -561,33 +518,28 @@ deployment.apps/prometheus created
 
 
 # 설치 확인
-$ kubectl -n istio-system get pod -l app=prometheus
+$ kubectl -n istio-system get pod -l app.kubernetes.io/name=prometheus
 NAME                         READY   STATUS    RESTARTS   AGE
-prometheus-db8b4588f-bzr2k   2/2     Running   0          34s
+prometheus-7bf56b6bc-xp8rx   2/2     Running   0          2m1s
 
-
-
-
-$ kubectl -n istio-system get all
 NAME                             READY   STATUS    RESTARTS   AGE
-pod/istiod-5d95465974-t9cxx      1/1     Running   0          8m28s
-pod/prometheus-db8b4588f-bzr2k   2/2     Running   0          46s
+pod/istiod-868755b6bf-hq6x7      1/1     Running   0          11m
+pod/prometheus-7bf56b6bc-xp8rx   2/2     Running   0          2m15s
 
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
-service/istiod       ClusterIP   10.43.82.71     <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   8m28s
-service/prometheus   ClusterIP   10.43.217.204   <none>        9090/TCP                                46s
+service/istiod       ClusterIP   10.43.196.221   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   11m
+service/prometheus   ClusterIP   10.43.103.223   <none>        9090/TCP                                2m15s
 
 NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istiod       1/1     1            1           8m28s
-deployment.apps/prometheus   1/1     1            1           46s
+deployment.apps/istiod       1/1     1            1           11m
+deployment.apps/prometheus   1/1     1            1           2m15s
 
 NAME                                   DESIRED   CURRENT   READY   AGE
-replicaset.apps/istiod-5d95465974      1         1         1       8m28s
-replicaset.apps/prometheus-db8b4588f   1         1         1       46s
+replicaset.apps/istiod-868755b6bf      1         1         1       11m
+replicaset.apps/prometheus-7bf56b6bc   1         1         1       2m15s
 
-NAME                                         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1         5         1          8m28s
-
+NAME                                         REFERENCE           TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   cpu: 0%/80%   1         5         1          11m
 
 ```
 
@@ -596,10 +548,8 @@ horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1    
 - ingress 
 
 ```sh
-$ cd ~/yjsong/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/monitoring/10.prometheus-ingress-cloud.yaml
-
+$ cat <<EOF | kubectl -n istio-system apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -609,7 +559,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "prometheus.istio-system.cloud.43.203.62.69.nip.io"
+  - host: "prometheus.istio-system.cloud.20.249.162.253.nip.io"
     http:
       paths:
       - path: /
@@ -619,15 +569,11 @@ spec:
             name: prometheus
             port:
               number: 9090
+EOF
 
-$ ki apply -f ./istio/monitoring/10.prometheus-ingress-cloud.yaml
-
-$ ki get ingress -l app=prometheus
-NAME                 CLASS     HOSTS                                                ADDRESS                                                                 PORTS   AGE
-prometheus-ingress   traefik   prometheus.istio-system.cloud.35.209.207.26.nip.io   10.128.0.35,10.128.0.36,10.128.0.38,10.128.0.39,10.208.0.2,10.208.0.3   80      13m
----
-NAME                 CLASS     HOSTS                                               ADDRESS                                   PORTS   AGE
-prometheus-ingress   traefik   prometheus.istio-system.cloud.43.203.62.69.nip.io   172.31.13.98,172.31.14.177,172.31.8.197   80      8s
+$ kubectl -n istio-system get ingress -l app=prometheus
+NAME                 CLASS     HOSTS                                                 ADDRESS                                                  PORTS   AGE
+prometheus-ingress   traefik   prometheus.istio-system.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      72s
 
 
 ```
@@ -641,8 +587,11 @@ prometheus-ingress   traefik   prometheus.istio-system.cloud.43.203.62.69.nip.io
 참조링크 : https://istio.io/latest/docs/ops/integrations/grafana/
 
 ```sh
-$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/grafana.yaml
+# grafana 설치
+# 반드시 istio 버젼을 확인후 동일한 버젼의 prometheus 를 설치하자.
 
+$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/grafana.yaml
+ons/grafana.yaml
 serviceaccount/grafana created
 configmap/grafana created
 service/grafana created
@@ -652,40 +601,36 @@ configmap/istio-services-grafana-dashboards created
 
 
 
-
-
-$ kubectl -n istio-system get pod -l app=grafana
+$ kubectl -n istio-system get pod -l app.kubernetes.io/name=grafana
 NAME                      READY   STATUS    RESTARTS   AGE
-grafana-b8bbdc84d-fbx2c   1/1     Running   0          23s
+grafana-cdb9db549-w2fjt   0/1     Running   0          26s
 
 
 
-
-$ ki get all
+$ kubectl -n istio-system get all
 
 NAME                             READY   STATUS    RESTARTS   AGE
-pod/grafana-b8bbdc84d-fbx2c      1/1     Running   0          32s
-pod/istiod-5d95465974-t9cxx      1/1     Running   0          20m
-pod/prometheus-db8b4588f-bzr2k   2/2     Running   0          12m
+pod/grafana-cdb9db549-w2fjt      1/1     Running   0          45s
+pod/istiod-868755b6bf-hq6x7      1/1     Running   0          17m
+pod/prometheus-7bf56b6bc-xp8rx   2/2     Running   0          7m58s
 
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
-service/grafana      ClusterIP   10.43.35.6      <none>        3000/TCP                                32s
-service/istiod       ClusterIP   10.43.82.71     <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   20m
-service/prometheus   ClusterIP   10.43.217.204   <none>        9090/TCP                                12m
+service/grafana      ClusterIP   10.43.54.5      <none>        3000/TCP                                46s
+service/istiod       ClusterIP   10.43.196.221   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   17m
+service/prometheus   ClusterIP   10.43.103.223   <none>        9090/TCP                                7m58s
 
 NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/grafana      1/1     1            1           32s
-deployment.apps/istiod       1/1     1            1           20m
-deployment.apps/prometheus   1/1     1            1           12m
+deployment.apps/grafana      1/1     1            1           45s
+deployment.apps/istiod       1/1     1            1           17m
+deployment.apps/prometheus   1/1     1            1           7m58s
 
 NAME                                   DESIRED   CURRENT   READY   AGE
-replicaset.apps/grafana-b8bbdc84d      1         1         1       32s
-replicaset.apps/istiod-5d95465974      1         1         1       20m
-replicaset.apps/prometheus-db8b4588f   1         1         1       12m
+replicaset.apps/grafana-cdb9db549      1         1         1       45s
+replicaset.apps/istiod-868755b6bf      1         1         1       17m
+replicaset.apps/prometheus-7bf56b6bc   1         1         1       7m58s
 
-NAME                                         REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1         5         1          20m
-
+NAME                                         REFERENCE           TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   cpu: 1%/80%   1         5         1          17m
 
 ```
 
@@ -694,9 +639,8 @@ horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   0%/80%    1    
 - ingress 
 
 ```sh
-$ cd ~/yjsong/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/monitoring/11.grafana-ingress-cloud.yaml
+$ cat <<EOF | kubectl -n istio-system apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -706,7 +650,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "grafana.istio-system.cloud.43.203.62.69.nip.io"
+  - host: "grafana.istio-system.cloud.20.249.162.253.nip.io"
     http:
       paths:
       - path: /
@@ -716,13 +660,13 @@ spec:
             name: grafana
             port:
               number: 3000
-
+EOF
 
 $ ki apply -f ./istio/monitoring/11.grafana-ingress-cloud.yaml
 
 $ ki get ingress -l app=grafana
 NAME              CLASS     HOSTS                                            ADDRESS                                   PORTS   AGE
-grafana-ingress   traefik   grafana.istio-system.cloud.43.203.62.69.nip.io   172.31.13.98,172.31.14.177,172.31.8.197   80      5s
+grafana-ingress   traefik   grafana.istio-system.cloud.20.249.162.253.nip.io   172.31.13.98,172.31.14.177,172.31.8.197   80      5s
 
 
 ```
@@ -737,29 +681,24 @@ grafana-ingress   traefik   grafana.istio-system.cloud.43.203.62.69.nip.io   172
 
 ```sh
 # 설치
-$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/kiali.yaml
-
+$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/kiali.yaml
+ons/kiali.yaml
 serviceaccount/kiali created
 configmap/kiali created
-clusterrole.rbac.authorization.k8s.io/kiali-viewer created
 clusterrole.rbac.authorization.k8s.io/kiali created
 clusterrolebinding.rbac.authorization.k8s.io/kiali created
-role.rbac.authorization.k8s.io/kiali-controlplane created
-rolebinding.rbac.authorization.k8s.io/kiali-controlplane created
 service/kiali created
 deployment.apps/kiali created
 
 
 $ kubectl -n istio-system get pod -l app=kiali
 NAME                     READY   STATUS    RESTARTS   AGE
-kiali-545878ddbb-wknm4   0/1     Running   0          15s
-
+kiali-56f54f58f9-cgjgl   0/1     Running   0          20s
 
 
 $ kubectl -n istio-system get svc kiali
-NAME    TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)              AGE
-kiali   ClusterIP   10.43.204.82   <none>        20001/TCP,9090/TCP   24s
-
+NAME    TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)              AGE
+kiali   ClusterIP   10.43.9.37   <none>        20001/TCP,9090/TCP   38s
 
 ```
 
@@ -768,9 +707,8 @@ kiali   ClusterIP   10.43.204.82   <none>        20001/TCP,9090/TCP   24s
 - ingress 
 
 ```sh
-$ cd ~/yjsong/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/monitoring/12.kiali-ingress-cloud.yaml
+$ cat <<EOF | kubectl -n istio-system apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -780,7 +718,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "kiali.istio-system.cloud.43.203.62.69.nip.io"
+  - host: "kiali.istio-system.cloud.20.249.162.253.nip.io"
     http:
       paths:
       - path: /
@@ -790,17 +728,12 @@ spec:
             name: kiali
             port:
               number: 20001
+EOF
 
+$ kubectl -n istio-system get ingress -l app=kiali
+NAME            CLASS     HOSTS                                            ADDRESS                                                  PORTS   AGE
+kiali-ingress   traefik   kiali.istio-system.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      14s
 
-
-
-$ ki apply -f ./istio/monitoring/12.kiali-ingress-cloud.yaml
-
-
-$ ki get ingress -l app=kiali
-
-NAME            CLASS     HOSTS                                          ADDRESS                                   PORTS   AGE
-kiali-ingress   traefik   kiali.istio-system.cloud.43.203.62.69.nip.io   172.31.13.98,172.31.14.177,172.31.8.197   80      4s
 
 ```
 
@@ -813,27 +746,23 @@ kiali-ingress   traefik   kiali.istio-system.cloud.43.203.62.69.nip.io   172.31.
 참조링크: https://istio.io/latest/docs/ops/integrations/jaeger/
 
 ```sh
-$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/jaeger.yaml
-
+$ kubectl -n istio-system apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/jaeger.yaml
+ons/jaeger.yaml
 deployment.apps/jaeger created
 service/tracing created
 service/zipkin created
 service/jaeger-collector created
 
-
-
 $ kubectl -n istio-system get pod -l app=jaeger
-NAME                     READY   STATUS    RESTARTS   AGE
-jaeger-cc4688b98-kd45r   1/1     Running   0          33s
-
+NAME                      READY   STATUS    RESTARTS   AGE
+jaeger-84b9c75d5f-4m7qc   1/1     Running   0          11s
 
 
 $ kubectl -n istio-system get svc -l app=jaeger
 
 NAME               TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                                          AGE
-jaeger-collector   ClusterIP   10.43.118.68   <none>        14268/TCP,14250/TCP,9411/TCP,4317/TCP,4318/TCP   14s
-tracing            ClusterIP   10.43.23.78    <none>        80/TCP,16685/TCP                                 14s
-
+jaeger-collector   ClusterIP   10.43.8.58     <none>        14268/TCP,14250/TCP,9411/TCP,4317/TCP,4318/TCP   21s
+tracing            ClusterIP   10.43.72.128   <none>        80/TCP,16685/TCP                                 22s
 
 ```
 
@@ -842,11 +771,8 @@ tracing            ClusterIP   10.43.23.78    <none>        80/TCP,16685/TCP    
 - ingress 
 
 ```sh
-$ cd ~/yjsong/githubrepo/ktds-edu-k8s-istio
 
-
-$ cat ./istio/monitoring/13.jaeger-ingress-cloud.yaml
-
+$ cat <<EOF | kubectl -n istio-system apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -856,7 +782,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: "jaeger.istio-system.cloud.43.203.62.69.nip.io"
+  - host: "jaeger.istio-system.cloud.20.249.162.253.nip.io"
     http:
       paths:
       - path: /
@@ -866,15 +792,12 @@ spec:
             name: tracing
             port:
               number: 80
+EOF
 
+$ kubectl -n istio-system get ingress -l app=jaeger
 
-
-$ ki apply -f ./istio/monitoring/13.jaeger-ingress-cloud.yaml
-
-$ ki get ingress -l app=jaeger
-
-NAME             CLASS     HOSTS                                           ADDRESS                                   PORTS   AGE
-jaeger-ingress   traefik   jaeger.istio-system.cloud.43.203.62.69.nip.io   172.31.13.98,172.31.14.177,172.31.8.197   80      3s
+NAME             CLASS     HOSTS                                             ADDRESS                                                  PORTS   AGE
+jaeger-ingress   traefik   jaeger.istio-system.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      21s
 
 
 ```
@@ -884,7 +807,9 @@ jaeger-ingress   traefik   jaeger.istio-system.cloud.43.203.62.69.nip.io   172.3
 ## 5) test
 
 ```sh
-$ while true; do curl http://userlist.yjsong.cloud.43.203.62.69.nip.io/users/1; sleep 1; echo; done;
+
+$ while true; do curl http://userlist.yjsong.cloud.20.249.162.253.nip.io/users/1; sleep 1; echo; done;
+
 
 ```
 
@@ -897,14 +822,14 @@ $ while true; do curl http://userlist.yjsong.cloud.43.203.62.69.nip.io/users/1; 
 ## 6) clean up
 
 ```sh
-$ cd ~/yjsong/githubrepo/ktds-edu-k8s-istio
 
 # ingress 삭제
-$ ki delete -f ./istio/monitoring/10.prometheus-ingress-cloud.yaml
-  ki delete -f ./istio/monitoring/11.grafana-ingress-cloud.yaml
-  ki delete -f ./istio/monitoring/12.kiali-ingress-cloud.yaml
-  ki delete -f ./istio/monitoring/13.jaeger-ingress-cloud.yaml
+$ kubectl -n istio-system delete ingress prometheus-ingress
+  kubectl -n istio-system delete ingress grafana-ingress
+  kubectl -n istio-system delete ingress kiali-ingress
+  kubectl -n istio-system delete ingress jaeger-ingress
 
+ 
 
 # uninstall
 $ kubectl -n istio-system delete -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/addons/prometheus.yaml

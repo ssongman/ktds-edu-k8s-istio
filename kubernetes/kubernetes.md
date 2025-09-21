@@ -12,7 +12,7 @@
 
 ### (1) Container
 
-* AP 와 Binary, Library 를 Package 로 묶어서 배포
+* AP실행에 필요한 Binary, Library 를 Package 로 묶음
 * 서로 다른 컴퓨팅 환경에서 AP를 안정적으로 실행 할 수 있음
 * 개발환경에 구애 받지 않고 빠른 배포가 가능(OS 커널 공유)
 * 온프레미스 환경에서 클라우드 네이티브 환경으로 쉽게 옮겨 갈 수 있어서 클라우드 컴퓨팅 분야에서 가장 주목 받는 기술중 하나임
@@ -221,10 +221,9 @@ Scale Out 이 필요하다.  어떻게 해결할 것인가?
 $ docker run -d --name userlist2 -p 8182:8181 ssongman/userlist:v1
 
 $ docker ps
-CONTAINER ID  IMAGE                           COMMAND               CREATED         STATUS             PORTS                   NAMES
-a60574943ae2  docker.io/ssongman/userlist:v1  /bin/sh -c java -...  40 minutes ago  Up 40 minutes ago  0.0.0.0:8181->8181/tcp  userlist1
-a4844969794a  docker.io/ssongman/userlist:v1  /bin/sh -c java -...  5 seconds ago   Up 5 seconds ago   0.0.0.0:8182->8181/tcp  userlist2
-
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+01b74e11c549   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   5 seconds ago    Up 4 seconds    0.0.0.0:8182->8181/tcp, [::]:8182->8181/tcp   userlist2
+ea90d119e360   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   54 seconds ago   Up 53 seconds   0.0.0.0:8181->8181/tcp, [::]:8181->8181/tcp   userlist1
 
 
 $ curl http://localhost:8182/users/1
@@ -357,10 +356,9 @@ haproxy는 첫 수행을 위해서는 반드시 haproxy.cfg 파일이 필요하�
 
 ```sh
 $ mkdir -p ~/ktdsedu/haproxy
+  cd ~/ktdsedu/haproxy
 
-$ cd ~/ktdsedu/haproxy
-
-$ cat > haproxy.cfg
+$ cat > haproxy.cfg <<EOF
 global
     log         127.0.0.1 local0
     log         127.0.0.1 local1 notice
@@ -393,6 +391,9 @@ listen web
     balance roundrobin
     server  web1 userlist1:8181 check
     server  web2 userlist2:8181 check
+EOF
+
+
 
 #stats
 #  - haproxy 를 모니터할 수 있도록 설정한다.
@@ -404,9 +405,17 @@ listen web
 #  - 라운드로빈으로 밸런싱
 #  - web1, web2 의 헬스체크를 실행
 
-```
 
-cat > 명령이후 Ctrl + D 명령어로 파일을 Close 한다.
+
+# 확인
+$ cat haproxy.cfg
+global
+    log         127.0.0.1 local0
+    log         127.0.0.1 local1 notice
+    maxconn     4000
+...
+
+```
 
 
 
@@ -416,16 +425,18 @@ cat > 명령이후 Ctrl + D 명령어로 파일을 Close 한다.
 
 $ cd ~/ktdsedu/haproxy
 
-$ cat > Dockerfile
-
+$ cat > Dockerfile <<EOF
 FROM haproxy:latest
 COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
+EOF
+
+
+$ ls -ltr
+-rw-rw-r-- 1 ktdsedu docker   72 Sep 20 10:01 Dockerfile
+-rw-rw-r-- 1 ktdsedu docker  621 Sep 20 10:00 haproxy.cfg
+
 
 ```
-
-cat > 명령이후 Ctrl + D 명령어로 파일을 Close 한다.
-
-
 
 
 
@@ -435,8 +446,8 @@ $ docker build -t my-haproxy .
 
 $ docker images
 REPOSITORY          TAG       IMAGE ID       CREATED         SIZE
-my-haproxy          latest    9df686f9b2ad   2 seconds ago   103MB
-ssongman/userlist   v1        bf0cd99d0bad   4 years ago     680MB
+my-haproxy          latest    f101926527b1   3 seconds ago   106MB
+ssongman/userlist   v1        bf0cd99d0bad   6 years ago     680MB
 
 ```
 
@@ -464,8 +475,7 @@ $ docker run -it --rm \
     --net my_network \
     my-haproxy haproxy -v
 
-HAProxy version 2.9.5-260dbb8 2024/02/15 - https://haproxy.org/
-HAProxy version 3.0.0-5590ada 2024/05/29 - https://haproxy.org/
+HAProxy version 3.2.4-98813a1 2025/08/13 - https://haproxy.org/
 
 
 
@@ -478,10 +488,10 @@ $ docker run -d \
 
 # 확인
 $ docker ps -a
-CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                    NAMES
-8a9fb73ccef1   my-haproxy             "docker-entrypoint.s…"   20 seconds ago   Up 19 seconds   0.0.0.0:8180->8180/tcp   my-haproxy
-065c828fc702   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   10 minutes ago   Up 10 minutes   0.0.0.0:8182->8181/tcp   userlist2
-c65f45a0784b   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   11 minutes ago   Up 11 minutes   0.0.0.0:8181->8181/tcp   userlist1
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS                      PORTS                                         NAMES
+0a547e441463   my-haproxy             "docker-entrypoint.s…"   5 seconds ago    Up 4 seconds                0.0.0.0:8180->8180/tcp, [::]:8180->8180/tcp   my-haproxy
+acb518cd76c0   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   7 minutes ago    Up 7 minutes                0.0.0.0:8182->8181/tcp, [::]:8182->8181/tcp   userlist2
+3d53fd79175e   ssongman/userlist:v1   "/bin/sh -c 'java -j…"   7 minutes ago    Up 7 minutes  
 
 
 # [참고] 모니터링 port를 활성화 시키고자 할때는 아래처럼 1936port 를 명시한다.
@@ -588,8 +598,6 @@ $ docker rm -f userlist1
   docker rmi ssongman/userlist:v1
   docker rmi my-haproxy:latest
 ```
-
-
 
 
 
@@ -718,7 +726,15 @@ $ exit
 
 ### (3) kubeconfig 설정
 
-일반 User가 직접 kubctl 명령 실행을 위해서는 kube config 정보(~/.kube/config) 가 필요하다.
+K3s 설치시  **/usr/local/bin/kubectl** 을 만들어주는데, 이건 실제 kubectl 바이너리가 아니라 **k3s 래퍼/하드링크**이다. 
+
+이 래퍼는 **기본 kubeconfig 를 /etc/rancher/k3s/k3s.yaml** 로 사용한다.
+
+k3s 래퍼가 아닌 일반적인 kubectl 바이너리를 사용한다면 .kube 하위 설정(~/.kube/config)이 필요하다.
+
+
+
+
 
 k3s 를 설치하면 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이를 복사한다. 또한 모든 사용자가 읽을 수 있도록 권한을 부여 한다.
 
@@ -733,19 +749,20 @@ k3s 를 설치하면 /etc/rancher/k3s/k3s.yaml 에 정보가 존재하므로 이
 ## 일반 user 권한으로 실행   <-- 중요 ★★★
 
 $ mkdir -p ~/.kube
+  cd ~/.kube
 
 $ cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 
 $ ll ~/.kube/config
--rw-r--r-- 1 ktdseduuser ktdseduuser 2965 Jun  6 11:54 /home/ktdseduuser/.kube/config
+-rw-r--r-- 1 ktdsedu ktdsedu 2957 Sep 20 10:50 /home/ktdsedu/.kube/config
+-rw------- 1 ktdsedu ktdsedu 2958 Sep 20 10:48 /home/ktdsedu/.kube/config-ktdseducluster
 
 
 # 보안을 위해 자신만 RW 권한 부여( 644 --> 600)
 $ chmod 600 ~/.kube/config
 
-
 $ ls -ltr ~/.kube/config
--rw------- 1 ktdseduuser ktdseduuser 2965 Jun  6 11:54 /home/ktdseduuser/.kube/config
+-rw------- 1 ktdsedu ktdsedu 2957 Sep 20 10:50 /home/ktdsedu/.kube/config
 
 
 
@@ -754,7 +771,6 @@ $ kubectl version
 Client Version: v1.30.1
 Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
 Server Version: v1.29.5+k3s1
-
 
 
 $ kubectl get ns
@@ -766,8 +782,9 @@ default           Active   4m2s
 
 
 $ kubectl get nodes
-NAME           STATUS   ROLES                  AGE    VERSION
-ke-bastion03   Ready    control-plane,master   108s   v1.29.5+k3s1
+NAME      STATUS   ROLES                  AGE   VERSION
+eduvm01   Ready    control-plane,master   28m   v1.33.4+k3s1
+
 
 ```
 
@@ -817,32 +834,20 @@ $ eixt
 ```sh
 ## kubectl create ns [namespace_name]
 
-## 자신만의 namespace 명으로 하나를 생성한다.
-$ kubectl create ns user03
+## user 라는 namespace 명으로 하나를 생성한다.
 
-or
-
-$ kubectl create ns user03
-
-or
-
-$ kubectl create ns user04
+$ kubectl create ns user01
 ...
 
 
-# ku 로 alias 선언
-$ alias ku='kubectl -n user03'        #    <-- 자신의 namespace 명을 입력한다. 중요 ★★★
-
-$ ku get pod
-No resources found in user03 namespace.
-
-
+$ kubectl -n user01 get pod
+No resources found in user01 namespace.
 
 ```
 
 
 
-### (2) Alias 수정
+### (2) [참고] Alias 수정
 
 kubectl 명령과 각종 namespace 를 매번 입력하기가 번거롭다면 위와 같이 alias 를 정의후 사용할 수 있으니 참고 하자.
 
@@ -858,8 +863,7 @@ alias k='kubectl'
 alias ki='kubectl -n istio-system'
 alias kb='kubectl -n bookinfo'
 alias kii='kubectl -n istio-ingress'
-
-alias ku='kubectl -n user03'     # <===  자신의 Namespace 로 변경하자.
+alias ku='kubectl -n user01'         # <===  자신의 Namespace 로 변경하자.
 
 #export KUBECONFIG=~/.kube/config-ktdseducluster
 
@@ -903,9 +907,8 @@ Deployment 가 Rolling update 와 rollback 등 Replicaset 을 관리한다.
 -  Manifest file 을 이용하여  deploy  해보자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./kubernetes/userlist/11.userlist-deployment.yaml
+$ cat <<EOF | kubectl -n user01 create -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -927,23 +930,21 @@ spec:
         image: ssongman/userlist:v1
         ports:
         - containerPort: 8181
----
-
-$ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
+EOF
 
 
 # 확인
-$ ku get pod -w
+$ kubectl -n user01 get pod -w
 userlist-75c7d7dfd7-kvtjh   0/1     ContainerCreating   0          15s
 userlist-75c7d7dfd7-kvtjh   1/1     Running             0          40s
 
 
-$ ku get deploy
+$ kubectl -n user01 get deploy
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 userlist   1/1     1            1           46s
 
 
-$ ku get rs
+$ kubectl -n user01 get rs
 NAME                 DESIRED   CURRENT   READY   AGE
 userlist-9fbfc64bc   1         1         1       52s
 
@@ -957,7 +958,7 @@ userlist-9fbfc64bc   1         1         1       52s
 
 ```sh
 # deploy 생성
-$ ku create deploy userlist --image=ssongman/userlist:v1
+$ kubectl -n user01 create deploy userlist --image=ssongman/userlist:v1
 
 ```
 
@@ -967,7 +968,7 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 
-$ ku get pod
+$ kubectl -n user01 get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-9fbfc64bc-6ng8h   1/1     Running   0          100s
 
@@ -983,7 +984,7 @@ userlist-9fbfc64bc-6ng8h   1/1     Running   0          100s
 ```sh
 
 # userlist pod 내로 진입
-$ ku exec -it deploy/userlist -- bash
+$ kubectl -n user01 exec -it deploy/userlist -- bash
 
 
 $ curl -i localhost:8181/users/1
@@ -1011,17 +1012,17 @@ curl test 를 위해서 별도pod(curltest) 를 생성하여 userlist 를 call �
 
 ```sh
 
-$ ku run curltest --image=curlimages/curl -- sleep 365d
+$ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
 pod/curltest created
 
-$ ku get pod
+$ kubectl -n user01 get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-9fbfc64bc-6ng8h   1/1     Running   0          2m53s
 curltest                   1/1     Running   0          8s
 
 
 
-$ ku exec -it curltest -- curl -h
+$ kubectl -n user01 exec -it curltest -- curl -h
 Usage: curl [options...] <url>
  -d, --data <data>          HTTP POST data
  -f, --fail                 Fail fast with no output on HTTP errors
@@ -1047,15 +1048,15 @@ Usage: curl [options...] <url>
 
 
 # pod ip 확인
-$ ku get pod -o wide
-NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE           NOMINATED NODE   READINESS GATES
-userlist-9fbfc64bc-6brjf   1/1     Running   0          6m14s   10.42.0.9    ke-bastion03   <none>           <none>
-curltest                   1/1     Running   0          24s     10.42.0.10   ke-bastion03   <none>           <none>
+$ kubectl -n user01 get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE    IP           NODE      NOMINATED NODE   READINESS GATES
+curltest                    1/1     Running   0          2m3s   10.42.0.9    eduvm01   <none>           <none>
+userlist-858d9c87d5-j644q   1/1     Running   0          101s   10.42.0.10   eduvm01   <none>           <none>
 
 
-$ ku exec -it curltest -- sh
+$ kubectl -n user01 exec -it curltest -- sh
 
-$ curl 10.42.0.9:8181/users/1
+$ curl 10.42.0.10:8181/users/1
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
@@ -1086,11 +1087,8 @@ userlist pod 내에서 실행한 결과와 curltest pod 에서 실행한 결과�
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
-
 # service manifest file 확인
-$ cat ./kubernetes/userlist/12.userlist-svc.yaml
+$ cat <<EOF | kubectl -n user01 create -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -1104,9 +1102,8 @@ spec:
     port: 80
     targetPort: 8181
   type: ClusterIP
+EOF
 
-
-$ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
 service/userlist-svc created
 
 ```
@@ -1118,7 +1115,8 @@ service/userlist-svc created
 - kubectl expose 명령으로 service 를 생성 할 수 있다.
 
 ```sh
-$ ku expose deployment userlist --name userlist-svc --port=80 --target-port=8181
+
+$ kubectl -n user01 expose deployment userlist --name userlist-svc --port=80 --target-port=8181
 
 ```
 
@@ -1128,9 +1126,9 @@ $ ku expose deployment userlist --name userlist-svc --port=80 --target-port=8181
 
 ```sh
 
-$ ku get svc
-NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-userlist-svc   ClusterIP   10.43.113.209   <none>        80/TCP    17s
+$ kubectl -n user01 get svc
+NAME           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+userlist-svc   ClusterIP   10.43.144.93   <none>        80/TCP    45s
 
 ```
 
@@ -1141,16 +1139,16 @@ userlist-svc   ClusterIP   10.43.113.209   <none>        80/TCP    17s
 ### (2) curltest pod 내에서 테스트
 
 ```sh
-9$ ku get pod -o wide
-NAME                       READY   STATUS    RESTARTS   AGE     IP           NODE           NOMINATED NODE   READINESS GATES
-userlist-9fbfc64bc-6brjf   1/1     Running   0          11m     10.42.0.9    ke-bastion03   <none>           <none>
-curltest                   1/1     Running   0          5m13s   10.42.0.10   ke-bastion03   <none>           <none>
+$ kubectl -n user01 get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE      NOMINATED NODE   READINESS GATES
+curltest                    1/1     Running   0          18m   10.42.0.9    eduvm01   <none>           <none>
+userlist-858d9c87d5-j644q   1/1     Running   0          18m   10.42.0.10   eduvm01   <none>           <none>
 
 # curltest pod 내로 진입
-$ ku exec -it curltest -- sh
+$ kubectl -n user01 exec -it curltest -- sh
 
 # pod ip 로 call
-$ curl 10.42.0.9:8181/users/1
+$ curl 10.42.0.10:8181/users/1
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}
 
 # svc name으로 call
@@ -1159,11 +1157,12 @@ $ curl userlist-svc/users/1
 
 # svc name 의 ip 식별
 $ ping userlist-svc
-PING userlist-svc (10.43.106.168): 56 data bytes
+PING userlist-svc (10.43.144.93): 56 data bytes
+
 
 
 # svc ip로 call
-$ curl 10.43.113.209/users/1
+$ curl 10.43.144.93/users/1
 {"id":1,"name":"Brayan Blick","gender":"F","image":"/assets/image/cat1.jpg"}/
 
 
@@ -1194,7 +1193,7 @@ deploy manifest file을 직접 수정하여 replicas 값을 변경할 수 있다
 
 ```sh
 
-$ ku edit deploy userlist
+$ kubectl -n user01 edit deploy userlist
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1203,7 +1202,7 @@ metadata:
   namespace: song
   ...
 spec:
-  replicas: 1                      <--- 3으로 수정한다.
+  replicas: 1                      <-- 2 로 수정한다.
   selector:
     matchLabels:
       app: userlist
@@ -1215,18 +1214,18 @@ spec:
 
 
 
-#### [참고] kubectl cli
+#### kubectl cli 명령으로 증가
 
 * kubectl scale 명령으로 scale 를 조정 할 수 있다.
 
 ```sh
-$ ku get deploy
+$ kubectl -n user01 get deploy
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
-userlist   1/1     1            1           5m15s
+userlist   2/2     2            2           23m
 
 
 # scale 명령으로 pod 3개로 증가
-$ ku scale --replicas=3 deployment/userlist
+$ kubectl -n user01 scale --replicas=3 deployment/userlist
 
 ```
 
@@ -1235,16 +1234,18 @@ $ ku scale --replicas=3 deployment/userlist
 #### pod 수 확인
 
 ```sh
-$ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-curltest                   1/1     Running   0          7h45m
-userlist-bfd857685-ljpnk   1/1     Running   0          5m43s
-userlist-bfd857685-dzqwh   1/1     Running   0          5s
-userlist-bfd857685-28g8v   1/1     Running   0          5s
+$ kubectl -n user01 get pod
+NAME                        READY   STATUS    RESTARTS   AGE
+curltest                    1/1     Running   0          24m
+userlist-858d9c87d5-j644q   1/1     Running   0          23m
+userlist-858d9c87d5-np45r   1/1     Running   0          27s
+userlist-858d9c87d5-s9g58   1/1     Running   0          6s
+
+
 
 ```
 
-너무나 쉽게 replicas 3 으로 scale out 이 되었다.
+너무나 쉽게 replicas 3으로 scale out 이 되었다.
 
 
 
@@ -1329,23 +1330,10 @@ Round Robin 방식은 클라이언트의 요청을 단순하게 들어온 순서
 deploy  replicas 값을 1로 원복하자.
 
 ```sh
-$ ku edit deploy userlist
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: userlist
-  namespace: song
-  ...
-spec:
-  replicas: 3                      <--- 1으로 수정한다.
-  selector:
-    matchLabels:
-      app: userlist
-      ....
----
 
-# 저장후 종료한다. ( :wq )
+# scale 명령으로 pod 1개로 증가
+$ kubectl -n user01 scale --replicas=1 deployment/userlist
+
 ```
 
 
@@ -1379,9 +1367,9 @@ spec:
 ```sh
 $ kubectl -n kube-system get svc
 NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       22m
-metrics-server   ClusterIP      10.43.218.139   <none>        443/TCP                      22m
-traefik          LoadBalancer   10.43.2.251     10.0.0.9      80:31571/TCP,443:32207/TCP   22m
+kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       69m
+metrics-server   ClusterIP      10.43.221.212   <none>        443/TCP                      69m
+traefik          LoadBalancer   10.43.139.237   172.16.0.10   80:31680/TCP,443:30155/TCP   69m
 
 ```
 
@@ -1389,7 +1377,7 @@ kubernetes 관리영역 Namespace 인 kube-system 에서 service 를 살펴보�
 
 traefik(https://traefik.io/) 이라는 proxy tool 을 사용하는 것을 알 수 있다.
 
-또한 node port 가  31571인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
+또한 node port 가  31680인것을 알 수 있다.  그러므로 클러스터 외부에서 접근할때는 해당 node port 로 접근이 가능하다.
 
 아래 실습에서 계속사용될 예정이니 잘 기억해 놓자.
 
@@ -1408,11 +1396,11 @@ daemonset 으로 설정되어 있어서 모든 node 에 설정된다.
 # daemonset 확인
 $ kubectl -n kube-system get ds
 NAME                     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-svclb-traefik-4b41503d   1         1         1       1            1           <none>          22m
+svclb-traefik-0b1dd566   1         1         1       1            1           <none>          71m
 
 
 # daemonset yaml 확인
-$ kubectl -n kube-system get ds svclb-traefik-4b41503d -o yaml
+$ kubectl -n kube-system get ds svclb-traefik-0b1dd566 -o yaml
 ...
 spec:
   template:
@@ -1422,20 +1410,20 @@ spec:
         - name: DEST_PORT
           value: "80"
         - name: DEST_IPS
-          value: 10.43.2.251    # traefik service ip 로 설정
+          value: 10.43.139.237    # traefik service ip 로 설정
         ports:
         - containerPort: 80
-          hostPort: 80           # hostport 로 선언되어 있다.
+          hostPort: 80            # hostport 로 선언되어 있다.
           name: lb-tcp-80
           protocol: TCP
       - env:
         - name: DEST_PORT
           value: "443"
         - name: DEST_IPS
-          value: 10.43.2.251    # traefik service ip 로 설정
+          value: 10.43.139.237    # traefik service ip 로 설정
         ports:
         - containerPort: 443
-          hostPort: 443          # hostport 로 선언되어 있다.
+          hostPort: 443           # hostport 로 선언되어 있다.
           name: lb-tcp-443
           protocol: TCP
 ...
@@ -1455,10 +1443,14 @@ spec:
 * manifest file 을 이용해서 Ingress 를 만들 수 있다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./kubernetes/userlist/15.userlist-ingress-local.yaml
 
+# [my-public-ip] 를 자신의 공인 IP로 변경하자.
+
+# 변경전 userlist.[my-public-ip].nip.io
+# 변경후 userlist.4.230.40.221.nip.io
+
+$ cat <<EOF | kubectl -n user01 create -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -1466,7 +1458,7 @@ metadata:
 spec:
   ingressClassName:  "traefik"
   rules:
-  - host: "userlist.[my-public-ip].nip.io"    #  <-- 자신의 공인 IP 로 변경
+  - host: "userlist.4.230.40.221.nip.io"    #  <-- 자신의 공인 IP 로 변경
     http:
       paths:
       - path: /
@@ -1476,31 +1468,22 @@ spec:
             name: userlist-svc
             port:
               number: 80
----
+EOF
 
 
-# [my-public-ip] 를 자신의 공인 IP로 변경하자.
-$ vi ./kubernetes/userlist/15.userlist-ingress-local.yaml
-
-# 변경전 userlist.[my-public-ip].nip.io
-# 변경후 userlist.4.217.252.117.nip.io
-
-
-# 실행
-$ ku create -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 ingress.networking.k8s.io/userlist-ingress created
 
 ```
 
 
 
-4.217.252.117 가 하위에 여러번 등장한다.
+4.230.40.221 가 하위에 여러번 등장한다.
 
-편집기 일괄 변경 기능을 이용하여 4.217.252.117  를 자신의 공인 IP 로 일괄 변경하자.
+편집기 일괄 변경 기능을 이용하여 4.230.40.221  를 자신의 공인 IP 로 일괄 변경하자.
 
 * 편집기가 typora 라면
   * 일괄변경 단축기 : Ctrl + H 로 변경하자.
-  * 변경전 : 4.217.252.117
+  * 변경전 : 4.230.40.221
   * 변경후 : 자신의 공인 IP
 
 
@@ -1512,8 +1495,8 @@ ingress.networking.k8s.io/userlist-ingress created
 * kubectl create ingress 명령으로 ingress를 생성할 수 있다.
 
 ```sh
-$ ku create ingress userlist-ingress --class=traefik \
-  --rule="userlist.songlab.co.kr/*=userlist-svc:80"
+$ kubectl -n user01 create ingress userlist-ingress --class=traefik \
+    --rule="userlist.4.230.40.221.nip.io/*=userlist-svc:80"
 
 ```
 
@@ -1523,13 +1506,14 @@ $ ku create ingress userlist-ingress --class=traefik \
 
 ```sh
 
-$ ku get ingress
-NAME               CLASS     HOSTS                            ADDRESS        PORTS   AGE
-userlist-ingress   traefik   userlist.4.217.252.117.nip.io   172.31.13.52   80      62s
+$ kubectl -n user01 get ingress
+NAME               CLASS     HOSTS                          ADDRESS       PORTS   AGE
+userlist-ingress   traefik   userlist.4.230.40.221.nip.io   172.16.0.10   80      110s
+
 
 ```
 
-> 172.31.13.52 는 master node 의 IP 주소이다.
+> 172.16.0.10 는 node 의 IP 주소이다.
 
 
 
@@ -1541,16 +1525,11 @@ traefik node port 를 확인후 curl로 테스트 해보자.
 
 # traefik node node port 확인
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10     <none>         53/UDP,53/TCP,9153/TCP       49m
-metrics-server   ClusterIP      10.43.210.19   <none>         443/TCP                      49m
-traefik          LoadBalancer   10.43.125.33   172.31.13.52   80:31556/TCP,443:31915/TCP   48m
-
-
 NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       32m
-metrics-server   ClusterIP      10.43.218.139   <none>        443/TCP                      32m
-traefik          LoadBalancer   10.43.2.251     10.0.0.9      80:31571/TCP,443:32207/TCP   32m
+kube-dns         ClusterIP      10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP       79m
+metrics-server   ClusterIP      10.43.221.212   <none>        443/TCP                      79m
+traefik          LoadBalancer   10.43.139.237   172.16.0.10   80:31680/TCP,443:30155/TCP   78m
+
 
 
 
@@ -1558,52 +1537,55 @@ traefik          LoadBalancer   10.43.2.251     10.0.0.9      80:31571/TCP,443:3
 # < VM 에서 직접 확인 >
 
 # 1) localhost로 확인
-$ curl http://localhost:31571/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+$ curl http://localhost:31680/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 {"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://localhost:80/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+# hostport 80port 연결
+$ curl http://localhost:80/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 {"id":1,"name":"Noemi Abbott","gender":"F","image":"/assets/image/cat1.jpg"}
+# --> Daemonset에 의해서 hostport가 열려 있으므로 가능함
+
 
 
 # 2) node IP 로 확인
 # node IP 로 접근해도 동일한 결과를 받을 수 있다.
-$ curl http://10.0.0.9:31571/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+$ curl http://172.16.0.10:31680/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
-$ curl http://10.0.0.9:80/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+$ curl http://172.16.0.10:80/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 
 # 3) node public IP 로 확인
-$ curl http:/4.217.252.117:31571/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+$ curl http:/4.230.40.221:31571/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 # 방화벽이 막혀 있어서 불가
 
-$ curl http:/4.217.252.117:80/users/1 -H "Host:userlist.4.217.252.117.nip.io"
+$ curl http:/4.230.40.221:80/users/1 -H "Host:userlist.4.230.40.221.nip.io"
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
-
+# 방화벽 허용해 놓았기 때문에 가능 : ke-eduvm-nsg
 
 
 
 
 # 4) domain 으로 확인
-$ curl http:/userlist.4.217.252.117.nip.io:31571/users/1
+$ curl http:/userlist.4.230.40.221.nip.io:31571/users/1
 # 방화벽이 막혀 있어서 불가
 
-$ curl http:/userlist.4.217.252.117.nip.io:80/users/1
+$ curl http:/userlist.4.230.40.221.nip.io:80/users/1
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
 
 # 5) web brower에서 domain 으로 확인
-http:/userlist.4.217.252.117.nip.io:31571/users/1
+http:/userlist.4.230.40.221.nip.io:31571/users/1
 # 방화벽이 막혀 있어서 불가
 
-http:/userlist.4.217.252.117.nip.io:80/users/1
+http:/userlist.4.230.40.221.nip.io:80/users/1
 {"id":1,"name":"Jacinto Pollich IV","gender":"F","image":"/assets/image/cat1.jpg"}
 
 
-http://userlist.4.217.252.117.nip.io/
+http://userlist.4.230.40.221.nip.io/
 # 가능
 
 ```
@@ -1645,21 +1627,13 @@ http://userlist.4.217.252.117.nip.io/
 
 ```sh
 
+$ alias ku='kubectl -n user'
+
 $ ku delete pod curltest
   ku delete deploy/userlist
   ku delete svc/userlist-svc
   ku delete ingress/userlist-ingress
   
-
-
-
-# manifest file 실행시 삭제 방법
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
-$ ku delete pod curltest
-  ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
-  ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
-  ku delete -f ./kubernetes/userlist/15.userlist-ingress-local.yaml
 ```
 
 
@@ -1674,7 +1648,7 @@ $ ku delete pod curltest
 
 이보다 좀더 규모가 큰 EduCluster 에 접속해서 테스트를 수행해보자.
 
-참고로 EduCluster 는 6개 Node 로 구성되어 있다.
+참고로 EduCluster 는 5개 Node 로 구성되어 있다.
 
 
 
@@ -1700,11 +1674,11 @@ ke-master03   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
 ke-worker01   Ready    <none>                      13m   v1.29.5+k3s1
 ke-worker02   Ready    <none>                      11m   v1.29.5+k3s1
 
-# <-- 이렇게 N개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된것이다.
+# <-- 이렇게 N개의 node 가 보인다면 EduCluster 로 설정변경이 잘 된 것이다.
 
 
 # 자신 Namespace alias 설정
-$ alias ku='kubectl -n user03'     <-- 각자 Namespace 를 alais 로 설정하자.
+$ alias ku='kubectl -n user01'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 ```
 
@@ -1742,46 +1716,42 @@ ke-bastion03   Ready    control-plane,master   49d   v1.26.5+k3s1
 
 $ kubectl get ns
 NAME              STATUS   AGE
-default           Active   6h20m
-istio-ingress     Active   5h22m
-istio-system      Active   5h38m
-kube-node-lease   Active   6h20m
-kube-public       Active   6h20m
-kube-system       Active   6h20m
-user01            Active   44s
-user03            Active   44s
-user03            Active   44s
-user04            Active   44s
-user05            Active   44s
-user06            Active   44s
-user07            Active   44s
-user08            Active   44s
-user09            Active   44s
-user10            Active   44s
-user11            Active   44s
-user12            Active   44s
-user13            Active   43s
-user14            Active   43s
-user15            Active   43s
-user16            Active   43s
-user17            Active   43s
-user18            Active   43s
-user19            Active   43s
-user20            Active   43s
-user21            Active   43s
-user22            Active   43s
-yjsong            Active   6h8m
+default           Active   4h10m
+kube-node-lease   Active   4h10m
+kube-public       Active   4h10m
+kube-system       Active   4h10m
+user01            Active   3m2s
+user02            Active   3m1s
+user03            Active   3m1s
+user04            Active   3m1s
+user05            Active   3m1s
+user06            Active   3m1s
+user07            Active   3m1s
+user08            Active   3m1s
+user09            Active   3m
+user10            Active   3m
+user11            Active   3m
+user12            Active   3m
+user13            Active   3m
+user14            Active   3m
+user15            Active   3m
+user16            Active   2m59s
+user17            Active   2m59s
+user18            Active   2m59s
+user19            Active   2m59s
+user20            Active   2m59s
+
 
 
 
 # 각 수강생별 NS 를 확인해보자.
-$ kubectl get ns user03
+$ kubectl get ns user01
 NAME     STATUS   AGE
-user03   Active   64s
+user01   Active   64s
 
 
 # ku 로 alias 선언
-$ alias ku='kubectl -n user03'     <-- 각자 Namespace 를 alais 로 설정하자.
+$ alias ku='kubectl -n user01'     <-- 각자 Namespace 를 alais 로 설정하자.
 
 $ ku get pod
 No resources found in yjsong namespace.
@@ -1799,11 +1769,11 @@ No resources found in yjsong namespace.
 - yaml 생성
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
+$ alias ku='kubectl -n user01'
 
-# deployment yaml 확인
-$ cat ./kubernetes/userlist/11.userlist-deployment.yaml
+# deployment 생성
+$ cat <<EOF | ku create -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1825,9 +1795,8 @@ spec:
         image: ssongman/userlist:v1
         ports:
         - containerPort: 8181
+EOF
 
-# deployment 생성
-$ ku create -f ./kubernetes/userlist/11.userlist-deployment.yaml
 
 # deployment 확인
 $ ku get deployment
@@ -1840,8 +1809,8 @@ NAME                       READY   STATUS              RESTARTS   AGE
 userlist-bfd857685-g6kj6   0/1     ContainerCreating   0          19s
 
 
-# service yaml 확인
-$ cat ./kubernetes/userlist/12.userlist-svc.yaml
+# service 생성
+$ cat <<EOF | ku create -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -1855,15 +1824,12 @@ spec:
     port: 80
     targetPort: 8181
   type: ClusterIP
-
-# service 생성
-$ ku create -f ./kubernetes/userlist/12.userlist-svc.yaml
-
+EOF
 
 # service 확인
 $ ku get svc
-NAME           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
-userlist-svc   ClusterIP   10.43.34.5   <none>        80/TCP    24s
+NAME           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+userlist-svc   ClusterIP   10.43.114.179   <none>        80/TCP    5s
 
 ```
 
@@ -1903,21 +1869,13 @@ NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 userlist   1/1     1            1           3m27s
 
 
-# userlist deploy 수정
-$ ku edit deploy userlist
-...
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: userlist
-  name: userlist
-  namespace: yjsong
-spec:
-  replicas: 1                 #    <--- 3으로 수정한다.
-  ....
+# scale 명령으로 pod 3개로 증가
+$ ku scale --replicas=3 deployment/userlist
 
-# 저장후 종료한다.( :wq)   vi 명령어 임
+
+$ ku get deploy
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+userlist   1/3     3            1           2m14s
 
 ```
 
@@ -1927,11 +1885,12 @@ spec:
 
 ```sh
 $ ku get pod
-NAME                       READY   STATUS    RESTARTS   AGE
-curltest                   1/1     Running   0          2m43s
-userlist-bfd857685-g6kj6   1/1     Running   0          4m26s
-userlist-bfd857685-wgqx7   1/1     Running   0          26s
-userlist-bfd857685-x4v6h   1/1     Running   0          26s
+NAME                        READY   STATUS    RESTARTS   AGE
+curltest                    1/1     Running   0          84s
+userlist-858d9c87d5-662fz   1/1     Running   0          2m29s
+userlist-858d9c87d5-6vq2d   1/1     Running   0          25s
+userlist-858d9c87d5-jrv8f   1/1     Running   0          25s
+
 
 # 20초 정도 소요됨
 ```
@@ -1978,23 +1937,10 @@ round robbin 방식의 call 이 잘되는 것을 확인할 수 있다.
 deploy  replicas 값을 1로 원복하자.
 
 ```sh
-$ ku edit deploy userlist
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: userlist
-  namespace: song
-  ...
-spec:
-  replicas: 3                      <--- 1으로 수정한다.
-  selector:
-    matchLabels:
-      app: userlist
-      ....
----
 
-# 저장후 종료한다. ( :wq )
+# scale 명령으로 pod 3개로 증가
+$ ku scale --replicas=1 deployment/userlist
+
 ```
 
 
@@ -2006,15 +1952,17 @@ spec:
 - ingress controller 확인
 
 ```sh
+
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                  PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10     <none>                       53/UDP,53/TCP,9153/TCP       5d21h
-metrics-server   ClusterIP      10.43.85.38    <none>                       443/TCP                      5d21h
-traefik          LoadBalancer   10.43.241.86   10.0.0.4,10.0.0.5,10.0.0.6   80:31271/TCP,443:31448/TCP   5d21h
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                              PORT(S)                                     AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                   53/UDP,53/TCP,9153/TCP                      4h15m
+metrics-server   ClusterIP      10.43.38.12     <none>                                                   443/TCP                                     4h15m
+traefik          LoadBalancer   10.43.182.139   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80:31068/TCP,443:30195/TCP,9000:30900/TCP   4h14m
+
 
 ```
 
-traefik 이라는 Proxy tool 이 node port (80, 31271) 로 접근하여 routing 한다는 사실을 알 수 있다.
+traefik 이라는 Proxy tool 이 node port (80, 31068) 로 접근하여 routing 한다는 사실을 알 수 있다.
 
 이미 Azure Cloud 에서 Load balance 를 생성하여 공인IP가 할당되어 있으며 해당 IP 가 L4 역할을 수행한다.
 
@@ -2025,11 +1973,11 @@ traefik 이라는 Proxy tool 이 node port (80, 31271) 로 접근하여 routing 
 - master node와 port-forwarding 정보
 
 ```
-20.249.174.177 : 80   = master01/master02/master03 : 31271
-20.249.174.177 : 443  = master01/master02/master03 : 31448
+20.249.162.253 : 80   = master01/master02/master03 : 31068
+20.249.162.253 : 443  = master01/master02/master03 : 30195
 ```
 
-그러므로 우리는 20.249.174.177 : 80 으로 call 을 보내면 된다. 
+그러므로 우리는 20.249.162.253 : 80 으로 call 을 보내면 된다. 
 
 대신 Cluster 내 진입후 자신의 service 를 찾기 위한 host address 를 같이 보내야 한다. (ingress 설정)
 
@@ -2037,23 +1985,25 @@ traefik 이라는 Proxy tool 이 node port (80, 31271) 로 접근하여 routing 
 
 - 개인별 테스트를 위한 도메인 변경
 
-아래 16.userlist-ingress-cloud.yaml 파일을 오픈하여  user01 부분을 본인의 계정명으로 변경하자.
+아래 도메인 부분을 본인의 계정명으로 변경하자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
 
+$ alias ku='kubectl -n user01'
+
+# 변경전 : "userlist.[my-namespace].cloud.20.249.162.253.nip.io"
+# 변경후 : "userlist.user01.cloud.20.249.162.253.nip.io"         <-- 자신의 Namespace 로 
 
 # ingress 확인
-$ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+$ cat <<EOF | ku apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: userlist-ingress
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
 spec:
+  ingressClassName: "traefik"
   rules:
-  - host: "userlist.[my-namespace].cloud.20.249.174.177.nip.io"     #   <-- user01 을 자신의 Namespace 명으로 수정
+  - host: "userlist.user01.cloud.20.249.162.253.nip.io"     #   <-- user01 을 자신의 Namespace 명으로 수정
     http:
       paths:
       - path: /
@@ -2063,13 +2013,16 @@ spec:
             name: userlist-svc
             port:
               number: 80
+EOF
 
 
-# ingress 수정
-$ vi ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
-...
-# 변경전 : "userlist.[my-namespace].cloud.20.249.174.177.nip.io"
-# 변경후 : "userlist.user03.cloud.20.249.174.177.nip.io"         <-- 자신의 Namespace 로 
+
+
+$ ku get ingress
+NAME               CLASS     HOSTS                                         ADDRESS                                                  PORTS   AGE
+userlist-ingress   traefik   userlist.user01.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      20s
+
+
 ```
 
 
@@ -2081,10 +2034,10 @@ user01을 자신의 Namespace 명으로 변경하자.
  예를 들어 아래 hostname 으로 상관없다. 다른 사용자들과 겹치지만 않게 하자.
 
 ```
-userlist.user03.cloud.20.249.174.177.nip.io
-userlist.user07.cloud.20.249.174.177.nip.io
-userlist.yjsong.cloud.20.249.174.177.nip.io
-userlist.songyangjong.cloud.20.249.174.177.nip.io
+userlist.user01.cloud.20.249.162.253.nip.io
+userlist.user07.cloud.20.249.162.253.nip.io
+userlist.yjsong.cloud.20.249.162.253.nip.io
+userlist.songyangjong.cloud.20.249.162.253.nip.io
 ```
 
 이는 hostname 으로 특정 IP 를 찾기 위해서 임시로 사용하는 방식이다.
@@ -2093,83 +2046,41 @@ Production 환경에서는 고유한 도메인이 발급되고 DNS 에 등록 �
 
 
 
-- ingress 생성
-
-```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-
-$ cat ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: userlist-ingress
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-spec:
-  rules:
-  - host: "userlist.user03.cloud.20.249.174.177.nip.io"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: userlist-svc
-            port:
-              number: 80
-              
-              
-$ ku create -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
-
-$ ku get ingress
-NAME               CLASS    HOSTS                                        ADDRESS                                                                   PORTS   AGE
-userlist-ingress   <none>   userlist.user03.cloud.20.249.174.177.nip.io   10.128.0.25,10.128.0.26,10.128.0.27,10.128.0.28,10.128.0.29,10.158.0.25   80      55m
-
-```
-
-
-
-- 서버 terminal 에서 확인
+- VM terminal 에서 확인
 
 ```sh
 
-# 1) 부여한 host 로 접근시도
-$ curl http://userlist.user03.cloud.20.249.174.177.nip.io/users/1
+# 1) Domain으로 접근시도
+$ curl http://userlist.user01.cloud.20.249.162.253.nip.io/users/1
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
-
 
 
 # 2) traefik node port 로 접근시도
-
 $ kubectl -n kube-system get svc
-NAME             TYPE           CLUSTER-IP     EXTERNAL-IP                  PORT(S)                      AGE
-kube-dns         ClusterIP      10.43.0.10     <none>                       53/UDP,53/TCP,9153/TCP       5d21h
-metrics-server   ClusterIP      10.43.85.38    <none>                       443/TCP                      5d21h
-traefik          LoadBalancer   10.43.241.86   10.0.0.4,10.0.0.5,10.0.0.6   80:31271/TCP,443:31448/TCP   5d21h
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP                                              PORT(S)                                     AGE
+kube-dns         ClusterIP      10.43.0.10      <none>                                                   53/UDP,53/TCP,9153/TCP                      4h23m
+metrics-server   ClusterIP      10.43.38.12     <none>                                                   443/TCP                                     4h23m
+traefik          LoadBalancer   10.43.182.139   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80:31068/TCP,443:30195/TCP,9000:30900/TCP   4h22m
 
 # node 중 하나를 골라서 시도하자.  (master01_IP : 172.31.14.177)
 
-
-$ curl http://10.0.0.4:31271/users/1 -H "Host:userlist.user03.cloud.20.249.174.177.nip.io"
-{"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
-
-$ curl http://10.0.0.4:80/users/1 -H "Host:userlist.user03.cloud.20.249.174.177.nip.io"
+$ curl http://172.16.0.5:31068/users/1 -H "Host:userlist.user01.cloud.20.249.162.253.nip.io"
 {"id":1,"name":"Fay Abbott MD","gender":"F","image":"/assets/image/cat1.jpg"}
 
 ```
 
 위 두개의 curl  을 잘 이해하자.
 
-첫번째는 nodeport 를 통해서 접속을 시도한 경우이다.
+첫번째는 Cloud 에서 제공하는 공인 IP (Load Balancer)의 80 port 로 접속이 되었다.
 
-두번째는 Cloud 에서 제공하는 공인 IP (Load Balancer)의 80 port 로 접속이 되었다.
+두번째는 nodeport 를 통해서 접속을 시도한 경우이다.
 
 즉, 위 도메인은 어디서든지 접속 가능한 상태이다.  확인을 위해서 로컬 크롬브라우저에서 접속을 시도해 보자.
 
 
 
 - 크롬 브라우저에서 확인
-  - 주소 : https://userlist.user03.cloud.20.249.174.177.nip.io
+  - 주소 : http://userlist.user01.cloud.20.249.162.253.nip.io
 
 
 ![image-20230825222739086](kubernetes.assets/image-20230825222739086.png)
@@ -2179,18 +2090,19 @@ $ curl http://10.0.0.4:80/users/1 -H "Host:userlist.user03.cloud.20.249.174.177.
 ## 6) Clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
+
+$ alias ku='kubectl -n user01'
 
 $ ku delete pod curltest
-  ku delete -f ./kubernetes/userlist/11.userlist-deployment.yaml
-  ku delete -f ./kubernetes/userlist/12.userlist-svc.yaml
-  ku delete -f ./kubernetes/userlist/16.userlist-ingress-cloud.yaml
+  ku delete deploy/userlist
+  ku delete svc/userlist-svc
+  ku delete ingress/userlist-ingress
 
 
 # 20초정도 소요됨
 
 $ ku get pod
-No resources found in yjsong namespace.
+No resources found in user01 namespace.
 
 ```
 

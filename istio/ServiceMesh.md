@@ -132,8 +132,8 @@ $ export KUBECONFIG="${HOME}/.kube/config"
 
 # Cluste 확인
 $ kubectl get nodes
-NAME        STATUS   ROLES                  AGE   VERSION
-bastion02   Ready    control-plane,master   49d   v1.26.5+k3s1
+NAME      STATUS   ROLES                  AGE    VERSION
+eduvm01   Ready    control-plane,master   120m   v1.33.4+k3s1
 
 ```
 
@@ -210,7 +210,7 @@ $ helm version
 version.BuildInfo{Version:"v3.15.0-rc.2", GitCommit:"c4e37b39dbb341cb3f716220df9f9d306d123a58", GitTreeState:"clean", GoVersion:"go1.22.3"}
 
 
-$ helm -n user03 ls
+$ helm -n user01 ls
 NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 ```
@@ -238,9 +238,9 @@ bitnami/cassandra                               10.2.2          4.1.1           
 ...
 
 # 설치테스트(샘플: nginx)
-$ helm -n user03 install nginx bitnami/nginx
+$ helm -n user01 install nginx bitnami/nginx
 
-$ ku get all
+$ kubectl -n user01 get all
 NAME                        READY   STATUS    RESTARTS   AGE
 pod/nginx-6ddf75599-nnv99   1/1     Running   0          58s
 
@@ -257,10 +257,10 @@ NAME                              DESIRED   CURRENT   READY   AGE
 
 
 # 설치 삭제
-$ helm -n user03 delete nginx
+$ helm -n user01 delete nginx
 
-$ ku get all
-No resources found in user03 namespace.
+$ kubectl -n user01 get all
+No resources found in user01 namespace.
 ```
 
 
@@ -297,40 +297,15 @@ Update Complete. ⎈Happy Helming!⎈
 
 # chart 검색
 $ helm search repo istio
-
 NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
 bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
-istio/istiod                            1.17.2          1.17.2          Helm chart for istio control plane
-istio/base                              1.17.2          1.17.2          Helm chart for deploying Istio cluster resource...
-istio/cni                               1.17.2          1.17.2          Helm chart for istio-cni components
-istio/gateway                           1.17.2          1.17.2          Helm chart for deploying Istio gateways
----
-NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
-istio/istiod                            1.20.2          1.20.2          Helm chart for istio control plane
-istio/base                              1.20.2          1.20.2          Helm chart for deploying Istio cluster resource...
-istio/cni                               1.20.2          1.20.2          Helm chart for istio-cni components
-istio/gateway                           1.20.2          1.20.2          Helm chart for deploying Istio gateways
-istio/ztunnel                           1.20.2          1.20.2          Helm chart for istio ztunnel components
-# 2024.02.09
----
-NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
-istio/istiod                            1.20.3          1.20.3          Helm chart for istio control plane
-istio/base                              1.20.3          1.20.3          Helm chart for deploying Istio cluster resource...
-istio/cni                               1.20.3          1.20.3          Helm chart for istio-cni components
-istio/gateway                           1.20.3          1.20.3          Helm chart for deploying Istio gateways
-istio/ztunnel                           1.20.3          1.20.3          Helm chart for istio ztunnel components
-# 2024.02.18
----
-NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/wavefront-adapter-for-istio     2.0.6           0.1.5           DEPRECATED Wavefront Adapter for Istio is an ad...
-istio/istiod                            1.22.1          1.22.1          Helm chart for istio control plane
-istio/base                              1.22.1          1.22.1          Helm chart for deploying Istio cluster resource...
-istio/cni                               1.22.1          1.22.1          Helm chart for istio-cni components
-istio/gateway                           1.22.1          1.22.1          Helm chart for deploying Istio gateways
-istio/ztunnel                           1.22.1          1.22.1          Helm chart for istio ztunnel components
-# 2024.06.06
+istio/istiod                            1.27.1          1.27.1          Helm chart for istio control plane
+istio/istiod-remote                     1.23.6          1.23.6          Helm chart for a remote cluster using an extern...
+istio/ambient                           1.27.1          1.27.1          Helm umbrella chart for ambient
+istio/base                              1.27.1          1.27.1          Helm chart for deploying Istio cluster resource...
+istio/cni                               1.27.1          1.27.1          Helm chart for istio-cni components
+istio/gateway                           1.27.1          1.27.1          Helm chart for deploying Istio gateways
+istio/ztunnel                           1.27.1          1.27.1          Helm chart for istio ztunnel components
 
 ```
 
@@ -352,7 +327,7 @@ $ kubectl create namespace istio-system
 $ helm -n istio-system install istio-base istio/base
 
 NAME: istio-base
-LAST DEPLOYED: Thu Jun  6 13:12:07 2024
+LAST DEPLOYED: Sat Sep 20 12:22:12 2025
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
@@ -360,59 +335,37 @@ TEST SUITE: None
 NOTES:
 Istio base successfully installed!
 
-
+To learn more about the release, try:
+  $ helm status istio-base -n istio-system
+  $ helm get all istio-base -n istio-system
 
 
 
 $ helm -n istio-system ls
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-istio-base      istio-system    1               2024-06-06 13:12:07.109979713 +0000 UTC deployed        base-1.22.1     1.22.1
+istio-base      istio-system    1               2025-09-20 12:22:12.276253052 +0000 UTC deployed        base-1.27.1     1.27.1
 
 # helm 확인
 $ helm -n istio-system status istio-base
 $ helm -n istio-system get all istio-base
 
 
-# CRD 확인(istio 를 포함한 각종 CRD 를 확인할 수 있다.)
-$ kubectl get crd
-NAME                                       CREATED AT
-addons.k3s.cattle.io                       2024-06-06T11:53:35Z
-etcdsnapshotfiles.k3s.cattle.io            2024-06-06T11:53:35Z
-helmcharts.helm.cattle.io                  2024-06-06T11:53:35Z
-helmchartconfigs.helm.cattle.io            2024-06-06T11:53:35Z
-traefikservices.traefik.io                 2024-06-06T11:54:11Z
-middlewaretcps.traefik.io                  2024-06-06T11:54:11Z
-ingressrouteudps.traefik.containo.us       2024-06-06T11:54:11Z
-serverstransports.traefik.io               2024-06-06T11:54:11Z
-ingressroutetcps.traefik.io                2024-06-06T11:54:11Z
-middlewares.traefik.containo.us            2024-06-06T11:54:11Z
-ingressrouteudps.traefik.io                2024-06-06T11:54:11Z
-ingressroutetcps.traefik.containo.us       2024-06-06T11:54:11Z
-ingressroutes.traefik.io                   2024-06-06T11:54:11Z
-serverstransporttcps.traefik.io            2024-06-06T11:54:11Z
-tlsoptions.traefik.io                      2024-06-06T11:54:11Z
-middlewaretcps.traefik.containo.us         2024-06-06T11:54:11Z
-ingressroutes.traefik.containo.us          2024-06-06T11:54:11Z
-serverstransports.traefik.containo.us      2024-06-06T11:54:11Z
-traefikservices.traefik.containo.us        2024-06-06T11:54:11Z
-tlsstores.traefik.containo.us              2024-06-06T11:54:11Z
-tlsoptions.traefik.containo.us             2024-06-06T11:54:11Z
-tlsstores.traefik.io                       2024-06-06T11:54:11Z
-middlewares.traefik.io                     2024-06-06T11:54:11Z
-proxyconfigs.networking.istio.io           2024-06-06T13:12:04Z
-serviceentries.networking.istio.io         2024-06-06T13:12:04Z
-workloadentries.networking.istio.io        2024-06-06T13:12:04Z
-gateways.networking.istio.io               2024-06-06T13:12:04Z
-wasmplugins.extensions.istio.io            2024-06-06T13:12:04Z
-telemetries.telemetry.istio.io             2024-06-06T13:12:04Z
-envoyfilters.networking.istio.io           2024-06-06T13:12:04Z
-destinationrules.networking.istio.io       2024-06-06T13:12:04Z
-sidecars.networking.istio.io               2024-06-06T13:12:04Z
-virtualservices.networking.istio.io        2024-06-06T13:12:04Z
-workloadgroups.networking.istio.io         2024-06-06T13:12:04Z
-peerauthentications.security.istio.io      2024-06-06T13:12:04Z
-authorizationpolicies.security.istio.io    2024-06-06T13:12:04Z
-requestauthentications.security.istio.io   2024-06-06T13:12:04Z
+# CRD 확인(istio 관련 CRD 를 확인할 수 있다.)
+$ kubectl get crd | grep istio
+authorizationpolicies.security.istio.io     2025-09-20T12:22:13Z
+destinationrules.networking.istio.io        2025-09-20T12:22:13Z
+envoyfilters.networking.istio.io            2025-09-20T12:22:13Z
+gateways.networking.istio.io                2025-09-20T12:22:13Z
+peerauthentications.security.istio.io       2025-09-20T12:22:13Z
+proxyconfigs.networking.istio.io            2025-09-20T12:22:13Z
+requestauthentications.security.istio.io    2025-09-20T12:22:13Z
+serviceentries.networking.istio.io          2025-09-20T12:22:13Z
+sidecars.networking.istio.io                2025-09-20T12:22:13Z
+telemetries.telemetry.istio.io              2025-09-20T12:22:13Z
+virtualservices.networking.istio.io         2025-09-20T12:22:13Z
+wasmplugins.extensions.istio.io             2025-09-20T12:22:13Z
+workloadentries.networking.istio.io         2025-09-20T12:22:13Z
+workloadgroups.networking.istio.io          2025-09-20T12:22:13Z
 
 
 # istio 관련crd 가 존재한다면 정상 설치 된 것이다.
@@ -458,14 +411,13 @@ Controle Plane역할을 수행하는 istiod 를 설치하자.
 $ helm -n istio-system install istio-istiod istio/istiod
 
 NAME: istio-istiod
-LAST DEPLOYED: Thu Jun  6 13:13:42 2024
+LAST DEPLOYED: Sat Sep 20 12:24:17 2025
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 "istiod" successfully installed!
-
 
 
 ## 확인
@@ -477,20 +429,19 @@ $ helm -n istio-system get all istio-istiod
 ## 확인
 $ kubectl -n istio-system get all
 NAME                          READY   STATUS    RESTARTS   AGE
-pod/istiod-6cd77db567-2kmdc   1/1     Running   0          16s
+pod/istiod-868755b6bf-2h6hp   1/1     Running   0          20s
 
-NAME             TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)                                 AGE
-service/istiod   ClusterIP   10.43.81.49   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   16s
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                                 AGE
+service/istiod   ClusterIP   10.43.251.248   <none>        15010/TCP,15012/TCP,443/TCP,15014/TCP   20s
 
 NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istiod   1/1     1            1           16s
+deployment.apps/istiod   1/1     1            1           20s
 
 NAME                                DESIRED   CURRENT   READY   AGE
-replicaset.apps/istiod-6cd77db567   1         1         1       16s
+replicaset.apps/istiod-868755b6bf   1         1         1       20s
 
-NAME                                         REFERENCE           TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   <unknown>/80%   1         5         1          16s
-
+NAME                                         REFERENCE           TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istiod   Deployment/istiod   cpu: <unknown>/80%   1         5         1          20s
 
 ```
 
@@ -534,57 +485,42 @@ $ helm -n istio-system ls
 $ kubectl create namespace istio-ingress
 
 $ helm -n istio-ingress install istio-ingressgateway istio/gateway
+NAME: istio-ingressgateway
+LAST DEPLOYED: Sat Sep 20 12:25:44 2025
+NAMESPACE: istio-ingress
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+"istio-ingressgateway" successfully installed!
 
 
 $ kubectl -n istio-ingress get all
-NAME                                       READY   STATUS              RESTARTS   AGE
-pod/istio-ingressgateway-9cc99c9db-nj5vx   0/1     ContainerCreating   0          7s
+NAME                                        READY   STATUS    RESTARTS   AGE
+pod/istio-ingressgateway-5b86b655cc-wsnb5   1/1     Running   0          16s
 
-NAME                           TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-service/istio-ingressgateway   LoadBalancer   10.43.246.85   <pending>     15021:32296/TCP,80:31683/TCP,443:32171/TCP   7s
+NAME                           TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE
+service/istio-ingressgateway   LoadBalancer   10.43.222.165   <pending>     15021:31524/TCP,80:30263/TCP,443:30642/TCP   16s
 
 NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/istio-ingressgateway   0/1     1            0           7s
+deployment.apps/istio-ingressgateway   1/1     1            1           16s
 
-NAME                                             DESIRED   CURRENT   READY   AGE
-replicaset.apps/istio-ingressgateway-9cc99c9db   1         1         0       7s
+NAME                                              DESIRED   CURRENT   READY   AGE
+replicaset.apps/istio-ingressgateway-5b86b655cc   1         1         1       16s
 
-NAME                                                       REFERENCE                         TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   <unknown>/80%   1         5         0          7s
+NAME                                                       REFERENCE                         TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-ingressgateway   Deployment/istio-ingressgateway   cpu: <unknown>/80%   1         5         1          16s
 
 
 
 $ kubectl -n istio-ingress get svc
-NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.246.85   <pending>     15021:32296/TCP,80:31683/TCP,443:32171/TCP   17s
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.43.222.165   <pending>     15021:31524/TCP,80:30263/TCP,443:30642/TCP   109s
 
 
-31683 / 32171 nodeport 로 접근 가능
+30263 / 30642 nodeport 로 접근 가능
 
 
-```
-
-
-
-
-
-### [참고] clean up
-
-모든 테스트를 마치고 istio를 최종 삭제할때는 아래 명령으로 삭제 하자.
-
-```sh
-$ helm -n istio-system delete istio-istiod
-  helm -n istio-system delete istio-base
-  helm -n istio-ingress delete istio-ingressgateway
-
-# 확인
-$ helm -n istio-system ls
-$ helm -n istio-ingress ls
-
-
-# namespace 삭제
-# $ kubectl delete namespace istio-system
-#   kubectl delete namespace istio-ingress
 ```
 
 
@@ -597,24 +533,22 @@ $ helm -n istio-ingress ls
 
 
 
-
-
 ### (1) userlist pod 실행
 
 1교시 kubernetes 실습때 수행했던 userlist pod 를 다시 확인해 보자.
 
 ```sh
-$ alias ku='kubectl -n user03'
 
 # userlist pod 확인
-$ ku get pod
+$ kubectl -n user01 get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-8d74d58d8-spffl   1/1     Running   0          2m25s
 
 
 
 # 존재하지 않는다면 아래명령으로 실행
-$ ku create deploy userlist --image=ssongman/userlist:v1
+$ kubectl -n user01 create deploy userlist --image=ssongman/userlist:v1
+
 ```
 
 
@@ -648,14 +582,14 @@ $ ku create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 # 적용전 확인
-$ kubectl get ns user03 -o yaml
+$ kubectl get ns user01 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2024-06-06T11:55:47Z"
   labels:                                      #  <-- labels 확인(istio label 이 없다.)
-    kubernetes.io/metadata.name: user03
-  name: user03
+    kubernetes.io/metadata.name: user01
+  name: user01
   resourceVersion: "700"
   uid: 5a45125a-0311-4129-9ef0-817e70bb1088
 spec:
@@ -668,20 +602,20 @@ status:
 
 # 적용(label 추가)
 # 자기 Namespce 로 변경하여 적용하자.
-$ kubectl label namespace user03 istio-injection=enabled
-namespace/user03 labeled
+$ kubectl label namespace user01 istio-injection=enabled
+namespace/user01 labeled
 
 
 # 적용후 확인
-$ kubectl get ns user03 -o yaml
+$ kubectl get ns user01 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2024-06-06T11:55:47Z"
   labels:
     istio-injection: enabled                 #    <-- istio label 이 잘 추가되었다.
-    kubernetes.io/metadata.name: user03
-  name: user03
+    kubernetes.io/metadata.name: user01
+  name: user01
   resourceVersion: "2992"
   uid: 5a45125a-0311-4129-9ef0-817e70bb1088
 spec:
@@ -705,77 +639,48 @@ status:
 
 ```sh
 # 확인
-$ ku get deploy userlist
+$ kubectl -n user01 get deploy userlist
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 userlist   1/1     1            1           81m
 
 
-$ ku get pod
+$ kubectl -n user01 get pod
 NAME                        READY   STATUS        RESTARTS   AGE
-userlist-9fbfc64bc-6brjf    1/1     Running   0          82m
+userlist-78c668fd98-sk62k    1/1     Running   0          82m
 
 
 # userlist pod 재기동
-$ ku rollout restart deploy/userlist
+$ kubectl -n user01 rollout restart deploy/userlist
 
 
 ## pod 삭제는 graceful 방식으로 삭제되므로 약간의 시간이 필요하다.
 
-$  ku get pod
+$ kubectl -n user01 get pod
 NAME                        READY   STATUS        RESTARTS   AGE
-userlist-8688b58c68-kpkk6   2/2     Running       0          8s     # <--
-userlist-9fbfc64bc-6brjf    1/1     Terminating   0          82m
+userlist-64f8446ccc-z2nnq   2/2     Running       0          8s     # <--
+userlist-78c668fd98-sk62k   1/1     Terminating   0          2m21s
+
+
 
 
 # istio sidecar 가 포함되어 2개의 container 가 되었다.
 
 
 # describe 로 확인
-$ ku describe pod userlist-8688b58c68-kpkk6
+$ kubectl -n user01 describe pod userlist-64f8446ccc-z2nnq
 ...
+Init Containers:
+  istio-init:
+  istio-proxy:
 Containers:
   userlist:
-    Container ID:   containerd://7f6acd5737b45edffcd7ce5d64d21575e17ccc1c32f019e6de549a2a6f2e6168
-    Image:          ssongman/userlist:v1
-    Image ID:       docker.io/ssongman/userlist@sha256:74f32a7b4bab2c77bf98f2717fed49e034756d541e536316bba151e5830df0dc
-    Port:           8181/TCP
-    Host Port:      0/TCP
-    State:          Running
-      Started:      Thu, 06 Jun 2024 13:23:35 +0000
-    Ready:          True
-    Restart Count:  0
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-smffn (ro)
-  istio-proxy:
-    Container ID:  containerd://76f9923fda97a357ca7a12a1d9849aee5658b9241361851ef8ec4c9667ccf792
-    Image:         docker.io/istio/proxyv2:1.22.1
-    Image ID:      docker.io/istio/proxyv2@sha256:57621adeb78e67c52e34ec1676d1ae898b252134838d60298c7446d0964551cc
-    Port:          15090/TCP
-    Host Port:     0/TCP
-    Args:
-      proxy
-      sidecar
-      --domain
-      $(POD_NAMESPACE).svc.cluster.local
-      --proxyLogLevel=warning
-      --proxyComponentLogLevel=misc:error
-      --log_output_level=default:info
-    State:          Running
-      Started:      Thu, 06 Jun 2024 13:23:35 +0000
-    Ready:          True
-    Restart Count:  0
-    Limits:
-      cpu:     2
-      memory:  1Gi
-    Requests:
-      cpu:      100m
-      memory:   128Mi
+...
 
 
 ```
 
-위 Containers 내부에 userlist 와 istio-proxy 2개가 존재하는 것을 확인할 수 있다.
+- istio-proxy 컨테이너는 **Pod 라이프사이클 내내 Running** 상태로 유지
+- 그러므로 Containers 내부에 userlist 와 istio-proxy 2개가 존재하게 된다.
 
 
 
@@ -784,21 +689,42 @@ Containers:
 userlist 는 더 이상 불필요하므로 삭제 하자.
 
 ```sh
-$ ku delete deploy userlist
+$ kubectl -n user01 delete deploy userlist
 
 # label 삭제
-$ kubectl label --overwrite namespace user03 istio-injection-
+$ kubectl label --overwrite namespace user01 istio-injection-
 
 
 # namespace 확인
-$ kubectl get ns user03 -o yaml
+$ kubectl get ns user01 -o yaml
 
 
-$ ku get pod
+$ kubectl -n user01 get pod
 
 ```
 
 
+
+
+
+## 5) [참고] clean up
+
+모든 테스트를 마치고 istio를 최종 삭제할때는 아래 명령으로 삭제 하자.
+
+```sh
+$ helm -n istio-system delete istio-istiod
+  helm -n istio-system delete istio-base
+  helm -n istio-ingress delete istio-ingressgateway
+
+# 확인
+$ helm -n istio-system ls
+  helm -n istio-ingress ls
+
+
+# namespace 삭제
+# $ kubectl delete namespace istio-system
+#   kubectl delete namespace istio-ingress
+```
 
 
 
@@ -807,8 +733,6 @@ $ ku get pod
 # 4. [EduCluster] 실습
 
 원할한 테스트를 위해 Load Balancer 와 Monitoring 이 존재하는 EduCluster 환경에서 테스트를 수행한다.
-
-
 
 
 
@@ -827,17 +751,12 @@ $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
 # Cluste 확인
 $ kubectl get nodes
 NAME          STATUS   ROLES                       AGE     VERSION
-ke-master01   Ready    control-plane,etcd,master   5d22h   v1.29.5+k3s1
-ke-master02   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
-ke-master03   Ready    control-plane,etcd,master   5d21h   v1.29.5+k3s1
+ke-master01   Ready    control-plane,etcd,master   5h57m   v1.33.4+k3s1
+ke-master02   Ready    control-plane,etcd,master   5h44m   v1.33.4+k3s1
+ke-master03   Ready    control-plane,etcd,master   5h53m   v1.33.4+k3s1
+ke-worker01   Ready    worker                      5h43m   v1.33.4+k3s1
+ke-worker02   Ready    worker                      5h43m   v1.33.4+k3s1
 ...
-...
-...
-
-
-
-# 자신 Namespace alias 설정
-$ alias ku='kubectl -n user03'   #   <-- 각자 Namespace 를 alais 로 설정하자.
 
 
 ```
@@ -953,20 +872,20 @@ istio 적용하는데 있어서 Application 자체를 변경할 필요가 없다
 
 ```sh
 
-# user03 를 자신의 Namespace 명으로 변경
+# user01 를 자신의 Namespace 명으로 변경
 
 
 # 설정전 확인
-$ kubectl get ns user03 -o yaml
+$ kubectl get ns user01 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2024-06-06T12:47:43Z"
+  creationTimestamp: "2025-09-20T11:40:12Z"
   labels:
-    kubernetes.io/metadata.name: user03
-  name: user03
-  resourceVersion: "719552"
-  uid: 6e9233af-2651-4553-a741-f6c3af4be0fd
+    kubernetes.io/metadata.name: user01
+  name: user01
+  resourceVersion: "54229"
+  uid: aeba89fe-ea2e-4e8a-800a-a967bb3cc16f
 spec:
   finalizers:
   - kubernetes
@@ -974,60 +893,30 @@ status:
   phase: Active
 
 
-
-
-
 # label 설정
-$ kubectl label namespace user03 istio-injection=enabled
+$ kubectl label namespace user01 istio-injection=enabled
 
 
 
 # 설정후 확인
-$ kubectl get ns user03 -o yaml
+$ kubectl get ns user01 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
-  creationTimestamp: "2024-06-06T12:47:43Z"
+  creationTimestamp: "2025-09-20T11:40:12Z"
   labels:
     istio-injection: enabled                  #  <-- 설정 완료
-    kubernetes.io/metadata.name: user03
-  name: user03
-  resourceVersion: "734681"
-  uid: 6e9233af-2651-4553-a741-f6c3af4be0fd
+    kubernetes.io/metadata.name: user01
+  name: user01
+  resourceVersion: "81293"
+  uid: aeba89fe-ea2e-4e8a-800a-a967bb3cc16f
 spec:
   finalizers:
   - kubernetes
 status:
   phase: Active
----
 
 
-```
-
-
-
-#### [참고] git clone
-
-- 실습자료 download
-  - 실습자료는 이미 기존에 이미 받아 놓았으므로 생략한다.
-  - 만약 ~/githubrepo/ktds-edu-k8s-istio/  디렉토리가 없다면 아래를 참고하여 clone 하자.
-
-
-```sh
-$ mkdir ~/githubrepo
-
-$ cd ~/githubrepo
-
-$ git clone https://github.com/ssongman/ktds-edu-k8s-istio.git
-
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-drwxr-xr-x 8 song song  4096 May 14 01:59 .git/
--rw-r--r-- 1 song song 11357 May 14 01:59 LICENSE
--rw-r--r-- 1 song song  2738 May 14 01:59 README.md
-drwxr-xr-x 3 song song  4096 May 14 01:59 beforebegin/
-drwxr-xr-x 8 song song  4096 May 14 01:59 istio/
-drwxr-xr-x 3 song song  4096 May 14 01:59 ktcloud-setup/
-drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 
 ```
 
@@ -1037,20 +926,13 @@ drwxr-xr-x 4 song song  4096 May 14 01:59 kubernetes/
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ ll ./istio/bookinfo/11.bookinfo.yaml
--rw-rw-r-- 1 ktdseduuser ktdseduuser 7974 Jun  6 12:01 ./istio/bookinfo/11.bookinfo.yaml
-
-
-
-# 4개의 마이크로서비스들에 대한 생성 yaml 확인
-$ cat ./istio/bookinfo/11.bookinfo.yaml
-...
+# Browser 에서 확인 - 4개의 마이크로서비스들에 대한 생성 yaml 확인
+https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
 
 # bookinfo 생성
-$ ku apply -f ./istio/bookinfo/11.bookinfo.yaml
 
+$ kubectl -n user01 apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
 service/details created
 serviceaccount/bookinfo-details created
 deployment.apps/details-v1 created
@@ -1067,32 +949,29 @@ serviceaccount/bookinfo-productpage created
 deployment.apps/productpage-v1 created
 
 
-
-
 # 약 2분 소요...
 
 
 # 확인
-$ ku get pods
-NAME                             READY   STATUS            RESTARTS   AGE
-details-v1-b8f86b9f4-shkm6       2/2     Running           0          24s
-productpage-v1-d774cffb6-nm78j   0/2     PodInitializing   0          24s
-ratings-v1-5bf485ffc8-fvfxv      0/2     PodInitializing   0          24s
-reviews-v1-c898599bb-t5jb4       0/2     PodInitializing   0          24s
-reviews-v2-75f445766-nwddf       0/2     PodInitializing   0          24s
-reviews-v3-75846597d6-skkdw      0/2     PodInitializing   0          24s
-
+$ kubectl -n user01 get pods
+NAME                              READY   STATUS    RESTARTS   AGE
+details-v1-766844796b-h6r8d       2/2     Running   0          64s
+productpage-v1-54bb874995-gwp4x   2/2     Running   0          64s
+ratings-v1-5dc79b6bcd-gcncr       2/2     Running   0          64s
+reviews-v1-598b896c9d-lck2f       2/2     Running   0          64s
+reviews-v2-556d6457d-kjmxx        2/2     Running   0          64s
+reviews-v3-564544b4d6-xtfd2       2/2     Running   0          64s
 
 
 # 모든 pod가 2개 container로 실행되었다.
 
-
-$ ku get services
+$ kubectl -n user01 get services
 NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
-details       ClusterIP   10.43.174.226   <none>        9080/TCP   36s
-productpage   ClusterIP   10.43.178.204   <none>        9080/TCP   36s
-ratings       ClusterIP   10.43.61.170    <none>        9080/TCP   36s
-reviews       ClusterIP   10.43.201.114   <none>        9080/TCP   36s
+details       ClusterIP   10.43.118.162   <none>        9080/TCP   77s
+productpage   ClusterIP   10.43.93.132    <none>        9080/TCP   76s
+ratings       ClusterIP   10.43.39.198    <none>        9080/TCP   76s
+reviews       ClusterIP   10.43.18.83     <none>        9080/TCP   76s
+
 
 
 
@@ -1108,24 +987,14 @@ reviews       ClusterIP   10.43.201.114   <none>        9080/TCP   36s
 ```sh
 
 # 1. ratings app pod 확인
-$ ku get pod -l app=ratings
+$ kubectl -n user01 get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
-ratings-v1-5bf485ffc8-fvfxv   2/2     Running   0          49s
+ratings-v1-5dc79b6bcd-gcncr   2/2     Running   0          105s
 
 
-
-$ ku describe pod -l app=ratings
-...
-Containers:
-  ratings:
-  istio-proxy:
-...
-
-
-# 2. rating 에서 productpage call 확인
-# $ ku exec ratings-v1-5bf485ffc8-fvfxv -c ratings -- curl -sS productpage:9080/productpage
-$ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
-
+# 2.1 rating 에서 productpage call 확인
+# $ kubectl -n user01 exec ratings-v1-5bf485ffc8-fvfxv -c ratings -- curl -sS productpage:9080/productpage
+$ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
 
 <!DOCTYPE html>
 <html>
@@ -1136,11 +1005,8 @@ $ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ...
 
-
-
-
-# 3. rating 에서 productpage call 확인
-$ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+# 2.2 rating 에서 productpage call 확인
+$ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
@@ -1154,7 +1020,7 @@ $ ku exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage 
 
 ```sh
 
-$ ku exec "$(ku get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ kubectl -n user01 exec "$(kubectl -n user01 get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
@@ -1171,16 +1037,9 @@ IP 는 이미 생성된 공인 IP 이므로 변경할 필요 없다.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
-$ ll ./istio/bookinfo/12.bookinfo-gw-vs.yaml
--rw-rw-r-- 1 ktdseduuser ktdseduuser 716 Jun  6 12:01 ./istio/bookinfo/12.bookinfo-gw-vs.yaml
-
-
-
 
 # 12.bookinfo-gw-vs.yaml 파일 확인
-$ vi ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -1203,7 +1062,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user03.cloud.20.249.174.177.nip.io"         # <-- 각자 Namespace명으로 변경 필요
+  - "bookinfo.user01.cloud.20.249.162.253.nip.io"         # <-- 각자 Namespace명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1223,24 +1082,22 @@ spec:
         host: productpage
         port:
           number: 9080
-
-
-# 생성
-$ ku apply -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
+EOF
 
 gateway.networking.istio.io/bookinfo-gateway created
 virtualservice.networking.istio.io/bookinfo created
 
 
-# 확인
-$ ku get gateway
+
+# gateway 확인
+$ kubectl -n user01 get gw
 NAME               AGE
 bookinfo-gateway   4s
 
-
-$ ku get vs
-NAME       GATEWAYS               HOSTS                                            AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user03.cloud.20.249.174.177.nip.io"]   11s
+# virtualservice 확인
+$ kubectl -n user01 get vs
+NAME       GATEWAYS               HOSTS                                             AGE
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.user01.cloud.20.249.162.253.nip.io"]   52s
 
 
 ```
@@ -1255,21 +1112,17 @@ bookinfo host 를 각자 계정명으로 변경한 후 적용하자.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
-
-
 # 15.bookinfo-ingress.yaml 파일 확인
-$ cat ./istio/bookinfo/15.bookinfo-ingress.yaml
+$ cat <<EOF | kubectl -n istio-ingress apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress-user03                         <-- 각자 NS명으로 변경 필요
+  name: bookinfo-ingress-user01                          #  <-- 각자 NS명으로 변경 필요
   namespace: istio-ingress
 spec:
   ingressClassName: traefik
   rules:
-  - host: "bookinfo.user03.cloud.20.249.174.177.nip.io"  <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.user01.cloud.20.249.162.253.nip.io"  # <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1279,21 +1132,11 @@ spec:
             name: istio-ingressgateway
             port:
               number: 80
-
-
-# 15.bookinfo-ingress.yaml 파일 수정
-$ vi ./istio/bookinfo/15.bookinfo-ingress.yaml
-...
-
-
-# ingress 생성
-# ingress 는 istio-ingress namespace 에서 실행해야 한다.
-$ kubectl -n istio-ingress apply -f ./istio/bookinfo/15.bookinfo-ingress.yaml
-
+EOF
 
 $ kubectl -n istio-ingress get ingress
-NAME                      CLASS     HOSTS                                         ADDRESS                      PORTS   AGE
-bookinfo-ingress-user02   traefik   bookinfo.user03.cloud.20.249.174.177.nip.io   10.0.0.4,10.0.0.5,10.0.0.6   80      11s
+NAME                      CLASS     HOSTS                                         ADDRESS                                                  PORTS   AGE
+bookinfo-ingress-user01   traefik   bookinfo.user01.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      24s
 
 
 ```
@@ -1303,12 +1146,16 @@ bookinfo-ingress-user02   traefik   bookinfo.user03.cloud.20.249.174.177.nip.io 
 #### browser 에서 확인
 
 ```
-http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
+
+http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
+
 ```
 
 
 
-![image-20230826121558547](ServiceMesh.assets/image-20230826121558547.png)
+![image-20250920225517933](./assets/image-20250920225517933.png)
+
+
 
 
 
@@ -1318,7 +1165,7 @@ http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
 
 ## ingress 확인
 # 각자 자신의 namespace 명으로 호출테스트 한다.
-$ curl -s "http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage" | grep -o "<title>.*</title>"
+$ curl -s "http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage" | grep -o "<title>.*</title>"
 
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
@@ -1335,20 +1182,16 @@ $ curl -s "http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage" | gre
 
 # istio ingressgateway service 확인
 $ kubectl -n istio-ingress get svc
-NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.5.202   <pending>     15021:31248/TCP,80:31164/TCP,443:30105/TCP   7h48m
----
 NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                      AGE
-istio-ingressgateway   LoadBalancer   10.43.80.118   <pending>     15021:32199/TCP,80:31019/TCP,443:30766/TCP   51m
+istio-ingressgateway   LoadBalancer   10.43.120.76   <pending>     15021:31595/TCP,80:31287/TCP,443:30369/TCP   61m
 
 
 
+# 31287 node port 로 접근 가능
 
-# 31164 node port 로 접근 가능
 
-
-# master01 IP(10.0.0.4) 의 node port 로 접근 테스트
-$ curl http://10.0.0.4:31019/productpage -H "Host:bookinfo.user03.cloud.20.249.174.177.nip.io"  | grep -o "<title>.*</title>"
+# master01 IP(172.16.0.5) 의 node port 로 접근 테스트
+$ curl http://172.16.0.5:31287/productpage -H "Host:bookinfo.user01.cloud.20.249.162.253.nip.io"  | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>
 
@@ -1362,7 +1205,7 @@ $ curl http://10.0.0.4:31019/productpage -H "Host:bookinfo.user03.cloud.20.249.1
 #### 초당 0.5회 call 
 
 ```sh
-$ while true; do curl -s http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1380,7 +1223,7 @@ istio 에서 제공하는 모니터링종류는 아래와 같이 grafana / kiali
 
 ### (1) Grafana
 
-http://grafana.istio-system.cloud.20.249.174.177.nip.io/
+http://grafana.istio-system.cloud.20.249.162.253.nip.io/
 
 * 주로보는 대쉬보드 : Dashboards > Browse > istio > Istio Service Dashboard
 
@@ -1388,50 +1231,38 @@ http://grafana.istio-system.cloud.20.249.174.177.nip.io/
 
 
 
-* Mesh-Dashboard
-  * http://grafana.istio-system.cloud.20.249.174.177.nip.io/dashboards/f/adnyukxidn8jkd/
+* Workload Dashboard
+  
+  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/77834132-b796-4dca-8b04-5e14716232c3/istio-workload-dashboard?orgId=1&from=now-30m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-namespace=user01&var-workload=productpage-v1&var-qrep=destination&var-srcns=$__all&var-srcwl=$__all&var-dstsvc=$__all&refresh=1m
+  
+* Mesh Dashboard
+
+  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/1a9a8ea49444aae205c7737573e894f9/istio-mesh-dashboard?orgId=1&from=now-30m&to=now&timezone=utc&var-datasource=PBFA97CFB590B2093&refresh=15s
 
 * Service Dashboard
-  * http://grafana.istio-system.cloud.20.249.174.177.nip.io/d/ddnyuky16dq80d/istio-service-dashboard?orgId=1&refresh=1m
-  
+  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/a5a898a8-1ec5-449b-9fd0-23fdabae1564/istio-service-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-service=productpage.user01.svc.cluster.local&var-qrep=destination&var-srccluster=$__all&var-srcns=user01&var-srcwl=$__all&var-dstcluster=$__all&var-dstns=$__all&var-dstwl=$__all&refresh=1m
+
     
 
 
 
 ### (2) Kiali
 
-http://kiali.istio-system.cloud.20.249.174.177.nip.io
+http://kiali.istio-system.cloud.20.249.162.253.nip.io
 
 * 주로 보는 대쉬보드
   * 메뉴 : Traffic Graph
-  * Namespace 선택 : user03
+  * Namespace 선택 : user01
   * Display
     * Traffic Distribution : check
     * Traffic Rate : check
     * Traffic Anymation : check
   
 
-![image-20220602162703029](ServiceMesh.assets/monitoring-kiali.png)
+![image-20250920230436196](./assets/image-20250920230436196.png)
 
 * replay
   * 과거 기가동안의 트래픽 흐름을 검토 할 수 있음
-
-
-
-
-
-
-
-
-### (3) Jaeger
-
-http://jaeger.istio-system.cloud.20.249.174.177.nip.io
-
-![img](ServiceMesh.assets/monitoring-jaeger.png)
-
-
-
-
 
 
 
@@ -1443,21 +1274,17 @@ http://jaeger.istio-system.cloud.20.249.174.177.nip.io
 
 
 
-
-
 ## 0) 초기 셋팅
 
 
 
-#### default destination rules
+### (1) default destination rules
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
 # 13.destination-rule-all.yaml 파일 확인
-$ cat ./istio/bookinfo/13.destination-rule-all.yaml
-
-apiVersion: networking.istio.io/v1alpha3
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: productpage
@@ -1468,7 +1295,7 @@ spec:
     labels:
       version: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: reviews
@@ -1485,7 +1312,7 @@ spec:
     labels:
       version: v3
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: ratings
@@ -1505,7 +1332,7 @@ spec:
     labels:
       version: v2-mysql-vm
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: details
@@ -1518,23 +1345,19 @@ spec:
   - name: v2
     labels:
       version: v2
----
+EOF
 
-
-# 적용
-$ ku apply -f ./istio/bookinfo/13.destination-rule-all.yaml
 
 
 ```
 
 
 
-
-
-#### 초당 0.5회 call
+### (2) 초당 0.5회 call
 
 ```sh
-$ while true; do curl -s http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+
+$ while true; do curl -s http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1556,11 +1379,9 @@ kiali 를 확인하면서 아래를 진행해보자.
 
 ```sh
 
-$ cd ~/githubrepo/ktds-edu-k8s-istio
-
-$ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
-
-apiVersion: networking.istio.io/v1alpha3
+# 21.virtual-service-all-v1.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: productpage
@@ -1573,7 +1394,7 @@ spec:
         host: productpage
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: reviews
@@ -1586,7 +1407,7 @@ spec:
         host: reviews
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: ratings
@@ -1599,7 +1420,7 @@ spec:
         host: ratings
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: details
@@ -1611,9 +1432,7 @@ spec:
     - destination:
         host: details
         subset: v1
----
-
-$ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+EOF
 
 ```
 
@@ -1635,9 +1454,10 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
  reviews 서비스의 v1, v3에 각각 50% 씩만 흘려보자.
 
 ```sh
-$ cat ./istio/bookinfo/22.virtual-service-reviews-50-v3.yaml
 
-apiVersion: networking.istio.io/v1alpha3
+# 22.virtual-service-reviews-50-v3.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: reviews
@@ -1654,8 +1474,7 @@ spec:
         host: reviews
         subset: v3
       weight: 50
-
-$ ku apply -f ./istio/bookinfo/22.virtual-service-reviews-50-v3.yaml
+EOF
 
 ```
 
@@ -1668,7 +1487,9 @@ reviews:v3 서비스가 안정적이라고 판단되면 아래 virtualservice �
 ```sh
 $ cat ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 
-apiVersion: networking.istio.io/v1alpha3
+# 23.virtual-service-reviews-v3.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: reviews
@@ -1680,9 +1501,8 @@ spec:
     - destination:
         host: reviews
         subset: v3
+EOF
 
-
-$ ku apply -f ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 
 ```
 
@@ -1697,11 +1517,18 @@ $ ku apply -f ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 
 
 
-- clean up
+### (4) clean up
 
 ```sh
 # 내부 라우팅 정책을 삭제 한다.
-$ ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+
+# 21.virtual-service-all-v1.yaml  삭제
+
+$ kubectl -n user01 delete VirtualService productpage
+  kubectl -n user01 delete VirtualService reviews
+  kubectl -n user01 delete VirtualService ratings
+  kubectl -n user01 delete VirtualService details
+
 ```
 
 
@@ -1725,11 +1552,11 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 우선 모든 서비스가 reviews:v1 로만 흐르도록 변경한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/bookinfo/21.virtual-service-all-v1.yaml
+# 21.virtual-service-all-v1.yaml
 
-apiVersion: networking.istio.io/v1alpha3
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: productpage
@@ -1742,7 +1569,7 @@ spec:
         host: productpage
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: reviews
@@ -1755,7 +1582,7 @@ spec:
         host: reviews
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: ratings
@@ -1768,7 +1595,7 @@ spec:
         host: ratings
         subset: v1
 ---
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: details
@@ -1780,10 +1607,8 @@ spec:
     - destination:
         host: details
         subset: v1
----
+EOF
 
-
-$ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 
 ```
 
@@ -1794,8 +1619,9 @@ $ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
 아래 경우 jason이라는 사용자의 모든 트래픽은 reviews:v2로 라우팅 되도록 설정한다.
 
 ```sh
-$ cat ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
+# 24.virtual-service-reviews-test-v2.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1816,9 +1642,8 @@ spec:
     - destination:
         host: reviews
         subset: v1
+EOF
 
-
-$ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
 ```
 
@@ -1828,19 +1653,21 @@ $ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
 
 browser 에서 jason 으로 로그인 한다음 접근해보자. 
 
-http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
+http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
 
 
 
 로그인전에는 reviews-1 이 호출된다.
 
-![image-20220602174208861](ServiceMesh.assets/image-20220602174208861.png)
+![image-20250921110340871](./assets/image-20250921110340871.png)
 
 
 
 jason 으로 로그인이후에는 reviews-v2 가 호출되는 모습을 볼 수 있다.
 
-![image-20220602174111135](ServiceMesh.assets/image-20220602174111135.png)
+![image-20250921110527778](./assets/image-20250921110527778.png)
+
+
 
 
 
@@ -1852,10 +1679,18 @@ v2 를 운영환경에 배포한 다음 특정 사용자만 접속가능하게 �
 
 
 
-- clean up 
+### (3) clean up 
 
 ```sh
-$ ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+# 내부 라우팅 정책을 삭제 한다.
+
+# 21.virtual-service-all-v1.yaml  삭제
+
+$ kubectl -n user01 delete VirtualService productpage
+  kubectl -n user01 delete VirtualService reviews
+  kubectl -n user01 delete VirtualService ratings
+  kubectl -n user01 delete VirtualService details
+
 ```
 
 위와 같이 virtualservice 를 삭제하게 되면 초기에 테스트 한것처럼 v1, v2, v3 가 RoundRobbin 으로 접속된다.
@@ -1876,14 +1711,109 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 
 ### (1) 사전준비
 
-적절한 테스트를 위해서 바로 윗단계에서 테스트 한것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
+적절한 테스트를 위해서 바로 윗단계에서 테스트 한 것처럼 jason 으로 로그인 시 v2 로 접속되며 그 외에는 v1 으로 접속되는 환경으로 변경한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+# 21.virtual-service-all-v1.yaml
 
-$ ku apply -f ./istio/bookinfo/24.virtual-service-reviews-test-v2.yaml
+# 24.virtual-service-reviews-test-v2.yaml
+
+```
+
+
+
+#### 21.virtual-service-all-v1.yaml
+
+```sh
+
+# 21.virtual-service-all-v1.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: productpage
+spec:
+  hosts:
+  - productpage
+  http:
+  - route:
+    - destination:
+        host: productpage
+        subset: v1
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+  - reviews
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: ratings
+spec:
+  hosts:
+  - ratings
+  http:
+  - route:
+    - destination:
+        host: ratings
+        subset: v1
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: details
+spec:
+  hosts:
+  - details
+  http:
+  - route:
+    - destination:
+        host: details
+        subset: v1
+EOF
+
+```
+
+
+
+#### 24.virtual-service-reviews-test-v2.yaml
+
+```sh
+
+# 24.virtual-service-reviews-test-v2.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+    - reviews
+  http:
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+EOF
+
 ```
 
 
@@ -1912,10 +1842,10 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 
+# 25.virtual-service-ratings-test-delay.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1941,8 +1871,8 @@ spec:
     - destination:
         host: ratings
         subset: v1
+EOF
 
-$ ku apply -f ./istio/bookinfo/25.virtual-service-ratings-test-delay.yaml
 ```
 
 
@@ -1962,9 +1892,7 @@ Sorry, product reviews are currently unavailable for this book.
 
 오류원인을 확인하기 위해 dev-tools 로 확인해 보니 아래와 같이 6초의 load 시간인 것을 확인할 수 있다.
 
-![image-20220602181328032](ServiceMesh.assets/image-20220602181328032.png)
-
-
+![image-20250921113349536](./assets/image-20250921113349536.png)
 
 버그를 찾았다.
 
@@ -1983,10 +1911,9 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 "Ratings service is currently unavailable" 라는 메세지가 나올것을 기대한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
-
+# 26.virtual-service-ratings-test-abort.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -2012,10 +1939,8 @@ spec:
     - destination:
         host: ratings
         subset: v1
+EOF
 
-
-
-$ ku apply -f ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 ```
 
 위를 적용하고 jason 으로 로그인해 보자.
@@ -2025,15 +1950,8 @@ $ ku apply -f ./istio/bookinfo/26.virtual-service-ratings-test-abort.yaml
 ```
 [Book Reviews]
 
-
-An extremely entertaining play by Shakespeare. The slapstick humour is refreshing!
-Reviewer1
 Ratings service is currently unavailable
 
-
-Absolutely fun and entertaining. The play lacks thematic depth when compared to other plays by Shakespeare.
-Reviewer2
-Ratings service is currently unavailable
 ```
 
 jason 을 제외한 나머지 사용자는 잘 처리되는 것을 확인할 수 있다.
@@ -2046,15 +1964,14 @@ jason 을 제외한 나머지 사용자는 잘 처리되는 것을 확인할 수
 
 httpStatus: 500 error 의 비율을 조정해 보자.
 
-ratings 서비스를 call 했을때 500 error 비율을 50 으로 설정해 보자.
+ratings 서비스를 call 했을때 500 error 비율을 50% 로 설정해 보자.
 
 json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될 것이다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
-
+# 27.virtual-service-ratings-500-fi-rate.yaml
+$ cat <<EOF | kubectl -n user01 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -2072,14 +1989,12 @@ spec:
     - destination:
         host: ratings
         subset: v1
-
-
-$ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
+EOF
 
 ```
 
 * UI 에서 확인
-  * http://bookinfo.user03.cloud.20.249.174.177.nip.io/productpage
+  * http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
 
 
 
@@ -2088,10 +2003,10 @@ $ ku apply -f ./istio/bookinfo/27.virtual-service-ratings-500-fi-rate.yaml
 ```sh
 
 # istio sidecar 가 inject된 pod에서 수행 ( curltest pod 에서)
-$ ku run curltest --image=curlimages/curl -- sleep 365d
+$ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
 
 # curltest pod 내로 진입
-$ ku exec -it curltest -- sh
+$ kubectl -n user01 exec -it curltest -- sh
 
 
 # 여러번 호출해 보자.
@@ -2103,13 +2018,16 @@ HTTP/1.1 200 OK
 
 
 # 여러번 호출해 보자.
-/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+$ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
 HTTP/1.1 500 Internal Server Error
-/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+
+$ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
 HTTP/1.1 200 OK
-/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+
+$ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
 HTTP/1.1 500 Internal Server Error
-/ $ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
+
+$ curl -i -s http://ratings:9080/ratings/0 | grep HTTP
 HTTP/1.1 200 OK
 
 
@@ -2137,11 +2055,11 @@ HTTP/1.1 200 OK
 
 kiali 에서도 쉽게 조정이 가능하다.
 
-* 메뉴 : Traffic Graph > Rating > Detail > VS 선택
-  * 링크 : http://kiali.istio-system.cloud.20.249.174.177.nip.io/kiali/console/namespaces/user03/istio/virtualservices/ratings
+* 메뉴 : Traffic Graph > Rating 선택 > Service Rating 클릭 > Istio Config > VS Rating 클릭
+  * 링크 : http://kiali.istio-system.cloud.20.249.162.253.nip.io/kiali/console/namespaces/user01/istio/networking.istio.io/v1/VirtualService/ratings
 
 ```yaml
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: ratings
@@ -2153,7 +2071,7 @@ spec:
       abort:
         httpStatus: 500
         percentage:
-          value: 90              <--- 50에서 90으로 조정
+          value: 90            #   <--- 50에서 90으로 조정
     route:
     - destination:
         host: ratings
@@ -2198,31 +2116,50 @@ $ exit
 * 초당 0.5회 Call 건도 중지
   * Bookinfo Test 는 모두 완료됨
 
-- clean up
+### (5) clean up
 
 ```sh
-$ ku apply -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
+
+# 내부 라우팅 정책을 삭제 한다.
+
+# 21.virtual-service-all-v1.yaml  삭제
+
+$ kubectl -n user01 delete VirtualService productpage
+  kubectl -n user01 delete VirtualService reviews
+  kubectl -n user01 delete VirtualService ratings
+  kubectl -n user01 delete VirtualService details
+
 ```
 
 
 
-### (5) Clean up
+### (6) Book Info ALL Clean up
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-# alias 설정
-$ alias ku='kubectl -n user03'
- 
-$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
-  ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
-  ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
-  ku delete -f ./istio/bookinfo/21.virtual-service-all-v1.yaml
-  kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
+# Book Info ALL Clean up
 
-# namespace label 삭제
-# $ kubectl label --overwrite namespace user03 istio-injection-
+# 21.virtual-service-all-v1.yaml
+$ kubectl -n user01 delete VirtualService productpage
+  kubectl -n user01 delete VirtualService reviews
+  kubectl -n user01 delete VirtualService ratings
+  kubectl -n user01 delete VirtualService details
 
+# 15.bookinfo-ingress.yaml
+$ kubectl -n istio-ingress delete Ingress bookinfo-ingress-user01  
+
+# 13.destination-rule-all.yaml
+$ kubectl -n user01 delete DestinationRule productpage
+  kubectl -n user01 delete DestinationRule reviews
+  kubectl -n user01 delete DestinationRule ratings
+  kubectl -n user01 delete DestinationRule details
+
+# 12.bookinfo-gw-vs.yaml
+$ kubectl -n user01 delete Gateway bookinfo-gateway
+  kubectl -n user01 delete vs bookinfo
+
+# 11.bookinfo.yaml
+$ kubectl -n user01 delete -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
 
 ```
 
@@ -2232,7 +2169,7 @@ $ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
 
 ## 4) Circuit Breaking
 
-istio 는 Connection pool 과   Load balancing pool 기반의 circuit breaking 기능을 제공한다.
+istio 는 Connection pool 기반과   Load balancing pool 기반의 circuit breaking 기능을 제공한다.
 
 
 
@@ -2261,9 +2198,9 @@ Istio 는 *DestinationRule* 의 `.trafficPolicy.outlierDetection`, `.trafficPoli
 circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP 프로토콜 echo 응답 하는 테스트 App 이다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/httpbin/11.httpbin-deploy-svc.yaml
+# 11.httpbin-deploy-svc.yaml
+$ cat <<EOF | kubectl -n user01 apply -f - 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -2298,11 +2235,8 @@ spec:
   - name: http
     port: 8000
     targetPort: 80
+EOF
 
-
-# 설치
-
-$ ku apply -f ./istio/httpbin/11.httpbin-deploy-svc.yaml
 deployment.apps/httpbin created
 service/httpbin created
 
@@ -2311,9 +2245,9 @@ service/httpbin created
 
 
 # 확인
-$ ku get pod
-NAME                              READY   STATUS            RESTARTS   AGE
-httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
+$ kubectl -n user01 get pod
+NAME                       READY   STATUS            RESTARTS   AGE
+httpbin-5f78dc8bcb-664g2   1/2     PodInitializing   0          13s
 ...
 
 ```
@@ -2325,10 +2259,10 @@ httpbin-d6d55998b-9sk6r           0/2     PodInitializing   0          15s
 MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 설치한다.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/httpbin/12.fortio-pod.yaml
+# 12.fortio-pod.yaml
 
+$ cat <<EOF | kubectl -n user01 apply -f - 
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2345,16 +2279,15 @@ spec:
       name: http-fortio
     - containerPort: 8079
       name: grpc-ping
+EOF
 
-
-$ ku apply -f ./istio/httpbin/12.fortio-pod.yaml
 pod/fortio created
 
-$ ku get pod
-NAME                              READY   STATUS    RESTARTS   AGE
-fortio                            2/2     Running   0          11s
-httpbin-d6d55998b-9sk6r           2/2     Running   0          92s
+$ kubectl -n user01 get pod
+NAME                       READY   STATUS            RESTARTS   AGE
+fortio                     2/2     Running           0          16s92s
 ...
+
 
 ```
 
@@ -2365,17 +2298,18 @@ httpbin-d6d55998b-9sk6r           2/2     Running   0          92s
 fortio 에서 *httpbin* 으로 요청. **200(정상)** 응답 코드가 리턴됨.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
+
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
 HTTP/1.1 200 OK
 ...
 
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
 HTTP/1.1 200 OK
 
 
 # 0.5초에 한번씩 call
-$ while true; do ku exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
+$ while true; do kubectl -n user01 exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
 
 HTTP/1.1 200 OK
 
@@ -2398,10 +2332,6 @@ Kiali 에서는 다음과 같이 조회된다.
 
 
 
-
-
-
-
 #### circuit breaker 설정
 
 - DestinationRule 를 생성하여 circuit break 가 발생할 수 있도록 Connection pool을 최소값으로 지정한다.
@@ -2413,10 +2343,11 @@ Kiali 에서는 다음과 같이 조회된다.
 
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/httpbin/13.dr-httpbin.yaml
-apiVersion: networking.istio.io/v1alpha3
+# 13.dr-httpbin.yaml
+
+$ cat <<EOF | kubectl -n user01 apply -f - 
+apiVersion: networking.istio.io/1
 kind: DestinationRule
 metadata:
   name: dr-httpbin
@@ -2427,9 +2358,7 @@ spec:
       http:
         http1MaxPendingRequests: 1
         maxRequestsPerConnection: 1
-
-$ ku apply -f ./istio/httpbin/13.dr-httpbin.yaml
-
+EOF
 
 ```
 
@@ -2451,7 +2380,7 @@ Kiali 에서는 아래와 같이 번개모양의 circuit break 뱃지가 나타�
 
 ```sh
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 10 (100.0 %)
@@ -2466,7 +2395,7 @@ Code 200 : 10 (100.0 %)
 - 결과를 확인해보면 100회 모두 **200(정상)** 을 리턴 한다.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 100 (100.0 %)
@@ -2481,7 +2410,7 @@ Code 200 : 100 (100.0 %)
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 83 (83.0 %)
@@ -2497,7 +2426,7 @@ Code 503 : 17 (17.0 %)
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 62 (62.0 %)
@@ -2516,7 +2445,7 @@ Code 503 : 38 (38.0 %)
 - 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 71회 발생했다.
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 29 (29.0 %)
@@ -2534,7 +2463,7 @@ Code 503 : 71 (71.0 %)
 
 
 ```sh
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 18 (18.0 %)
@@ -2549,14 +2478,13 @@ Code 503 : 82 (82.0 %)
 - 아래와 같이 httpbin-dr를 삭제하고 circuit break 를 제거한 상태에서 동일한 트래픽 load 를 발생시켜보자.
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ ku delete -f ./istio/httpbin/13.dr-httpbin.yaml
+$ kubectl -n user01 delete -f ./istio/httpbin/13.dr-httpbin.yaml
 
 # kiali 에서 Circuit Braker Icon 이 사라진 것을 확인하자.
 
 
-$ ku exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 100 (100.0 %)
@@ -2585,10 +2513,10 @@ Code 200 : 100 (100.0 %)
 #### clean up
 
 ```sh
-$ ku delete pod/fortio 
-  ku delete deployment.apps/httpbin 
-  ku delete svc/httpbin
-  ku delete pod/curltest
+$ kubectl -n user01 delete pod/fortio 
+  kubectl -n user01 delete deployment.apps/httpbin 
+  kubectl -n user01 delete svc/httpbin
+  kubectl -n user01 delete pod/curltest
 
 # 0.5초에 한번씩 Call 하는 문장도 불필요하니 종료하자.
 
@@ -2613,9 +2541,9 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 #### 테스트 POD 기동
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/hello/11.hello-pod-svc.yaml
+# 11.hello-pod-svc.yaml
+$ cat <<EOF | kubectl -n user01 apply -f - 
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2665,9 +2593,8 @@ spec:
   - name: http
     protocol: TCP
     port: 8080
+EOF
 
-
-$ ku apply -f ./istio/hello/11.hello-pod-svc.yaml
 pod/hello-server-1 created
 pod/hello-server-2 created
 service/hello-svc created
@@ -2679,12 +2606,13 @@ service/hello-svc created
 - 클라이언트용 *pod* 를 설치후 확인해 보자.
 
 ```sh
-$ ku run curltest --image=curlimages/curl -- sleep 365d
+
+$ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
 pod/curltest created
 
 
 # 여러번 call 해보자.
-$ ku exec -it curltest -- curl http://hello-svc:8080
+$ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080
 Hello server - v1
 Hello server - v2
 Hello server - v1
@@ -2702,21 +2630,23 @@ Hello server - v2
   - Terminal 1 : hello-server-1 log 추척
 
     - ```sh
+      
       $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user03'
+        alias ku='kubectl -n user01'
       
       
-      $ ku logs -f hello-server-1 
+      $ kubectl -n user01 logs -f hello-server-1 
       
       ```
 
   - Terminal 2 : hello-server-2 log 추척
 
     - ```sh
+      
       $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user03'
+        alias ku='kubectl -n user01'
         
-      $ ku logs -f hello-server-2
+      $ kubectl -n user01 logs -f hello-server-2
       
       ```
 
@@ -2725,14 +2655,15 @@ Hello server - v2
     - 아래 명령 수행
 
     - ```sh
+      
       $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user03'
+        alias ku='kubectl -n user01'
         
-      $ ku exec -it curltest -- curl http://hello-svc:8080 -i
+      $ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080 -i
       
       ```
       
-    - 
+      
     
     
 
@@ -2744,8 +2675,7 @@ Hello server - v2
 ```sh
 
 # 20개를 0.1초간격으로 요청해 보자.
-$ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
-
+$ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 Hello server - v1
 Hello server - v1
@@ -2779,7 +2709,8 @@ Hello server - v2
 - hello-server-1 로그
 
 ```sh
-$ ku logs -f hello-server-1
+
+$ kubectl -n user01 logs -f hello-server-1
 
 
 Hello server - v1 - 200
@@ -2808,7 +2739,8 @@ Hello server - v1 - 200
 - hello-server-2 로그
 
 ```sh
-$ ku logs -f hello-server-2
+
+$ kubectl -n user01 logs -f hello-server-2
 
 
 Hello server - v2 - 503 (random)
@@ -2864,9 +2796,10 @@ Hello server - v2 - 200
   
 
 ```sh
-$ cd ~/githubrepo/ktds-edu-k8s-istio
 
-$ cat ./istio/hello/12.hello-dr.yaml
+# 12.hello-dr.yaml
+
+$ cat <<EOF | kubectl -n user01 apply -f - 
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -2879,9 +2812,9 @@ spec:
       consecutive5xxErrors: 1
       baseEjectionTime: 2m
       maxEjectionPercent: 100
+EOF
 
 
-$ ku apply -f ./istio/hello/12.hello-dr.yaml
 ```
 
 * 설정값 설명
@@ -2899,7 +2832,7 @@ $ ku apply -f ./istio/hello/12.hello-dr.yaml
 
 ```sh
 
-$ for i in {1..20}; do ku exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
+$ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 Hello server - v2
 Hello server - v2
@@ -2927,7 +2860,7 @@ Hello server - v1
 - hello-server-1 pod 의 logs follow 하자.
 
 ```sh
-$ ku logs -f hello-server-1
+$ kubectl -n user01 logs -f hello-server-1
 
 Hello server - v1 - 200
 Hello server - v1 - 200
@@ -2957,7 +2890,7 @@ Hello server - v1 - 200
 - hello-server-2 pod 의 logs  follow 하자.
 
 ```sh
-$ ku logs -f hello-server-2
+$ kubectl -n user01 logs -f hello-server-2
 
 Hello server - v2 - 200
 Hello server - v2 - 200
@@ -3014,53 +2947,14 @@ spec:
 #### clean up
 
 ```sh
-$ ku delete pod/hello-server-1
-  ku delete pod/hello-server-2
-  ku delete svc/hello-svc
-  ku delete dr/hello-dr
-  ku delete pod/curltest
+$ kubectl -n user01 delete pod/hello-server-1
+  kubectl -n user01 delete pod/hello-server-2
+  kubectl -n user01 delete svc/hello-svc
+  kubectl -n user01 delete dr/hello-dr
+  kubectl -n user01 delete pod/curltest
 
 # 확인
-$ ku get all
+$ kubectl -n user01 get all
 ```
-
-
-
-
-
-## 5) bookinfo clean up
-
-필요시 삭제한다.
-
-```sh
-$ alias ku='kubectl -n user03'
-
-$ cd ~/githubrepo/ktds-edu-k8s-istio/
-
-# 삭제
-$ ku delete -f ./istio/bookinfo/11.bookinfo.yaml
-  ku delete -f ./istio/bookinfo/12.bookinfo-gw-vs.yaml
-  ku delete -f ./istio/bookinfo/13.destination-rule-all.yaml 
-  kubectl -n istio-ingress delete -f ./istio/bookinfo/15.bookinfo-ingress.yaml
-
-
-# virtual Service 직접 삭제
-ku delete vs details
-ku delete vs productpage
-ku delete vs ratings
-ku delete vs reviews
-
-
-# 확인
-$ ku get all
-
-
-# namespace label 삭제
-$ kubectl label --overwrite namespace user03 istio-injection-
-
-```
-
-
-
 
 
