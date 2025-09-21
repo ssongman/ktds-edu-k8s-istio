@@ -1660,9 +1660,21 @@ EduCluster 에 접속할 수 있는 접속 정보 파일로 설정 변경 작업
 
 ```sh
 
-
 # ktdsEduCluster 접속하도록 설정 변경
-$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+
+$ vi ~/env
+...
+alias kconcluster='export KUBECONFIG=$HOME/.kube/config-ktdseducluster'
+alias kconlocal='export KUBECONFIG=$HOME/.kube/config'
+
+kconcluster          #   <-- 주석을 해제할것
+# kconlocal
+...
+
+# 저장후 종료(:wq) 
+
+$ source ~/env
+
 
 
 # Cluste 설정변경 확인 확인

@@ -745,7 +745,20 @@ EduCluster 에 접속할 수 있는 접속정보 파일로 설정 변경 작업�
 ```sh
 
 # ktdsEduCluster 접속하도록 설정 변경
-$ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
+
+$ vi ~/env
+...
+alias kconcluster='export KUBECONFIG=$HOME/.kube/config-ktdseducluster'
+alias kconlocal='export KUBECONFIG=$HOME/.kube/config'
+
+kconcluster          #   <-- 주석을 해제할것
+# kconlocal
+...
+
+# 저장후 종료(:wq) 
+
+$ source ~/env
+
 
 
 # Cluste 확인
@@ -2347,7 +2360,7 @@ Kiali 에서는 다음과 같이 조회된다.
 # 13.dr-httpbin.yaml
 
 $ cat <<EOF | kubectl -n user01 apply -f - 
-apiVersion: networking.istio.io/1
+apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
   name: dr-httpbin
@@ -2355,6 +2368,8 @@ spec:
   host: httpbin
   trafficPolicy:
     connectionPool:
+      tcp:
+        maxConnections: 1
       http:
         http1MaxPendingRequests: 1
         maxRequestsPerConnection: 1
@@ -2479,10 +2494,8 @@ Code 503 : 82 (82.0 %)
 
 ```sh
 
-$ kubectl -n user01 delete -f ./istio/httpbin/13.dr-httpbin.yaml
-
+$ kubectl -n user01 delete DestinationRule dr-httpbin
 # kiali 에서 Circuit Braker Icon 이 사라진 것을 확인하자.
-
 
 $ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
@@ -2500,8 +2513,8 @@ Code 200 : 100 (100.0 %)
 
 - istio 는 DestinationRule을 통해 *circuit break* 를 정의를 할 수 있다.
 - *k8s service* `httpbin` 에 *DestionationRule* `dr-httpbin` 을 정의하여 connections=1, Pending=1로 제한하였다.
-- 1번 요청의 경우는 정상 요청처리 중이다.
-- 2번 요청이 발생 했을때 1번 요청 처리 중이라면 2번 요청은 pending 상태가 된다.
+- 첫번째 요청의 경우는 정상 요청처리 중이다.
+- 두번째 요청이 발생 했을때 첫번째 요청 처리 중이라면 두번째 요청은 pending 상태가 된다.
 - 1,2번 요청이 처리,pending 상태에서 3번 요청이 발생하게 된다면 설정에 따라 *circuit break* 가 발생하게 된다.
 
 
@@ -2516,7 +2529,8 @@ Code 200 : 100 (100.0 %)
 $ kubectl -n user01 delete pod/fortio 
   kubectl -n user01 delete deployment.apps/httpbin 
   kubectl -n user01 delete svc/httpbin
-  kubectl -n user01 delete pod/curltest
+  kubectl -n user01 delete pod/curltest 
+  kubectl -n user01 delete DestinationRule dr-httpbin
 
 # 0.5초에 한번씩 Call 하는 문장도 불필요하니 종료하자.
 
@@ -2543,6 +2557,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 ```sh
 
 # 11.hello-pod-svc.yaml
+
 $ cat <<EOF | kubectl -n user01 apply -f - 
 apiVersion: v1
 kind: Pod
@@ -2625,47 +2640,40 @@ Hello server - v2
 
 #### 테스트 수행 - CB 설정전
 
-- mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
+mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
 
-  - Terminal 1 : hello-server-1 log 추척
+![image-20250921135740464](./assets/image-20250921135740464.png)
 
-    - ```sh
-      
-      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user01'
-      
-      
-      $ kubectl -n user01 logs -f hello-server-1 
-      
-      ```
+- Terminal 1 : hello-server-1 log 추척
 
-  - Terminal 2 : hello-server-2 log 추척
-
-    - ```sh
-      
-      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user01'
-        
-      $ kubectl -n user01 logs -f hello-server-2
-      
-      ```
-
-  - Terminal 3 : Client tool 수행
-
-    - 아래 명령 수행
-
-    - ```sh
-      
-      $ export KUBECONFIG="${HOME}/.kube/config-ktdseducluster"
-        alias ku='kubectl -n user01'
-        
-      $ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080 -i
-      
-      ```
-      
-      
+  - ```sh
     
+    $ kubectl -n user01 logs -f hello-server-1 
     
+    ```
+
+- Terminal 2 : hello-server-2 log 추척
+
+  - ```sh
+    
+    $ kubectl -n user01 logs -f hello-server-2
+    
+    ```
+
+- Terminal 3 : Client tool 수행
+
+  - 아래 명령 수행
+
+  - ```sh
+    
+    # istio sidecar 가 inject된 pod에서 수행 ( curltest pod 에서)
+    $ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
+    
+    $ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080 -i
+    
+    ```
+
+  
 
 - curltest 컨테이너에서 hello-svc 서비스로 10개를 요청해 보자.
 
@@ -2676,33 +2684,31 @@ Hello server - v2
 
 # 20개를 0.1초간격으로 요청해 보자.
 $ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
-
 Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v2
+Hello server - v2 - 503 (random)
+Hello server - v2 - 503 (random)
 Hello server - v2
 Hello server - v1
 Hello server - v1
+Hello server - v2
+Hello server - v2 - 503 (random)
 Hello server - v1
-Hello server - v1
-Hello server - v1
-Hello server - v1
+Hello server - v2
+Hello server - v2 - 503 (random)
 Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
+Hello server - v2
+Hello server - v2 - 503 (random)
 Hello server - v2
 
 ```
 
 - 전체 20개의 로그가 리턴되었다.
-- istio proxy 기반 위에는 트래픽 오류시 다른 POD 로 Retry 기능이 있으므로 에러가 리턴 되지는 않는다.
-- 하지만 server-2로그를 확인하면 로그가 존재한다.
+- 예상된 결과처럼 v2 에서는 절반정도가 50x 에러가 리턴되었다.
 
 
 
@@ -2711,14 +2717,6 @@ Hello server - v2
 ```sh
 
 $ kubectl -n user01 logs -f hello-server-1
-
-
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
@@ -2732,7 +2730,7 @@ Hello server - v1 - 200
 
 ```
 
-200(정상) 16회이다.
+200(정상) 10회이다.
 
 
 
@@ -2741,29 +2739,24 @@ Hello server - v1 - 200
 ```sh
 
 $ kubectl -n user01 logs -f hello-server-2
-
-
-Hello server - v2 - 503 (random)
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 503 (random)
+Hello server - v2 - 200
+Hello server - v2 - 200
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 
 
 
-# 총 9회 중  [ 200(정상) 4회, 503(실패)5회 ]
+# 총 9회 중  [ 200(정상) 6회, 503(실패)4회 ]
 
 ```
 
-전체 9회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다.
-
-5개의 call이 에러 발생하여 k8s 가 자동으로 server-1 로 재요청된 것을 알 수 있다.
-
-그러므로 16회 + 4회 로 총 20회가 성공적으로 retern 되었다.
+전체 10회 로그가 찍혔고 내부 로직에 따라 50% 확률로 에러 발생했다.
 
 500 에러가 발생하는 서비스에 접근을 일시적으로 차단 시키는 것이 좋다고 판단할 수 있다.
 
@@ -2814,6 +2807,8 @@ spec:
       maxEjectionPercent: 100
 EOF
 
+destinationrule.networking.istio.io/hello-dr created
+
 
 ```
 
@@ -2834,15 +2829,15 @@ EOF
 
 $ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
-Hello server - v2
-Hello server - v2
-Hello server - v1
-Hello server - v1
-Hello server - v2
 Hello server - v1
 Hello server - v1
 Hello server - v1
-Hello server - v1    <-- 이 지점에서 circuit 이 발동 됨
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
+Hello server - v1
 Hello server - v1
 Hello server - v1
 Hello server - v1
@@ -2877,13 +2872,10 @@ Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
-Hello server - v1 - 200
-Hello server - v1 - 200
-
 
 ```
 
-17회 정상 리턴이다.
+15회 정상 리턴이다.
 
 
 
@@ -2895,11 +2887,12 @@ $ kubectl -n user01 logs -f hello-server-2
 Hello server - v2 - 200
 Hello server - v2 - 200
 Hello server - v2 - 200
+Hello server - v2 - 200
 Hello server - v2 - 503 (random)  <-- 이지점에서 Circuit Breaker 에 의한 service Ejection 됨
 
 ```
 
-* 4회 리턴중 마지막 503 에러 이후 로그가 찍히지 않았다.
+* 5회 리턴중 마지막 503 에러 이후 로그가 찍히지 않았다.
 * CB 정책에 의해 503 에러 발생후 3분 동안 v2 로 Call 이 가지 않았다.
 
 
@@ -2955,6 +2948,7 @@ $ kubectl -n user01 delete pod/hello-server-1
 
 # 확인
 $ kubectl -n user01 get all
+
 ```
 
 
