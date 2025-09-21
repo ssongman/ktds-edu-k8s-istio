@@ -152,15 +152,14 @@ Container 를 활용한 실습을 통해서 얼마나 효율적인지, 한계가
 
 userlist app 은 실행될때 10명의 사용자가 난수로 생성되도록 개발된 테스트용 app이다. 
 
-* 확인
-  * EduCluster 에 설치된 userlist 확인
-  * http://userlist.songedu.duckdns.org
+* userlist 확인
+  * https://userlist.ssongman.com/
+  
+    
 
 
 
 ### docker run
-
-
 
 ```sh
 $ docker ps -a
