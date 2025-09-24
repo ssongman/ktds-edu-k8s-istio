@@ -210,7 +210,7 @@ $ helm version
 version.BuildInfo{Version:"v3.15.0-rc.2", GitCommit:"c4e37b39dbb341cb3f716220df9f9d306d123a58", GitTreeState:"clean", GoVersion:"go1.22.3"}
 
 
-$ helm -n user01 ls
+$ helm -n user02 ls
 NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
 
 ```
@@ -238,9 +238,9 @@ bitnami/cassandra                               10.2.2          4.1.1           
 ...
 
 # 설치테스트(샘플: nginx)
-$ helm -n user01 install nginx bitnami/nginx
+$ helm -n user02 install nginx bitnami/nginx
 
-$ kubectl -n user01 get all
+$ kubectl -n user02 get all
 NAME                        READY   STATUS    RESTARTS   AGE
 pod/nginx-6ddf75599-nnv99   1/1     Running   0          58s
 
@@ -257,10 +257,10 @@ NAME                              DESIRED   CURRENT   READY   AGE
 
 
 # 설치 삭제
-$ helm -n user01 delete nginx
+$ helm -n user02 delete nginx
 
-$ kubectl -n user01 get all
-No resources found in user01 namespace.
+$ kubectl -n user02 get all
+No resources found in user02 namespace.
 ```
 
 
@@ -540,14 +540,14 @@ istio-ingressgateway   LoadBalancer   10.43.222.165   <pending>     15021:31524/
 ```sh
 
 # userlist pod 확인
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 NAME                       READY   STATUS    RESTARTS   AGE
 userlist-8d74d58d8-spffl   1/1     Running   0          2m25s
 
 
 
 # 존재하지 않는다면 아래명령으로 실행
-$ kubectl -n user01 create deploy userlist --image=ssongman/userlist:v1
+$ kubectl -n user02 create deploy userlist --image=ssongman/userlist:v1
 
 ```
 
@@ -582,14 +582,14 @@ $ kubectl -n user01 create deploy userlist --image=ssongman/userlist:v1
 
 ```sh
 # 적용전 확인
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2024-06-06T11:55:47Z"
   labels:                                      #  <-- labels 확인(istio label 이 없다.)
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: user02
+  name: user02
   resourceVersion: "700"
   uid: 5a45125a-0311-4129-9ef0-817e70bb1088
 spec:
@@ -602,20 +602,20 @@ status:
 
 # 적용(label 추가)
 # 자기 Namespce 로 변경하여 적용하자.
-$ kubectl label namespace user01 istio-injection=enabled
-namespace/user01 labeled
+$ kubectl label namespace user02 istio-injection=enabled
+namespace/user02 labeled
 
 
 # 적용후 확인
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2024-06-06T11:55:47Z"
   labels:
     istio-injection: enabled                 #    <-- istio label 이 잘 추가되었다.
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: user02
+  name: user02
   resourceVersion: "2992"
   uid: 5a45125a-0311-4129-9ef0-817e70bb1088
 spec:
@@ -639,23 +639,23 @@ status:
 
 ```sh
 # 확인
-$ kubectl -n user01 get deploy userlist
+$ kubectl -n user02 get deploy userlist
 NAME       READY   UP-TO-DATE   AVAILABLE   AGE
 userlist   1/1     1            1           81m
 
 
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 NAME                        READY   STATUS        RESTARTS   AGE
 userlist-78c668fd98-sk62k    1/1     Running   0          82m
 
 
 # userlist pod 재기동
-$ kubectl -n user01 rollout restart deploy/userlist
+$ kubectl -n user02 rollout restart deploy/userlist
 
 
 ## pod 삭제는 graceful 방식으로 삭제되므로 약간의 시간이 필요하다.
 
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 NAME                        READY   STATUS        RESTARTS   AGE
 userlist-64f8446ccc-z2nnq   2/2     Running       0          8s     # <--
 userlist-78c668fd98-sk62k   1/1     Terminating   0          2m21s
@@ -667,7 +667,7 @@ userlist-78c668fd98-sk62k   1/1     Terminating   0          2m21s
 
 
 # describe 로 확인
-$ kubectl -n user01 describe pod userlist-64f8446ccc-z2nnq
+$ kubectl -n user02 describe pod userlist-56854dbbd7-hqrs2
 ...
 Init Containers:
   istio-init:
@@ -689,17 +689,17 @@ Containers:
 userlist 는 더 이상 불필요하므로 삭제 하자.
 
 ```sh
-$ kubectl -n user01 delete deploy userlist
+$ kubectl -n user02 delete deploy userlist
 
 # label 삭제
-$ kubectl label --overwrite namespace user01 istio-injection-
+$ kubectl label --overwrite namespace user02 istio-injection-
 
 
 # namespace 확인
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 
 
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 
 ```
 
@@ -885,18 +885,18 @@ istio 적용하는데 있어서 Application 자체를 변경할 필요가 없다
 
 ```sh
 
-# user01 를 자신의 Namespace 명으로 변경
+# user02 를 자신의 Namespace 명으로 변경
 
 
 # 설정전 확인
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2025-09-20T11:40:12Z"
   labels:
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: user02
+  name: user02
   resourceVersion: "54229"
   uid: aeba89fe-ea2e-4e8a-800a-a967bb3cc16f
 spec:
@@ -907,20 +907,20 @@ status:
 
 
 # label 설정
-$ kubectl label namespace user01 istio-injection=enabled
+$ kubectl label namespace user02 istio-injection=enabled
 
 
 
 # 설정후 확인
-$ kubectl get ns user01 -o yaml
+$ kubectl get ns user02 -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   creationTimestamp: "2025-09-20T11:40:12Z"
   labels:
     istio-injection: enabled                  #  <-- 설정 완료
-    kubernetes.io/metadata.name: user01
-  name: user01
+    kubernetes.io/metadata.name: user02
+  name: user02
   resourceVersion: "81293"
   uid: aeba89fe-ea2e-4e8a-800a-a967bb3cc16f
 spec:
@@ -945,7 +945,7 @@ https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/plat
 
 # bookinfo 생성
 
-$ kubectl -n user01 apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
+$ kubectl -n user02 apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
 service/details created
 serviceaccount/bookinfo-details created
 deployment.apps/details-v1 created
@@ -966,7 +966,7 @@ deployment.apps/productpage-v1 created
 
 
 # 확인
-$ kubectl -n user01 get pods
+$ kubectl -n user02 get pods
 NAME                              READY   STATUS    RESTARTS   AGE
 details-v1-766844796b-h6r8d       2/2     Running   0          64s
 productpage-v1-54bb874995-gwp4x   2/2     Running   0          64s
@@ -978,7 +978,7 @@ reviews-v3-564544b4d6-xtfd2       2/2     Running   0          64s
 
 # 모든 pod가 2개 container로 실행되었다.
 
-$ kubectl -n user01 get services
+$ kubectl -n user02 get services
 NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 details       ClusterIP   10.43.118.162   <none>        9080/TCP   77s
 productpage   ClusterIP   10.43.93.132    <none>        9080/TCP   76s
@@ -1000,14 +1000,17 @@ reviews       ClusterIP   10.43.18.83     <none>        9080/TCP   76s
 ```sh
 
 # 1. ratings app pod 확인
-$ kubectl -n user01 get pod -l app=ratings
+$ kubectl -n user02 get pod -l app=ratings
 NAME                          READY   STATUS    RESTARTS   AGE
 ratings-v1-5dc79b6bcd-gcncr   2/2     Running   0          105s
 
+NAME                          READY   STATUS    RESTARTS   AGE
+ratings-v1-5dc79b6bcd-f9xq5   2/2     Running   0          2m
+
 
 # 2.1 rating 에서 productpage call 확인
-# $ kubectl -n user01 exec ratings-v1-5bf485ffc8-fvfxv -c ratings -- curl -sS productpage:9080/productpage
-$ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
+# $ kubectl -n user02 exec ratings-v1-5bf485ffc8-fvfxv -c ratings -- curl -sS productpage:9080/productpage
+$ kubectl -n user02 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage
 
 <!DOCTYPE html>
 <html>
@@ -1019,7 +1022,7 @@ $ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:90
 ...
 
 # 2.2 rating 에서 productpage call 확인
-$ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ kubectl -n user02 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
@@ -1033,7 +1036,7 @@ $ kubectl -n user01 exec deploy/ratings-v1 -c ratings -- curl -sS productpage:90
 
 ```sh
 
-$ kubectl -n user01 exec "$(kubectl -n user01 get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
+$ kubectl -n user02 exec "$(kubectl -n user02 get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -sS productpage:9080/productpage | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>      <-- 이렇게 나오면 정상
 
@@ -1052,7 +1055,7 @@ IP 는 이미 생성된 공인 IP 이므로 변경할 필요 없다.
 
 
 # 12.bookinfo-gw-vs.yaml 파일 확인
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -1075,7 +1078,7 @@ metadata:
   name: bookinfo
 spec:
   hosts:
-  - "bookinfo.user01.cloud.20.249.162.253.nip.io"         # <-- 각자 Namespace명으로 변경 필요
+  - "bookinfo.user02.cloud.20.249.162.253.nip.io"         # <-- 각자 Namespace명으로 변경 필요
   gateways:
   - bookinfo-gateway
   http:
@@ -1103,14 +1106,14 @@ virtualservice.networking.istio.io/bookinfo created
 
 
 # gateway 확인
-$ kubectl -n user01 get gw
+$ kubectl -n user02 get gw
 NAME               AGE
 bookinfo-gateway   4s
 
 # virtualservice 확인
-$ kubectl -n user01 get vs
+$ kubectl -n user02 get vs
 NAME       GATEWAYS               HOSTS                                             AGE
-bookinfo   ["bookinfo-gateway"]   ["bookinfo.user01.cloud.20.249.162.253.nip.io"]   52s
+bookinfo   ["bookinfo-gateway"]   ["bookinfo.user02.cloud.20.249.162.253.nip.io"]   52s
 
 
 ```
@@ -1130,12 +1133,12 @@ $ cat <<EOF | kubectl -n istio-ingress apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: bookinfo-ingress-user01                          #  <-- 각자 NS명으로 변경 필요
+  name: bookinfo-ingress-user02                          #  <-- 각자 NS명으로 변경 필요
   namespace: istio-ingress
 spec:
   ingressClassName: traefik
   rules:
-  - host: "bookinfo.user01.cloud.20.249.162.253.nip.io"  # <-- 각자 NS명으로 변경 필요
+  - host: "bookinfo.user02.cloud.20.249.162.253.nip.io"  # <-- 각자 NS명으로 변경 필요
     http:
       paths:
       - path: /
@@ -1149,7 +1152,7 @@ EOF
 
 $ kubectl -n istio-ingress get ingress
 NAME                      CLASS     HOSTS                                         ADDRESS                                                  PORTS   AGE
-bookinfo-ingress-user01   traefik   bookinfo.user01.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      24s
+bookinfo-ingress-user02   traefik   bookinfo.user02.cloud.20.249.162.253.nip.io   172.16.0.5,172.16.0.6,172.16.0.7,172.16.0.8,172.16.0.9   80      24s
 
 
 ```
@@ -1160,7 +1163,7 @@ bookinfo-ingress-user01   traefik   bookinfo.user01.cloud.20.249.162.253.nip.io 
 
 ```
 
-http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
+http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage
 
 ```
 
@@ -1178,7 +1181,7 @@ http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
 
 ## ingress 확인
 # 각자 자신의 namespace 명으로 호출테스트 한다.
-$ curl -s "http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage" | grep -o "<title>.*</title>"
+$ curl -s "http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage" | grep -o "<title>.*</title>"
 
 
 <title>Simple Bookstore App</title>    <-- 나오면 정상
@@ -1204,7 +1207,7 @@ istio-ingressgateway   LoadBalancer   10.43.120.76   <pending>     15021:31595/T
 
 
 # master01 IP(172.16.0.5) 의 node port 로 접근 테스트
-$ curl http://172.16.0.5:31287/productpage -H "Host:bookinfo.user01.cloud.20.249.162.253.nip.io"  | grep -o "<title>.*</title>"
+$ curl http://172.16.0.5:31287/productpage -H "Host:bookinfo.user02.cloud.20.249.162.253.nip.io"  | grep -o "<title>.*</title>"
 
 <title>Simple Bookstore App</title>
 
@@ -1218,7 +1221,7 @@ $ curl http://172.16.0.5:31287/productpage -H "Host:bookinfo.user01.cloud.20.249
 #### 초당 0.5회 call 
 
 ```sh
-$ while true; do curl -s http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1246,14 +1249,14 @@ http://grafana.istio-system.cloud.20.249.162.253.nip.io/
 
 * Workload Dashboard
   
-  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/77834132-b796-4dca-8b04-5e14716232c3/istio-workload-dashboard?orgId=1&from=now-30m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-namespace=user01&var-workload=productpage-v1&var-qrep=destination&var-srcns=$__all&var-srcwl=$__all&var-dstsvc=$__all&refresh=1m
+  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/77834132-b796-4dca-8b04-5e14716232c3/istio-workload-dashboard?orgId=1&from=now-30m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-namespace=user02&var-workload=productpage-v1&var-qrep=destination&var-srcns=$__all&var-srcwl=$__all&var-dstsvc=$__all&refresh=1m
   
 * Mesh Dashboard
 
   * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/1a9a8ea49444aae205c7737573e894f9/istio-mesh-dashboard?orgId=1&from=now-30m&to=now&timezone=utc&var-datasource=PBFA97CFB590B2093&refresh=15s
 
 * Service Dashboard
-  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/a5a898a8-1ec5-449b-9fd0-23fdabae1564/istio-service-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-service=productpage.user01.svc.cluster.local&var-qrep=destination&var-srccluster=$__all&var-srcns=user01&var-srcwl=$__all&var-dstcluster=$__all&var-dstns=$__all&var-dstwl=$__all&refresh=1m
+  * http://grafana.istio-system.cloud.20.249.162.253.nip.io/d/a5a898a8-1ec5-449b-9fd0-23fdabae1564/istio-service-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-datasource=PBFA97CFB590B2093&var-service=productpage.user02.svc.cluster.local&var-qrep=destination&var-srccluster=$__all&var-srcns=user02&var-srcwl=$__all&var-dstcluster=$__all&var-dstns=$__all&var-dstwl=$__all&refresh=1m
 
     
 
@@ -1265,7 +1268,7 @@ http://kiali.istio-system.cloud.20.249.162.253.nip.io
 
 * 주로 보는 대쉬보드
   * 메뉴 : Traffic Graph
-  * Namespace 선택 : user01
+  * Namespace 선택 : user02
   * Display
     * Traffic Distribution : check
     * Traffic Rate : check
@@ -1296,7 +1299,7 @@ http://kiali.istio-system.cloud.20.249.162.253.nip.io
 ```sh
 
 # 13.destination-rule-all.yaml 파일 확인
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
@@ -1370,7 +1373,7 @@ EOF
 
 ```sh
 
-$ while true; do curl -s http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
+$ while true; do curl -s http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage | grep -o "<title>.*</title>"; sleep 0.5; echo; done
 
 ```
 
@@ -1393,7 +1396,7 @@ kiali 를 확인하면서 아래를 진행해보자.
 ```sh
 
 # 21.virtual-service-all-v1.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -1469,7 +1472,7 @@ EOF
 ```sh
 
 # 22.virtual-service-reviews-50-v3.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -1501,7 +1504,7 @@ reviews:v3 서비스가 안정적이라고 판단되면 아래 virtualservice �
 $ cat ./istio/bookinfo/23.virtual-service-reviews-v3.yaml
 
 # 23.virtual-service-reviews-v3.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -1537,10 +1540,10 @@ EOF
 
 # 21.virtual-service-all-v1.yaml  삭제
 
-$ kubectl -n user01 delete VirtualService productpage
-  kubectl -n user01 delete VirtualService reviews
-  kubectl -n user01 delete VirtualService ratings
-  kubectl -n user01 delete VirtualService details
+$ kubectl -n user02 delete VirtualService productpage
+  kubectl -n user02 delete VirtualService reviews
+  kubectl -n user02 delete VirtualService ratings
+  kubectl -n user02 delete VirtualService details
 
 ```
 
@@ -1568,7 +1571,7 @@ reviews 서비스의 routing 을 변경해보면서 Kiali 를 집중 모니터�
 
 # 21.virtual-service-all-v1.yaml
 
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -1634,7 +1637,7 @@ EOF
 ```sh
 
 # 24.virtual-service-reviews-test-v2.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1666,7 +1669,7 @@ EOF
 
 browser 에서 jason 으로 로그인 한다음 접근해보자. 
 
-http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
+http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage
 
 
 
@@ -1699,10 +1702,10 @@ v2 를 운영환경에 배포한 다음 특정 사용자만 접속가능하게 �
 
 # 21.virtual-service-all-v1.yaml  삭제
 
-$ kubectl -n user01 delete VirtualService productpage
-  kubectl -n user01 delete VirtualService reviews
-  kubectl -n user01 delete VirtualService ratings
-  kubectl -n user01 delete VirtualService details
+$ kubectl -n user02 delete VirtualService productpage
+  kubectl -n user02 delete VirtualService reviews
+  kubectl -n user02 delete VirtualService ratings
+  kubectl -n user02 delete VirtualService details
 
 ```
 
@@ -1741,7 +1744,7 @@ application 의 복원력을 테스트하기 위해서 결함을 주입할 수 �
 ```sh
 
 # 21.virtual-service-all-v1.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -1804,7 +1807,7 @@ EOF
 ```sh
 
 # 24.virtual-service-reviews-test-v2.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1858,7 +1861,7 @@ reviews:v2 서비스에는 rating 서비스 호출시 10초 connection timeout �
 
 
 # 25.virtual-service-ratings-test-delay.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1926,7 +1929,7 @@ jason user 로 로그인시 http 500 를 리턴하도록 해보자.
 ```sh
 
 # 26.virtual-service-ratings-test-abort.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1984,7 +1987,7 @@ json 로그인시 ratings 이 호출되고 50% 비율로 500 에러가 리턴될
 ```sh
 
 # 27.virtual-service-ratings-500-fi-rate.yaml
-$ cat <<EOF | kubectl -n user01 apply -f -
+$ cat <<EOF | kubectl -n user02 apply -f -
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -2007,7 +2010,7 @@ EOF
 ```
 
 * UI 에서 확인
-  * http://bookinfo.user01.cloud.20.249.162.253.nip.io/productpage
+  * http://bookinfo.user02.cloud.20.249.162.253.nip.io/productpage
 
 
 
@@ -2016,10 +2019,10 @@ EOF
 ```sh
 
 # istio sidecar 가 inject된 pod에서 수행 ( curltest pod 에서)
-$ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
+$ kubectl -n user02 run curltest --image=curlimages/curl -- sleep 365d
 
 # curltest pod 내로 진입
-$ kubectl -n user01 exec -it curltest -- sh
+$ kubectl -n user02 exec -it curltest -- sh
 
 
 # 여러번 호출해 보자.
@@ -2069,7 +2072,7 @@ HTTP/1.1 200 OK
 kiali 에서도 쉽게 조정이 가능하다.
 
 * 메뉴 : Traffic Graph > Rating 선택 > Service Rating 클릭 > Istio Config > VS Rating 클릭
-  * 링크 : http://kiali.istio-system.cloud.20.249.162.253.nip.io/kiali/console/namespaces/user01/istio/networking.istio.io/v1/VirtualService/ratings
+  * 링크 : http://kiali.istio-system.cloud.20.249.162.253.nip.io/kiali/console/namespaces/user02/istio/networking.istio.io/v1/VirtualService/ratings
 
 ```yaml
 apiVersion: networking.istio.io/v1
@@ -2137,10 +2140,10 @@ $ exit
 
 # 21.virtual-service-all-v1.yaml  삭제
 
-$ kubectl -n user01 delete VirtualService productpage
-  kubectl -n user01 delete VirtualService reviews
-  kubectl -n user01 delete VirtualService ratings
-  kubectl -n user01 delete VirtualService details
+$ kubectl -n user02 delete VirtualService productpage
+  kubectl -n user02 delete VirtualService reviews
+  kubectl -n user02 delete VirtualService ratings
+  kubectl -n user02 delete VirtualService details
 
 ```
 
@@ -2153,26 +2156,26 @@ $ kubectl -n user01 delete VirtualService productpage
 # Book Info ALL Clean up
 
 # 21.virtual-service-all-v1.yaml
-$ kubectl -n user01 delete VirtualService productpage
-  kubectl -n user01 delete VirtualService reviews
-  kubectl -n user01 delete VirtualService ratings
-  kubectl -n user01 delete VirtualService details
+$ kubectl -n user02 delete VirtualService productpage
+  kubectl -n user02 delete VirtualService reviews
+  kubectl -n user02 delete VirtualService ratings
+  kubectl -n user02 delete VirtualService details
 
 # 15.bookinfo-ingress.yaml
-$ kubectl -n istio-ingress delete Ingress bookinfo-ingress-user01  
+$ kubectl -n istio-ingress delete Ingress bookinfo-ingress-user02  
 
 # 13.destination-rule-all.yaml
-$ kubectl -n user01 delete DestinationRule productpage
-  kubectl -n user01 delete DestinationRule reviews
-  kubectl -n user01 delete DestinationRule ratings
-  kubectl -n user01 delete DestinationRule details
+$ kubectl -n user02 delete DestinationRule productpage
+  kubectl -n user02 delete DestinationRule reviews
+  kubectl -n user02 delete DestinationRule ratings
+  kubectl -n user02 delete DestinationRule details
 
 # 12.bookinfo-gw-vs.yaml
-$ kubectl -n user01 delete Gateway bookinfo-gateway
-  kubectl -n user01 delete vs bookinfo
+$ kubectl -n user02 delete Gateway bookinfo-gateway
+  kubectl -n user02 delete vs bookinfo
 
 # 11.bookinfo.yaml
-$ kubectl -n user01 delete -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
+$ kubectl -n user02 delete -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/bookinfo/platform/kube/bookinfo.yaml
 
 ```
 
@@ -2213,7 +2216,7 @@ circuit break 대상이 되는 httpbin 앱을 설치한다.  httpbin 은 HTTP �
 ```sh
 
 # 11.httpbin-deploy-svc.yaml
-$ cat <<EOF | kubectl -n user01 apply -f - 
+$ cat <<EOF | kubectl -n user02 apply -f - 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -2258,7 +2261,7 @@ service/httpbin created
 
 
 # 확인
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 NAME                       READY   STATUS            RESTARTS   AGE
 httpbin-5f78dc8bcb-664g2   1/2     PodInitializing   0          13s
 ...
@@ -2275,7 +2278,7 @@ MSA 환경에서 로드 테스트 용도로 많이 사용하는 fortio 툴 을 �
 
 # 12.fortio-pod.yaml
 
-$ cat <<EOF | kubectl -n user01 apply -f - 
+$ cat <<EOF | kubectl -n user02 apply -f - 
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2296,7 +2299,7 @@ EOF
 
 pod/fortio created
 
-$ kubectl -n user01 get pod
+$ kubectl -n user02 get pod
 NAME                       READY   STATUS            RESTARTS   AGE
 fortio                     2/2     Running           0          16s92s
 ...
@@ -2312,17 +2315,17 @@ fortio 에서 *httpbin* 으로 요청. **200(정상)** 응답 코드가 리턴�
 
 ```sh
 
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get
 HTTP/1.1 200 OK
 ...
 
 
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP
 HTTP/1.1 200 OK
 
 
 # 0.5초에 한번씩 call
-$ while true; do kubectl -n user01 exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
+$ while true; do kubectl -n user02 exec -it fortio  -c fortio -- /usr/bin/fortio curl  http://httpbin:8000/get | grep HTTP; sleep 0.5; echo; done
 
 HTTP/1.1 200 OK
 
@@ -2359,7 +2362,7 @@ Kiali 에서는 다음과 같이 조회된다.
 
 # 13.dr-httpbin.yaml
 
-$ cat <<EOF | kubectl -n user01 apply -f - 
+$ cat <<EOF | kubectl -n user02 apply -f - 
 apiVersion: networking.istio.io/v1
 kind: DestinationRule
 metadata:
@@ -2395,7 +2398,7 @@ Kiali 에서는 아래와 같이 번개모양의 circuit break 뱃지가 나타�
 
 ```sh
 
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 10 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 10 (100.0 %)
@@ -2410,7 +2413,7 @@ Code 200 : 10 (100.0 %)
 - 결과를 확인해보면 100회 모두 **200(정상)** 을 리턴 한다.
 
 ```sh
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 1 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 100 (100.0 %)
@@ -2425,7 +2428,7 @@ Code 200 : 100 (100.0 %)
 
 
 ```sh
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 83 (83.0 %)
@@ -2441,7 +2444,7 @@ Code 503 : 17 (17.0 %)
 
 
 ```sh
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 3 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 62 (62.0 %)
@@ -2460,7 +2463,7 @@ Code 503 : 38 (38.0 %)
 - 결과를 확인해보면 응답코드 **503(오류)** 응답 코드가 71회 발생했다.
 
 ```sh
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 5 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 29 (29.0 %)
@@ -2478,7 +2481,7 @@ Code 503 : 71 (71.0 %)
 
 
 ```sh
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 18 (18.0 %)
@@ -2494,10 +2497,10 @@ Code 503 : 82 (82.0 %)
 
 ```sh
 
-$ kubectl -n user01 delete DestinationRule dr-httpbin
+$ kubectl -n user02 delete DestinationRule dr-httpbin
 # kiali 에서 Circuit Braker Icon 이 사라진 것을 확인하자.
 
-$ kubectl -n user01 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
+$ kubectl -n user02 exec -it fortio -c fortio -- /usr/bin/fortio load -c 10 -qps 0 -n 100 -loglevel Warning http://httpbin:8000/get
 
 ...
 Code 200 : 100 (100.0 %)
@@ -2526,11 +2529,11 @@ Code 200 : 100 (100.0 %)
 #### clean up
 
 ```sh
-$ kubectl -n user01 delete pod/fortio 
-  kubectl -n user01 delete deployment.apps/httpbin 
-  kubectl -n user01 delete svc/httpbin
-  kubectl -n user01 delete pod/curltest 
-  kubectl -n user01 delete DestinationRule dr-httpbin
+$ kubectl -n user02 delete pod/fortio 
+  kubectl -n user02 delete deployment.apps/httpbin 
+  kubectl -n user02 delete svc/httpbin
+  kubectl -n user02 delete pod/curltest 
+  kubectl -n user02 delete DestinationRule dr-httpbin
 
 # 0.5초에 한번씩 Call 하는 문장도 불필요하니 종료하자.
 
@@ -2558,7 +2561,7 @@ n개의 인스턴스를 가지는 load balancing pool 중 오류 발생하거나
 
 # 11.hello-pod-svc.yaml
 
-$ cat <<EOF | kubectl -n user01 apply -f - 
+$ cat <<EOF | kubectl -n user02 apply -f - 
 apiVersion: v1
 kind: Pod
 metadata:
@@ -2622,12 +2625,12 @@ service/hello-svc created
 
 ```sh
 
-$ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
+$ kubectl -n user02 run curltest --image=curlimages/curl -- sleep 365d
 pod/curltest created
 
 
 # 여러번 call 해보자.
-$ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080
+$ kubectl -n user02 exec -it curltest -- curl http://hello-svc:8080
 Hello server - v1
 Hello server - v2
 Hello server - v1
@@ -2648,7 +2651,7 @@ mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
 
   - ```sh
     
-    $ kubectl -n user01 logs -f hello-server-1 
+    $ kubectl -n user02 logs -f hello-server-1 
     
     ```
 
@@ -2656,7 +2659,7 @@ mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
 
   - ```sh
     
-    $ kubectl -n user01 logs -f hello-server-2
+    $ kubectl -n user02 logs -f hello-server-2
     
     ```
 
@@ -2667,9 +2670,9 @@ mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
   - ```sh
     
     # istio sidecar 가 inject된 pod에서 수행 ( curltest pod 에서)
-    $ kubectl -n user01 run curltest --image=curlimages/curl -- sleep 365d
+    $ kubectl -n user02 run curltest --image=curlimages/curl -- sleep 365d
     
-    $ kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080 -i
+    $ kubectl -n user02 exec -it curltest -- curl http://hello-svc:8080 -i
     
     ```
 
@@ -2683,7 +2686,7 @@ mobaXterm terminal 을 3개 준비하여 Split 화면에서 같이 수행하자.
 ```sh
 
 # 20개를 0.1초간격으로 요청해 보자.
-$ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
+$ for i in {1..20}; do kubectl -n user02 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 Hello server - v1
 Hello server - v2 - 503 (random)
 Hello server - v2 - 503 (random)
@@ -2716,7 +2719,7 @@ Hello server - v2
 
 ```sh
 
-$ kubectl -n user01 logs -f hello-server-1
+$ kubectl -n user02 logs -f hello-server-1
 Hello server - v1 - 200
 Hello server - v1 - 200
 Hello server - v1 - 200
@@ -2738,7 +2741,7 @@ Hello server - v1 - 200
 
 ```sh
 
-$ kubectl -n user01 logs -f hello-server-2
+$ kubectl -n user02 logs -f hello-server-2
 Hello server - v2 - 503 (random)
 Hello server - v2 - 200
 Hello server - v2 - 200
@@ -2792,7 +2795,7 @@ Hello server - v2 - 200
 
 # 12.hello-dr.yaml
 
-$ cat <<EOF | kubectl -n user01 apply -f - 
+$ cat <<EOF | kubectl -n user02 apply -f - 
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -2827,7 +2830,7 @@ destinationrule.networking.istio.io/hello-dr created
 
 ```sh
 
-$ for i in {1..20}; do kubectl -n user01 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
+$ for i in {1..20}; do kubectl -n user02 exec -it curltest -- curl http://hello-svc:8080; sleep 0.1; done
 
 Hello server - v1
 Hello server - v1
@@ -2855,7 +2858,7 @@ Hello server - v1
 - hello-server-1 pod 의 logs follow 하자.
 
 ```sh
-$ kubectl -n user01 logs -f hello-server-1
+$ kubectl -n user02 logs -f hello-server-1
 
 Hello server - v1 - 200
 Hello server - v1 - 200
@@ -2882,7 +2885,7 @@ Hello server - v1 - 200
 - hello-server-2 pod 의 logs  follow 하자.
 
 ```sh
-$ kubectl -n user01 logs -f hello-server-2
+$ kubectl -n user02 logs -f hello-server-2
 
 Hello server - v2 - 200
 Hello server - v2 - 200
@@ -2940,15 +2943,14 @@ spec:
 #### clean up
 
 ```sh
-$ kubectl -n user01 delete pod/hello-server-1
-  kubectl -n user01 delete pod/hello-server-2
-  kubectl -n user01 delete svc/hello-svc
-  kubectl -n user01 delete dr/hello-dr
-  kubectl -n user01 delete pod/curltest
+$ kubectl -n user02 delete pod/hello-server-1
+  kubectl -n user02 delete pod/hello-server-2
+  kubectl -n user02 delete svc/hello-svc
+  kubectl -n user02 delete dr/hello-dr
+  kubectl -n user02 delete pod/curltest
 
 # 확인
-$ kubectl -n user01 get all
+$ kubectl -n user02 get all
 
 ```
-
 
